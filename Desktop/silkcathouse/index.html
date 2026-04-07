@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SilkCat House — Private Dining Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #8B0000; color: #fff; font-family: 'Jost', sans-serif; overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: #000;
+    border-bottom: 1px solid rgba(196,152,30,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px;
+    transition: background 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); }
+  nav .logo img { height: 44px; display: block; }
+  nav .links { display: flex; align-items: center; gap: 36px; }
+  nav .links a {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+    text-decoration: none; transition: color 0.3s;
+  }
+  nav .links a:hover { color: #C9A84C; }
+  nav .cta-btn {
+    border: 1px solid #C9A84C; background: transparent;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; padding: 10px 22px; cursor: pointer;
+    transition: background 0.3s, color 0.3s; text-decoration: none; display: inline-block;
+  }
+  nav .cta-btn:hover { background: #C9A84C; color: #8B0000; }
+
+  /* HERO */
+  #hero {
+    position: relative; height: 100vh; display: flex; align-items: center;
+    justify-content: center; flex-direction: column; overflow: hidden;
+    background: #000;
+  }
+  #hero-canvas { position: absolute; inset: 0; z-index: 1; }
+  #hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-size: cover; background-position: center;
+    transition: background-image 0.5s;
+  }
+  .hero-content { position: relative; z-index: 2; text-align: center; }
+  .hero-logo { width: 260px; display: block; margin: 0 auto; }
+  .hero-line {
+    width: 0; height: 1px; background: #C9A84C;
+    margin: 28px auto 24px; transition: width 1.2s ease;
+  }
+  .hero-line.drawn { width: 200px; }
+  .hero-sub {
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.4em;
+    text-transform: uppercase; color: rgba(255,255,255,0.8);
+    opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s;
+  }
+  .hero-sub.visible { opacity: 1; transform: translateY(0); }
+  .hero-cta {
+    display: inline-block; margin-top: 40px; border: 1px solid #C9A84C;
+    background: transparent; font-family: 'Jost', sans-serif; font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #fff;
+    padding: 16px 44px; cursor: pointer; text-decoration: none;
+    opacity: 0; transition: opacity 0.8s, background 0.3s, color 0.3s;
+  }
+  .hero-cta.visible { opacity: 1; }
+  .hero-cta:hover { background: #C9A84C; color: #8B0000; }
+  .scroll-indicator {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .chevron {
+    width: 12px; height: 12px; border-right: 1px solid #C9A84C; border-bottom: 1px solid #C9A84C;
+    transform: rotate(45deg); animation: bounce 1.8s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.6; }
+    50% { transform: rotate(45deg) translateY(5px); opacity: 1; }
+  }
+
+  /* OPENING */
+  #opening {
+    min-height: 60vh; background: #8B0000;
+    display: flex; align-items: center; justify-content: center; padding: 80px 48px;
+  }
+  #opening p {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 56px; color: #fff; line-height: 1.3; max-width: 800px;
+    text-align: center; opacity: 0; transform: translateY(30px);
+    transition: opacity 0.9s, transform 0.9s;
+  }
+  #opening p.visible { opacity: 1; transform: translateY(0); }
+
+  /* PAIN */
+  #pain {
+    padding: 96px 52px; position: relative;
+    background: #0D0D0D; background-size: cover; background-position: center;
+  }
+  #pain-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-size: cover; background-position: center;
+  }
+  #pain .pain-inner { position: relative; z-index: 1; }
+  #pain .section-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: #C9A84C; text-align: center;
+    margin-bottom: 64px; max-width: 640px; margin-left: auto; margin-right: auto;
+    line-height: 1.8;
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px 40px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .stat-card { opacity: 0; transform: translateY(30px); transition: opacity 0.6s, transform 0.6s; }
+  .stat-card.visible { opacity: 1; transform: translateY(0); }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: 92px; color: #C9A84C; line-height: 1;
+  }
+  .stat-head {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; margin-top: 8px; margin-bottom: 12px;
+  }
+  .stat-copy {
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.55); line-height: 1.85;
+  }
+
+  /* QUIZ */
+  #quiz {
+    padding: 96px 52px; position: relative;
+    background: #8B0000; background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #quiz-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .quiz-panel {
+    position: relative; z-index: 1; max-width: 680px; width: 100%;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+    border: 1px solid rgba(196,152,30,0.3); padding: 56px; overflow: hidden;
+  }
+  .quiz-progress-bar {
+    position: absolute; top: 0; left: 0; height: 2px;
+    background: #C9A84C; width: 0%; transition: width 0.5s ease;
+  }
+  .quiz-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 38px; color: #fff; margin-bottom: 8px;
+  }
+  .quiz-subhead {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 40px;
+  }
+  .quiz-question {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 24px; color: #fff; margin-bottom: 28px; min-height: 60px;
+    transition: opacity 0.4s;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    border: 1px solid rgba(196,152,30,0.4); background: transparent;
+    font-family: 'Jost', sans-serif; font-size: 13px; color: rgba(255,255,255,0.8);
+    padding: 14px 20px; text-align: left; cursor: pointer;
+    transition: all 0.2s; width: 100%;
+  }
+  .quiz-option:hover { border-color: #C9A84C; color: #fff; }
+  .quiz-option.selected { background: #C9A84C; color: #8B0000; border-color: #C9A84C; }
+  .quiz-loading {
+    display: none; text-align: center; padding: 24px 0;
+  }
+  .gold-dot {
+    width: 8px; height: 8px; background: #C9A84C; border-radius: 50%;
+    display: inline-block; animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .quiz-result { display: none; text-align: center; }
+  .result-title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 48px; color: #C9A84C; margin-bottom: 24px;
+  }
+  .result-divider { width: 60px; height: 1px; background: #C9A84C; margin: 32px auto; }
+  .result-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 28px;
+  }
+  .result-desc {
+    font-family: 'Cormorant Garamond', serif; font-size: 19px;
+    color: #fff; line-height: 1.95; text-align: left;
+  }
+  .result-cta {
+    display: inline-block; margin-top: 36px; background: #C9A84C; color: #8B0000;
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; padding: 16px 36px; text-decoration: none;
+    transition: background 0.3s;
+  }
+  .result-cta:hover { background: #B8860B; }
+
+  /* WINE */
+  #wine {
+    padding: 96px 52px; position: relative;
+    background: #0D0D0D; background-size: cover; background-position: center;
+    text-align: center;
+  }
+  #wine-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .wine-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+  .wine-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 44px; color: #fff; margin-bottom: 48px;
+  }
+  .wine-pairing { transition: opacity 0.7s; }
+  .wine-dish {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 28px; color: #C9A84C;
+  }
+  .wine-line { width: 40px; height: 1px; background: #C9A84C; margin: 16px auto; }
+  .wine-name {
+    font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.18em; color: #fff;
+  }
+  .wine-region {
+    font-family: 'Jost', sans-serif; font-size: 11px; color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+  .wine-notes {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 16px; color: rgba(255,255,255,0.65); margin-top: 16px; line-height: 1.8;
+  }
+
+  /* PILLARS */
+  #pillars {
+    padding: 96px 52px; position: relative;
+    background: #8B0000; background-size: cover; background-position: center;
+  }
+  #pillars-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .pillars-grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 64px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .pillar { opacity: 0; transform: translateY(30px); transition: opacity 0.7s, transform 0.7s; }
+  .pillar.visible { opacity: 1; transform: translateY(0); }
+  .pillar-line { width: 40px; height: 1.5px; background: #C9A84C; margin-bottom: 28px; }
+  .pillar-title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 28px; color: #fff; margin-bottom: 16px;
+  }
+  .pillar-body {
+    font-family: 'Jost', sans-serif; font-size: 14px;
+    color: rgba(255,255,255,0.62); line-height: 1.95;
+  }
+
+  /* TICKER */
+  #ticker {
+    background: #000; height: 72px; display: flex; align-items: center;
+    overflow: hidden; position: relative;
+  }
+  #ticker:hover .ticker-track { animation-play-state: paused; }
+  .ticker-wrap { display: flex; white-space: nowrap; }
+  .ticker-track {
+    display: flex; white-space: nowrap;
+    animation: ticker 18s linear infinite;
+  }
+  .ticker-track span {
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: #C9A84C; padding: 0 24px;
+  }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* DEMO */
+  #demo {
+    padding: 120px 52px; position: relative;
+    background: #0D0D0D; text-align: center;
+  }
+  #demo-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .demo-inner { position: relative; z-index: 1; }
+  .demo-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 56px; color: #fff; line-height: 1.2; max-width: 700px;
+    margin: 0 auto 48px;
+  }
+  .demo-form { display: flex; justify-content: center; align-items: stretch; gap: 0; }
+  .demo-input {
+    border: none; border-bottom: 1px solid #C9A84C; background: transparent;
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px;
+    color: #fff; padding: 16px 24px; width: 360px; outline: none;
+  }
+  .demo-input::placeholder { color: rgba(255,255,255,0.25); }
+  .demo-submit {
+    background: #C9A84C; color: #8B0000;
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; padding: 17px 32px; border: none; cursor: pointer;
+    transition: background 0.25s;
+  }
+  .demo-submit:hover { background: #B8860B; }
+  .demo-note {
+    font-family: 'Jost', sans-serif; font-size: 10px;
+    color: rgba(255,255,255,0.28); margin-top: 20px;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #000; padding: 48px 52px;
+    border-top: 1px solid rgba(196,152,30,0.12);
+  }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo img { height: 56px; display: block; }
+  .footer-center { display: flex; flex-direction: column; align-items: center; }
+  .footer-name {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 4px;
+  }
+  .footer-tag {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(196,152,30,0.4);
+  }
+  .footer-right {
+    font-family: 'Jost', sans-serif; font-size: 9px;
+    color: rgba(196,152,30,0.35);
+  }
+
+  /* FADE-IN UTILITY */
+  .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s, transform 0.8s; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<!-- NAV -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="restaurants.html">For Restaurants</a>
+  <a href="hotels.html">For Hotels</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+  <div class="menu-divider"></div>
+  <a href="contact.html" class="menu-cta">Request a Private Demonstration</a>
+</div>
+
+<nav id="main-nav">
+  <div class="logo"><a href="index.html"><img src="silkcat-logo.png" alt="SilkCat House"></a></div>
+  <div class="links">
+    <a href="restaurants.html">For Restaurants</a>
+    <a href="hotels.html">For Hotels</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" class="cta-btn">Request a Private Demonstration</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="hero-bg"></div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <img src="silkcat-logo.png" alt="SilkCat House" class="hero-logo">
+    <div class="hero-line" id="hero-line"></div>
+    <div class="hero-sub" id="hero-sub">Private Dining Intelligence</div>
+    <a href="contact.html" class="hero-cta" id="hero-cta">Request a Private Demonstration</a>
+  </div>
+  <div class="scroll-indicator"><div class="chevron"></div></div>
+</section>
+
+<!-- OPENING STATEMENT -->
+<section id="opening">
+  <p id="opening-text">The restaurant cooked a perfect meal. Then lost the guest forever.</p>
+</section>
+
+<!-- PAIN SECTION -->
+<section id="pain">
+  <div id="pain-bg"></div>
+  <div class="pain-inner">
+    <div class="section-label">The Industry Does Not Have A Guest Problem.<br>It Has A Relationship Problem.</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">$39,000</div>
+        <div class="stat-head">Revenue Lost to Empty Tables</div>
+        <div class="stat-copy">The average annual loss per fine dining location to no-shows and last minute cancellations. The kitchen prepped. The staff arrived. The table sat empty.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">54%</div>
+        <div class="stat-head">Guest Feedback Ignored Globally</div>
+        <div class="stat-copy">Of all reviews across Google, Yelp and TripAdvisor go completely unanswered. A guest described the best evening of their year. Nobody replied. Nobody ever will.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">25–30%</div>
+        <div class="stat-head">No-Show Rate at Fine Dining</div>
+        <div class="stat-copy">At upscale restaurants without a deposit system. On a Friday night that is ten empty covers. At $200 average spend that is $2,000 gone before the kitchen closes.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">Zero</div>
+        <div class="stat-head">Follow Up Messages Sent</div>
+        <div class="stat-copy">The number of times a fine dining restaurant has contacted you after your $300 meal. You left. They never spoke to you again. Your data lives on OpenTable. The restaurant has nothing.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1998</div>
+        <div class="stat-head">The Year OpenTable Was Founded</div>
+        <div class="stat-copy">It has not meaningfully changed since. It owns your guest relationship, shows your competitors on your own booking page, and charges you per cover for the privilege.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">7</div>
+        <div class="stat-head">Languages Your Guests Speak Tonight</div>
+        <div class="stat-copy">In London. Dubai. Las Vegas. Singapore. New York. The number your current system speaks — one.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">510</div>
+        <div class="stat-head">Reviews Owned by Google, Not the Restaurant</div>
+        <div class="stat-copy">They cannot search them. Cannot segment them. Cannot contact a single person who wrote them. They belong to Google. Not the restaurant.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">$166.9B</div>
+        <div class="stat-head">The Global Fine Dining Market</div>
+        <div class="stat-copy">Every restaurant in it has the same broken guest relationship. Not one has solved it. Until now.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI QUIZ FUNNEL -->
+<section id="quiz">
+  <div id="quiz-bg"></div>
+  <div class="quiz-panel">
+    <div class="quiz-progress-bar" id="quiz-progress"></div>
+    <div class="quiz-heading">Discover what your guests actually want.</div>
+    <div class="quiz-subhead">Experience SilkCat House as your guest would</div>
+    <div id="quiz-body">
+      <div class="quiz-question" id="quiz-question">...</div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-loading" id="quiz-loading"><span class="gold-dot"></span></div>
+    </div>
+    <div class="quiz-result" id="quiz-result">
+      <div class="result-title" id="result-title"></div>
+      <div class="result-divider"></div>
+      <div class="result-label">This intelligence lives inside every SilkCat House restaurant</div>
+      <div class="result-desc" id="result-desc"></div>
+      <a href="contact.html" class="result-cta">See This On Your Restaurant</a>
+    </div>
+  </div>
+</section>
+
+<!-- WINE INTELLIGENCE -->
+<section id="wine">
+  <div id="wine-bg"></div>
+  <div class="wine-inner">
+    <h2 class="wine-heading">The sommelier who never sleeps.</h2>
+    <div class="wine-pairing" id="wine-pairing">
+      <div class="wine-dish" id="wine-dish"></div>
+      <div class="wine-line"></div>
+      <div class="wine-name" id="wine-name"></div>
+      <div class="wine-region" id="wine-region"></div>
+      <div class="wine-notes" id="wine-notes"></div>
+    </div>
+  </div>
+</section>
+
+<!-- THREE PILLARS -->
+<section id="pillars">
+  <div id="pillars-bg"></div>
+  <div class="pillars-grid">
+    <div class="pillar">
+      <div class="pillar-line"></div>
+      <div class="pillar-title">Guest Intelligence</div>
+      <div class="pillar-body">Before the first course arrives we know who is at your table. Their occasion. Their preferences. Their history with your restaurant. The intelligence that turns a first visit into a lifelong relationship.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-line"></div>
+      <div class="pillar-title">Wine Intelligence</div>
+      <div class="pillar-body">An AI sommelier trained on your exact cellar. Pairing every dish with precision. Speaking every language your guests speak. Available at every moment of every service. The knowledge of a master without the salary.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-line"></div>
+      <div class="pillar-title">Occasion Architecture</div>
+      <div class="pillar-body">A birthday should feel different from an anniversary. A business dinner different from a proposal. SilkCat House designs every occasion before the guest arrives so the evening feels inevitable rather than accidental.</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBAL TICKER -->
+<section id="ticker">
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker-track">
+      <span>Las Vegas</span><span>·</span>
+      <span>London</span><span>·</span>
+      <span>Dubai</span><span>·</span>
+      <span>Singapore</span><span>·</span>
+      <span>New York</span><span>·</span>
+      <span>Tokyo</span><span>·</span>
+      <span>Paris</span><span>·</span>
+      <span>Miami</span><span>·</span>
+      <span>Sydney</span><span>·</span>
+      <span>Hong Kong</span><span>·</span>
+      <span>Monaco</span><span>·</span>
+      <span>Geneva</span><span>·</span>
+      <span>Los Angeles</span><span>·</span>
+      <span>Riyadh</span><span>·</span>
+      <span>Vienna</span><span>·</span>
+      <span>Bangkok</span><span>·</span>
+      <!-- duplicate for seamless loop -->
+      <span>Las Vegas</span><span>·</span>
+      <span>London</span><span>·</span>
+      <span>Dubai</span><span>·</span>
+      <span>Singapore</span><span>·</span>
+      <span>New York</span><span>·</span>
+      <span>Tokyo</span><span>·</span>
+      <span>Paris</span><span>·</span>
+      <span>Miami</span><span>·</span>
+      <span>Sydney</span><span>·</span>
+      <span>Hong Kong</span><span>·</span>
+      <span>Monaco</span><span>·</span>
+      <span>Geneva</span><span>·</span>
+      <span>Los Angeles</span><span>·</span>
+      <span>Riyadh</span><span>·</span>
+      <span>Vienna</span><span>·</span>
+      <span>Bangkok</span><span>·</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO REQUEST -->
+<section id="demo">
+  <div id="demo-bg"></div>
+  <div class="demo-inner">
+    <h2 class="demo-heading">Your guests deserve a relationship, not a transaction.</h2>
+    <div class="demo-form">
+      <input type="email" class="demo-input" id="demo-email" placeholder="Your email address">
+      <button class="demo-submit" id="demo-btn">Request a Demonstration</button>
+    </div>
+    <p class="demo-note">Confidential introductions by appointment only · hello@silkcathouse.com</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="silkcat-logo.png" alt="SilkCat House"></div>
+    <div class="footer-center">
+      <div class="footer-name">SilkCat House</div>
+      <div class="footer-tag">Private Dining Intelligence</div>
+    </div>
+    <div class="footer-right">Powered by Sabian Technology</div>
+  </div>
+</footer>
+
+<script>
+// NAV SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// HAMBURGER
+(function() {
+  const btn = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }));
+})();
+
+// IMAGE LOADER
+async function loadBg(elementId, query, overlay) {
+  try {
+    const res = await fetch(`/api/images?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.src) {
+      const el = document.getElementById(elementId);
+      el.style.backgroundImage = `linear-gradient(${overlay}), url('${data.src.large2x}')`;
+    }
+  } catch(e) {}
+}
+
+loadBg('hero-bg', 'luxury restaurant candlelight interior', 'rgba(0,0,0,0.65)');
+loadBg('pain-bg', 'empty luxury restaurant', 'rgba(13,13,13,0.92)');
+loadBg('quiz-bg', 'fine dining table setting elegant', 'rgba(139,0,0,0.85)');
+loadBg('wine-bg', 'wine pour fine dining', 'rgba(13,13,13,0.88)');
+loadBg('pillars-bg', 'michelin star restaurant kitchen', 'rgba(139,0,0,0.82)');
+loadBg('demo-bg', 'luxury hotel restaurant evening', 'rgba(13,13,13,0.90)');
+
+// HERO ANIMATIONS
+setTimeout(() => { document.getElementById('hero-line').classList.add('drawn'); }, 800);
+setTimeout(() => { document.getElementById('hero-sub').classList.add('visible'); }, 1000);
+setTimeout(() => { document.getElementById('hero-cta').classList.add('visible'); }, 1400);
+
+// CANVAS PARTICLES
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, mouse = { x: -9999, y: -9999 };
+  const PARTICLES = 120;
+  let particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  canvas.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+  function Particle() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.phase = Math.random() * Math.PI * 2;
+    this.r = 1.5;
+    this.alpha = 0.3 + Math.random() * 0.4;
+  }
+
+  for (let i = 0; i < PARTICLES; i++) particles.push(new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    const t = Date.now() / 1000;
+    particles.forEach(p => {
+      p.x += p.vx + Math.sin(t + p.phase) * 0.15;
+      p.y += p.vy + Math.cos(t * 0.7 + p.phase) * 0.1;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+      const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 100) {
+        const force = (100 - dist) / 100;
+        p.x += dx / dist * force * 2;
+        p.y += dy / dist * force * 2;
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(196,152,30,${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// INTERSECTION OBSERVER
+function observe(selector, delay) {
+  const els = document.querySelectorAll(selector);
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const d = delay !== undefined ? delay : (el.dataset.delay || 0);
+        setTimeout(() => el.classList.add('visible'), d);
+        obs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(el => obs.observe(el));
+}
+observe('#opening-text', 0);
+observe('#opening p', 0);
+
+// Staggered stat cards
+const statCards = document.querySelectorAll('.stat-card');
+const statObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = Array.from(statCards).indexOf(e.target);
+      setTimeout(() => e.target.classList.add('visible'), idx * 120);
+      statObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+statCards.forEach(c => statObs.observe(c));
+
+// Staggered pillars
+const pillars = document.querySelectorAll('.pillar');
+const pillarObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = Array.from(pillars).indexOf(e.target);
+      setTimeout(() => e.target.classList.add('visible'), idx * 150);
+      pillarObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+pillars.forEach(p => pillarObs.observe(p));
+
+// WINE ROTATOR
+const pairings = [
+  { dish: 'Grilled Octopus', name: 'Assyrtiko 2024 Alexakis', region: 'Crete, Greece', notes: 'Volcanic minerality and bright citrus acidity. Precision that matches the char.' },
+  { dish: 'Smoked Lamb Shoulder', name: 'Xinomavro 2021 Kir-Yianni', region: 'Naoussa, Macedonia', notes: 'Earthy, structured, deeply tannic. Built for fire and smoke and time.' },
+  { dish: 'Wagyu Beef Mishwi', name: 'Chateau Musar Rouge 2015', region: 'Bekaa Valley, Lebanon', notes: 'Cedar, dark fruit and ancient complexity. A wine that demands patience.' },
+  { dish: 'Hand Dived Scallops', name: 'Chablis Premier Cru Montée de Tonnerre', region: 'Burgundy, France', notes: 'Flinty oyster shell and cold minerality. Precision without compromise.' }
+];
+let wineIdx = 0;
+function showPairing(idx) {
+  const p = pairings[idx];
+  const panel = document.getElementById('wine-pairing');
+  panel.style.opacity = 0;
+  setTimeout(() => {
+    document.getElementById('wine-dish').textContent = p.dish;
+    document.getElementById('wine-name').textContent = p.name;
+    document.getElementById('wine-region').textContent = p.region;
+    document.getElementById('wine-notes').textContent = p.notes;
+    panel.style.opacity = 1;
+  }, 700);
+}
+showPairing(0);
+setInterval(() => { wineIdx = (wineIdx + 1) % pairings.length; showPairing(wineIdx); }, 5000);
+
+// QUIZ
+let quizMessages = [];
+let quizRound = 0;
+const TOTAL_ROUNDS = 5;
+
+async function quizCall(messages) {
+  const body = messages.length === 0
+    ? [{ role: 'user', content: 'Begin' }]
+    : messages;
+  const res = await fetch('/api/quiz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages: body })
+  });
+  return res.json();
+}
+
+function setLoading(on) {
+  document.getElementById('quiz-loading').style.display = on ? 'block' : 'none';
+  document.getElementById('quiz-options').style.display = on ? 'none' : 'flex';
+}
+
+async function showQuestion(data) {
+  const qEl = document.getElementById('quiz-question');
+  const oEl = document.getElementById('quiz-options');
+  qEl.style.opacity = 0;
+  oEl.innerHTML = '';
+  setTimeout(() => {
+    qEl.textContent = data.question;
+    qEl.style.opacity = 1;
+    data.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.addEventListener('click', async () => {
+        document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+        btn.classList.add('selected');
+        quizMessages.push({ role: 'assistant', content: JSON.stringify(data) });
+        quizMessages.push({ role: 'user', content: opt });
+        quizRound++;
+        document.getElementById('quiz-progress').style.width = (quizRound / TOTAL_ROUNDS * 100) + '%';
+        await new Promise(r => setTimeout(r, 500));
+        setLoading(true);
+        const next = await quizCall(quizMessages);
+        setLoading(false);
+        if (next.complete) {
+          showResult(next);
+        } else {
+          showQuestion(next);
+        }
+      });
+      oEl.appendChild(btn);
+    });
+  }, 200);
+}
+
+function showResult(data) {
+  document.getElementById('quiz-body').style.display = 'none';
+  const result = document.getElementById('quiz-result');
+  result.style.display = 'block';
+  document.getElementById('result-title').textContent = data.identity_title;
+  document.getElementById('result-desc').innerHTML = data.identity_description.replace(/\n\n/g, '<br><br>');
+  document.getElementById('quiz-progress').style.width = '100%';
+}
+
+(async () => {
+  setLoading(true);
+  try {
+    const first = await quizCall([]);
+    setLoading(false);
+    showQuestion(first);
+  } catch(e) {
+    setLoading(false);
+    document.getElementById('quiz-question').textContent = 'The intelligence is initialising. Refresh to begin.';
+  }
+})();
+
+// DEMO FORM
+document.getElementById('demo-btn').addEventListener('click', async () => {
+  const email = document.getElementById('demo-email').value.trim();
+  if (!email) return;
+  try {
+    await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, source: 'demo-section' })
+    });
+    document.getElementById('demo-btn').textContent = 'Introduction Received';
+    document.getElementById('demo-btn').style.background = '#B8860B';
+  } catch(e) {}
+});
+</script>
+</body>
+</html>

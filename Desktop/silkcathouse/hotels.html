@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Hotels — SilkCat House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #0D0D0D; color: #fff; font-family: 'Jost', sans-serif; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: #000; border-bottom: 1px solid rgba(196,152,30,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px; transition: background 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); }
+  nav .logo img { height: 44px; display: block; }
+  nav .links { display: flex; align-items: center; gap: 36px; }
+  nav .links a {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+    text-decoration: none; transition: color 0.3s;
+  }
+  nav .links a:hover { color: #C9A84C; }
+  nav .cta-btn {
+    border: 1px solid #C9A84C; background: transparent;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; padding: 10px 22px; cursor: pointer;
+    transition: background 0.3s, color 0.3s; text-decoration: none; display: inline-block;
+  }
+  nav .cta-btn:hover { background: #C9A84C; color: #8B0000; }
+
+  #hero {
+    height: 70vh; position: relative; display: flex; align-items: center;
+    justify-content: center; flex-direction: column; text-align: center;
+    padding: 0 48px; background: #8B0000;
+  }
+  #hero-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .hero-content { position: relative; z-index: 1; }
+  .hero-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 52px; color: #fff; line-height: 1.2;
+  }
+  .hero-subhead {
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.6); margin-top: 16px;
+  }
+
+  /* PORTFOLIO PROBLEM */
+  #portfolio { background: #0D0D0D; padding: 96px 52px; }
+  .portfolio-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+  .portfolio-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 36px; color: #fff; margin-bottom: 32px; line-height: 1.3;
+    opacity: 0; transform: translateY(20px); transition: opacity 0.7s, transform 0.7s;
+  }
+  .portfolio-heading.visible { opacity: 1; transform: translateY(0); }
+  .portfolio-body {
+    font-family: 'Jost', sans-serif; font-size: 16px; color: rgba(255,255,255,0.55);
+    line-height: 1.9; opacity: 0; transform: translateY(20px);
+    transition: opacity 0.7s 0.15s, transform 0.7s 0.15s;
+  }
+  .portfolio-body.visible { opacity: 1; transform: translateY(0); }
+  .portfolio-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; margin-top: 64px; }
+  .ps { text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+  .ps.visible { opacity: 1; transform: translateY(0); }
+  .ps-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 64px;
+    color: #C9A84C; font-weight: 300; line-height: 1;
+  }
+  .ps-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 8px;
+  }
+
+  /* SEVENROOMS */
+  #sevenrooms { padding: 96px 52px; position: relative; background: #8B0000; }
+  #sevenrooms-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .sevenrooms-inner { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; text-align: center; }
+  .sevenrooms-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 40px; color: #fff; margin-bottom: 32px; line-height: 1.3;
+    opacity: 0; transform: translateY(20px); transition: opacity 0.7s, transform 0.7s;
+  }
+  .sevenrooms-heading.visible { opacity: 1; transform: translateY(0); }
+  .sevenrooms-body {
+    font-family: 'Jost', sans-serif; font-size: 15px;
+    color: rgba(255,255,255,0.7); line-height: 1.9;
+    opacity: 0; transform: translateY(20px); transition: opacity 0.7s 0.15s, transform 0.7s 0.15s;
+  }
+  .sevenrooms-body.visible { opacity: 1; transform: translateY(0); }
+  .features-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; margin-top: 48px; text-align: left; }
+  .feature-item {
+    padding: 28px 32px; border: 1px solid rgba(196,152,30,0.25);
+    opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s;
+  }
+  .feature-item.visible { opacity: 1; transform: translateY(0); }
+  .feature-title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 20px; color: #C9A84C; margin-bottom: 8px;
+  }
+  .feature-body { font-family: 'Jost', sans-serif; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.8; }
+
+  /* TICKER */
+  #ticker {
+    background: #000; height: 72px; display: flex; align-items: center;
+    overflow: hidden;
+  }
+  #ticker:hover .ticker-track { animation-play-state: paused; }
+  .ticker-wrap { display: flex; white-space: nowrap; }
+  .ticker-track {
+    display: flex; white-space: nowrap;
+    animation: ticker 18s linear infinite;
+  }
+  .ticker-track span {
+    font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: #C9A84C; padding: 0 28px;
+  }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* GLOBAL PRESENCE */
+  #global { background: #0D0D0D; padding: 96px 52px; text-align: center; }
+  .global-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 40px; color: #fff; margin-bottom: 64px; line-height: 1.3;
+  }
+  .global-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; max-width: 900px; margin: 0 auto; }
+  .gstat { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+  .gstat.visible { opacity: 1; transform: translateY(0); }
+  .gstat-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 64px;
+    color: #C9A84C; font-weight: 300; line-height: 1;
+  }
+  .gstat-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 8px; line-height: 1.7;
+  }
+
+  /* CTA */
+  #page-cta { background: #8B0000; padding: 96px 52px; text-align: center; }
+  .cta-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 40px; color: #fff; margin-bottom: 36px; max-width: 700px; margin-left: auto; margin-right: auto;
+  }
+  .gold-btn {
+    display: inline-block; background: #C9A84C; color: #8B0000;
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; padding: 16px 40px; text-decoration: none;
+    transition: background 0.3s;
+  }
+  .gold-btn:hover { background: #B8860B; }
+
+  footer {
+    background: #000; padding: 48px 52px;
+    border-top: 1px solid rgba(196,152,30,0.12);
+  }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo img { height: 56px; display: block; }
+  .footer-center { display: flex; flex-direction: column; align-items: center; }
+  .footer-name {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 4px;
+  }
+  .footer-tag {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(196,152,30,0.4);
+  }
+  .footer-right { font-family: 'Jost', sans-serif; font-size: 9px; color: rgba(196,152,30,0.35); }
+
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="restaurants.html">For Restaurants</a>
+  <a href="hotels.html">For Hotels</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+  <div class="menu-divider"></div>
+  <a href="contact.html" class="menu-cta">Request a Private Demonstration</a>
+</div>
+
+<nav id="main-nav">
+  <div class="logo"><a href="index.html"><img src="silkcat-logo.png" alt="SilkCat House"></a></div>
+  <div class="links">
+    <a href="restaurants.html">For Restaurants</a>
+    <a href="hotels.html">For Hotels</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" class="cta-btn">Request a Private Demonstration</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-heading">For Hotel Food &amp; Beverage Directors.</h1>
+    <p class="hero-subhead">One integration. Every restaurant. Complete guest intelligence.</p>
+  </div>
+</section>
+
+<section id="portfolio">
+  <div class="portfolio-inner">
+    <h2 class="portfolio-heading">Managing multiple restaurants across a property has always meant fragmented data.</h2>
+    <p class="portfolio-body">
+      One guest. Four restaurants. Zero shared intelligence.<br><br>
+      The breakfast guest who became the dinner guest who celebrated their anniversary in your Michelin-starred room — your systems never connected those moments. They existed in separate silos. Separate platforms. Separate missed opportunities.<br><br>
+      SilkCat House changes that. One integration. Every restaurant on your property speaking the same language about the same guests.
+    </p>
+    <div class="portfolio-stats">
+      <div class="ps">
+        <div class="ps-num">150+</div>
+        <div class="ps-label">Las Vegas Hotel Restaurants<br>Accessible Immediately</div>
+      </div>
+      <div class="ps">
+        <div class="ps-num">6</div>
+        <div class="ps-label">Global Cities<br>Already Operational</div>
+      </div>
+      <div class="ps">
+        <div class="ps-num">48h</div>
+        <div class="ps-label">Integration Time<br>Per Property</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sevenrooms">
+  <div id="sevenrooms-bg"></div>
+  <div class="sevenrooms-inner">
+    <h2 class="sevenrooms-heading">We integrate directly with SevenRooms.</h2>
+    <p class="sevenrooms-body">
+      Instant access to every restaurant on your property. Guest profiles enriched automatically. Intelligence flowing across every venue simultaneously. One relationship across every table.
+    </p>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-title">Unified Guest Profiles</div>
+        <div class="feature-body">Every visit, preference, occasion and observation across every restaurant on your property — unified into a single, intelligent guest record.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-title">Cross-Venue Intelligence</div>
+        <div class="feature-body">When a guest books your rooftop bar, your steakhouse already knows who they are. Intelligence flows between venues without manual intervention.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-title">Occasion Routing</div>
+        <div class="feature-body">A guest celebrating an anniversary at breakfast. A proposal planned for dinner. Every venue briefed. Every moment orchestrated.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-title">F&amp;B Director Dashboard</div>
+        <div class="feature-body">Portfolio-level visibility. Which venues are retaining guests. Where relationships are being lost. Intelligence that informs your entire F&amp;B strategy.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ticker">
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span>Las Vegas</span><span>·</span>
+      <span>London</span><span>·</span>
+      <span>Dubai</span><span>·</span>
+      <span>Singapore</span><span>·</span>
+      <span>New York</span><span>·</span>
+      <span>Tokyo</span><span>·</span>
+      <span>Paris</span><span>·</span>
+      <span>Miami</span><span>·</span>
+      <span>Sydney</span><span>·</span>
+      <span>Hong Kong</span><span>·</span>
+      <span>Monaco</span><span>·</span>
+      <span>Geneva</span><span>·</span>
+      <span>Los Angeles</span><span>·</span>
+      <span>Riyadh</span><span>·</span>
+      <span>Vienna</span><span>·</span>
+      <span>Bangkok</span><span>·</span>
+      <span>Las Vegas</span><span>·</span>
+      <span>London</span><span>·</span>
+      <span>Dubai</span><span>·</span>
+      <span>Singapore</span><span>·</span>
+      <span>New York</span><span>·</span>
+      <span>Tokyo</span><span>·</span>
+      <span>Paris</span><span>·</span>
+      <span>Miami</span><span>·</span>
+      <span>Sydney</span><span>·</span>
+      <span>Hong Kong</span><span>·</span>
+      <span>Monaco</span><span>·</span>
+      <span>Geneva</span><span>·</span>
+      <span>Los Angeles</span><span>·</span>
+      <span>Riyadh</span><span>·</span>
+      <span>Vienna</span><span>·</span>
+      <span>Bangkok</span><span>·</span>
+    </div>
+  </div>
+</section>
+
+<section id="global">
+  <h2 class="global-heading">The world's finest hotel restaurants.<br>Finally connected.</h2>
+  <div class="global-stats">
+    <div class="gstat">
+      <div class="gstat-num">150–200</div>
+      <div class="gstat-label">Las Vegas Hotel Restaurants<br>Accessible Immediately</div>
+    </div>
+    <div class="gstat">
+      <div class="gstat-num">7</div>
+      <div class="gstat-label">Languages Spoken<br>Across Every Integration</div>
+    </div>
+    <div class="gstat">
+      <div class="gstat-num">100%</div>
+      <div class="gstat-label">Guest Data<br>Owned by You, Not OpenTable</div>
+    </div>
+  </div>
+</section>
+
+<section id="page-cta">
+  <h2 class="cta-heading">The world's finest hotel restaurants deserve better intelligence.</h2>
+  <a href="contact.html" class="gold-btn">Request a Private Introduction</a>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="silkcat-logo.png" alt="SilkCat House"></div>
+    <div class="footer-center">
+      <div class="footer-name">SilkCat House</div>
+      <div class="footer-tag">Private Dining Intelligence</div>
+    </div>
+    <div class="footer-right">Powered by Sabian Technology</div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+(function() {
+  const btn = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }));
+})();
+
+async function loadBg(elementId, query, overlay) {
+  try {
+    const res = await fetch(`/api/images?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.src) {
+      document.getElementById(elementId).style.backgroundImage =
+        `linear-gradient(${overlay}), url('${data.src.large2x}')`;
+    }
+  } catch(e) {}
+}
+loadBg('hero-bg', 'luxury hotel lobby restaurant', 'rgba(139,0,0,0.80)');
+loadBg('sevenrooms-bg', 'luxury hotel fine dining interior', 'rgba(139,0,0,0.82)');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.portfolio-heading, .portfolio-body, .ps, .sevenrooms-heading, .sevenrooms-body, .feature-item, .gstat').forEach((el, i) => {
+  if (el.classList.contains('ps') || el.classList.contains('feature-item') || el.classList.contains('gstat')) {
+    el.style.transitionDelay = (i % 3 * 0.12) + 's';
+  }
+  obs.observe(el);
+});
+</script>
+</body>
+</html>

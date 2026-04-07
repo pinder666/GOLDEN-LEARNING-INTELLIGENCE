@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — SilkCat House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #0D0D0D; color: #fff; font-family: 'Jost', sans-serif; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: #000; border-bottom: 1px solid rgba(196,152,30,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px; transition: background 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); }
+  nav .logo img { height: 44px; display: block; }
+  nav .links { display: flex; align-items: center; gap: 36px; }
+  nav .links a {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+    text-decoration: none; transition: color 0.3s;
+  }
+  nav .links a:hover { color: #C9A84C; }
+  nav .cta-btn {
+    border: 1px solid #C9A84C; background: transparent;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; padding: 10px 22px; cursor: pointer;
+    transition: background 0.3s, color 0.3s; text-decoration: none; display: inline-block;
+  }
+  nav .cta-btn:hover { background: #C9A84C; color: #8B0000; }
+
+  #hero {
+    height: 50vh; position: relative; display: flex; align-items: center;
+    justify-content: center; flex-direction: column; text-align: center;
+    padding: 0 48px; background: #8B0000;
+  }
+  #hero-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .hero-content { position: relative; z-index: 1; }
+  .hero-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 52px; color: #fff; line-height: 1.2;
+  }
+  .hero-subhead {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-top: 16px;
+  }
+
+  #form-section { background: #0D0D0D; padding: 96px 52px; }
+  .form-inner { max-width: 580px; margin: 0 auto; }
+  .field { margin-bottom: 40px; }
+  .field label {
+    display: block; font-family: 'Jost', sans-serif; font-size: 9px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #C9A84C;
+    margin-bottom: 8px;
+  }
+  .field input, .field select {
+    width: 100%; border: none; border-bottom: 1px solid rgba(196,152,30,0.35);
+    background: transparent; font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 18px; color: #fff;
+    padding: 14px 0; outline: none; appearance: none;
+    transition: border-color 0.3s;
+  }
+  .field input::placeholder { color: rgba(255,255,255,0.2); }
+  .field input:focus, .field select:focus { border-bottom-color: #C9A84C; }
+  .field select option { background: #0D0D0D; color: #fff; }
+
+  .submit-btn {
+    width: 100%; background: #C9A84C; color: #8B0000;
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; padding: 18px; border: none; cursor: pointer;
+    transition: background 0.3s; margin-top: 8px;
+  }
+  .submit-btn:hover { background: #B8860B; }
+  .form-note {
+    font-family: 'Jost', sans-serif; font-size: 10px;
+    color: rgba(255,255,255,0.28); text-align: center; margin-top: 20px;
+  }
+  .success-msg {
+    display: none; text-align: center; padding: 48px 0;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 28px; color: #C9A84C;
+  }
+
+  footer {
+    background: #000; padding: 48px 52px;
+    border-top: 1px solid rgba(196,152,30,0.12);
+  }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo img { height: 56px; display: block; }
+  .footer-center { display: flex; flex-direction: column; align-items: center; }
+  .footer-name {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 4px;
+  }
+  .footer-tag {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(196,152,30,0.4);
+  }
+  .footer-right { font-family: 'Jost', sans-serif; font-size: 9px; color: rgba(196,152,30,0.35); }
+
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="restaurants.html">For Restaurants</a>
+  <a href="hotels.html">For Hotels</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+  <div class="menu-divider"></div>
+  <a href="contact.html" class="menu-cta">Request a Private Demonstration</a>
+</div>
+
+<nav id="main-nav">
+  <div class="logo"><a href="index.html"><img src="silkcat-logo.png" alt="SilkCat House"></a></div>
+  <div class="links">
+    <a href="restaurants.html">For Restaurants</a>
+    <a href="hotels.html">For Hotels</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" class="cta-btn">Request a Private Demonstration</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-heading">Request a Private Introduction.</h1>
+    <div class="hero-subhead">We Review Every Introduction Personally</div>
+  </div>
+</section>
+
+<section id="form-section">
+  <div class="form-inner">
+    <form id="contact-form">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Your full name" required>
+      </div>
+      <div class="field">
+        <label>Restaurant or Hotel Name</label>
+        <input type="text" name="venue" placeholder="Your venue" required>
+      </div>
+      <div class="field">
+        <label>City</label>
+        <input type="text" name="city" placeholder="Las Vegas, London, Dubai..." required>
+      </div>
+      <div class="field">
+        <label>Number of Covers Per Evening</label>
+        <input type="text" name="covers" placeholder="e.g. 80 covers" required>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="your@email.com" required>
+      </div>
+      <div class="field">
+        <label>What are you looking for</label>
+        <input type="text" name="intent" placeholder="Guest intelligence, wine AI, full integration..." required>
+      </div>
+      <button type="submit" class="submit-btn">Submit Your Introduction</button>
+    </form>
+    <div class="success-msg" id="success-msg">Your introduction has been received.<br>You will hear from us within 48 hours.</div>
+    <p class="form-note">You will hear from us within 48 hours · hello@silkcathouse.com</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="silkcat-logo.png" alt="SilkCat House"></div>
+    <div class="footer-center">
+      <div class="footer-name">SilkCat House</div>
+      <div class="footer-tag">Private Dining Intelligence</div>
+    </div>
+    <div class="footer-right">Powered by Sabian Technology</div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+(function() {
+  const btn = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }));
+})();
+
+async function loadBg(elementId, query, overlay) {
+  try {
+    const res = await fetch(`/api/images?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.src) {
+      document.getElementById(elementId).style.backgroundImage =
+        `linear-gradient(${overlay}), url('${data.src.large2x}')`;
+    }
+  } catch(e) {}
+}
+loadBg('hero-bg', 'luxury dining room private', 'rgba(139,0,0,0.80)');
+
+document.getElementById('contact-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  try {
+    await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    form.style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  } catch(err) {}
+});
+</script>
+</body>
+</html>

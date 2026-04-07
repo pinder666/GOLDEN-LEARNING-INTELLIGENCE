@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node -e \"require\\('./server.js'\\)\")",
+      "Bash(curl -s http://localhost:3001/api/images?query=test)",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(node /c/Users/user/Desktop/silkcathouse/server.js)",
+      "Bash(curl -s \"http://localhost:3001/api/images?query=luxury+restaurant\")",
+      "Bash(node:*)",
+      "Bash(curl -s http://localhost:3002/test)",
+      "Bash(pkill -f \"node.*server.js\")",
+      "Bash(pkill -f \"node -e\")",
+      "Bash(curl -sv \"http://localhost:3001/api/images?query=restaurant\")",
+      "Bash(curl -s \"http://localhost:3001/api/images?query=restaurant\")",
+      "Bash(kill 291 311)",
+      "Bash(npm start:*)",
+      "Bash(curl -s http://localhost:3001/mobile.css)",
+      "Bash(curl -s http://localhost:3001/index.html)",
+      "Bash(curl -s http://localhost:3001/about.html)",
+      "Bash(curl -s http://localhost:3001/contact.html)",
+      "Bash(curl -s http://localhost:3001/restaurants.html)",
+      "Bash(curl -s http://localhost:3001/hotels.html)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

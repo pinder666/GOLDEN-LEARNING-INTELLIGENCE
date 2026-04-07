@@ -1,0 +1,386 @@
+/* ============================================================
+   SILKCAT HOUSE — MOBILE.CSS
+   Shared responsive styles for all pages.
+   Breakpoints: 375, 390, 480, 768, 1024, 1280
+   ============================================================ */
+
+/* ── HAMBURGER BUTTON ── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  z-index: 1100;
+  min-width: 44px;
+  min-height: 44px;
+}
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: #C9A84C;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+.nav-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-hamburger.open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.nav-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── FULLSCREEN MOBILE MENU OVERLAY ── */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: #8B0000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  overflow: hidden;
+}
+.mobile-menu.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.mobile-menu a {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 38px;
+  color: rgba(255,255,255,0.88);
+  text-decoration: none;
+  padding: 10px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  transform: translateY(0);
+}
+.mobile-menu a:active { color: #C9A84C; }
+.mobile-menu .menu-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(196,152,30,0.3);
+  margin: 16px 0;
+}
+.mobile-menu .menu-cta {
+  font-family: 'Jost', sans-serif;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #C9A84C;
+  border: 1px solid rgba(196,152,30,0.6);
+  padding: 14px 32px;
+  margin-top: 16px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── 1024px — TABLET LANDSCAPE ── */
+@media (max-width: 1024px) {
+  nav { padding: 0 32px; }
+  nav .links { gap: 20px; }
+  nav .links a { font-size: 9px; letter-spacing: 0.18em; }
+  nav .cta-btn { padding: 9px 16px; font-size: 9px; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 40px 32px; }
+  .pillars-grid { grid-template-columns: 1fr 1fr; gap: 48px; }
+  #pillars { padding: 72px 40px; }
+
+  .products-grid { gap: 40px; }
+  .pricing-grid { gap: 20px; }
+  .price-card { padding: 36px 28px; }
+
+  .portfolio-stats { gap: 24px; }
+  .features-grid { gap: 16px; }
+
+  #intel-demos { padding: 80px 40px; }
+  .noshow-cards { gap: 12px; }
+}
+
+/* ── 768px — TABLET PORTRAIT + MOBILE ── */
+@media (max-width: 768px) {
+
+  /* NAV */
+  nav {
+    padding: 0 20px;
+    height: 64px;
+  }
+  nav .links { display: none !important; }
+  .nav-hamburger { display: flex; }
+
+  /* HERO — ALL PAGES */
+  #hero { padding: 0 24px; }
+  .hero-heading { font-size: 32px !important; line-height: 1.25; }
+  .hero-subhead { font-size: 11px; }
+
+  /* HERO — INDEX SPECIFIC */
+  .hero-logo { width: 180px !important; }
+  .hero-cta {
+    display: block !important;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 18px 24px !important;
+    min-height: 54px;
+    box-sizing: border-box;
+  }
+
+  /* HERO — OTHER PAGES */
+  .hero-content .hero-logo { width: 140px; }
+
+  /* OPENING STATEMENT */
+  #opening { padding: 56px 24px; min-height: auto; }
+  #opening p { font-size: 30px !important; }
+
+  /* PAIN SECTION — INDEX */
+  #pain { padding: 64px 20px; }
+  #pain .section-label { font-size: 9px; letter-spacing: 0.22em; margin-bottom: 48px; }
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px;
+    max-width: 100%;
+  }
+  .stat-num { font-size: 64px !important; }
+  .stat-card { padding-bottom: 24px; border-bottom: 1px solid rgba(196,152,30,0.08); }
+  .stat-card:last-child { border-bottom: none; }
+
+  /* QUIZ */
+  #quiz { padding: 56px 16px; }
+  .quiz-panel {
+    width: 92% !important;
+    max-width: none;
+    padding: 36px 24px !important;
+  }
+  .quiz-heading { font-size: 26px; }
+  .quiz-question { font-size: 19px; }
+  .quiz-option { min-height: 52px; padding: 14px 16px; }
+
+  /* WINE */
+  #wine { padding: 64px 24px; }
+  .wine-heading { font-size: 32px; }
+  .wine-dish { font-size: 22px; }
+  .wine-notes { font-size: 15px; }
+
+  /* PILLARS */
+  .pillars-grid { grid-template-columns: 1fr !important; gap: 48px; }
+  #pillars { padding: 64px 24px !important; }
+
+  /* DEMO REQUEST — INDEX */
+  #demo { padding: 80px 24px; }
+  .demo-heading { font-size: 34px !important; }
+  .demo-form {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+  }
+  .demo-input {
+    width: 100% !important;
+    max-width: none !important;
+    border-bottom: 1px solid #C9A84C;
+    padding: 18px 0;
+    font-size: 16px;
+  }
+  .demo-submit {
+    width: 100% !important;
+    padding: 18px !important;
+    min-height: 56px;
+    margin-top: 1px;
+  }
+
+  /* FOOTER */
+  footer { padding: 48px 24px; }
+  .footer-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 24px;
+    text-align: center;
+  }
+  .footer-logo { display: flex; justify-content: center; }
+  .footer-logo img { height: 48px; }
+
+  /* ABOUT PAGE */
+  #body-section { padding: 64px 24px; }
+  .body-inner p { font-size: 17px !important; line-height: 1.9; }
+  .pull-quote {
+    font-size: 20px !important;
+    padding-left: 20px;
+    margin: 36px 0;
+    border-left-width: 2px;
+  }
+  #cta-section { padding: 64px 24px; }
+  .cta-heading { font-size: 28px !important; }
+  .gold-btn {
+    display: block;
+    text-align: center;
+    padding: 18px 24px;
+    min-height: 54px;
+    box-sizing: border-box;
+  }
+
+  /* CONTACT PAGE */
+  #form-section { padding: 64px 24px; }
+  .field input,
+  .field select {
+    font-size: 16px !important; /* prevent iOS zoom */
+    min-height: 48px;
+    padding: 12px 0;
+  }
+  .field { margin-bottom: 32px; }
+  .submit-btn { min-height: 56px; font-size: 10px; }
+
+  /* RESTAURANTS — PAIN STRIP */
+  #pain-strip { padding: 64px 20px; }
+  .strip-inner {
+    flex-direction: column !important;
+    gap: 24px;
+  }
+  .strip-card {
+    min-width: auto !important;
+    width: 100%;
+    padding: 32px 24px;
+  }
+  .strip-num { font-size: 52px; }
+
+  /* RESTAURANTS — PRODUCTS */
+  .products-grid { grid-template-columns: 1fr !important; gap: 48px; }
+  #products { padding: 64px 24px; }
+
+  /* RESTAURANTS — HOW IT WORKS */
+  .steps { grid-template-columns: 1fr !important; gap: 40px; }
+  #how { padding: 64px 24px; }
+  .step-num { font-size: 56px; }
+
+  /* RESTAURANTS — PRICING */
+  .pricing-grid { grid-template-columns: 1fr !important; }
+  #pricing { padding: 64px 24px; }
+  .price-card { padding: 36px 28px; }
+  .price-cta {
+    display: block;
+    text-align: center;
+    padding: 14px 28px;
+    min-height: 48px;
+    line-height: 1.4;
+    box-sizing: border-box;
+  }
+
+  /* RESTAURANTS — INTEL DEMOS */
+  #intel-demos { padding: 64px 20px !important; }
+  .demo-block { margin-bottom: 80px; }
+  .demo-heading { font-size: 26px !important; max-width: 100%; }
+  .demo-subhead { font-size: 12px; max-width: 100%; }
+
+  .briefing-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 14px 20px;
+  }
+  .briefing-subject { font-size: 10px; }
+  .briefing-from { font-size: 9px; }
+  .briefing-body { padding: 24px 20px; }
+  .briefing-salutation { font-size: 18px; }
+  .briefing-guest-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .briefing-guest-name { font-size: 20px; }
+  .briefing-guest-meta { font-size: 9px; }
+  .briefing-sections { grid-template-columns: 1fr !important; gap: 24px; }
+  .briefing-gesture { padding: 16px 18px; }
+  .briefing-gesture-text { font-size: 14px; }
+  .briefing-generate-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .demo-generate-btn {
+    width: 100%;
+    text-align: center;
+    min-height: 52px;
+    padding: 15px 20px;
+    white-space: normal;
+  }
+  .briefing-live-output { padding: 20px; font-size: 13px; }
+
+  .noshow-stat { display: flex; flex-direction: row; align-items: baseline; }
+  .noshow-stat-num { font-size: 52px; }
+  .noshow-cards { grid-template-columns: 1fr !important; gap: 12px; }
+  .noshow-card { padding: 24px 20px; }
+  .noshow-sms { font-size: 14px; }
+  .noshow-generate-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .noshow-live-output.visible { grid-template-columns: 1fr !important; }
+  .noshow-live-card { padding: 20px; }
+
+  /* RESTAURANTS — PAGE CTA */
+  #page-cta { padding: 64px 24px; }
+
+  /* HOTELS */
+  #portfolio { padding: 64px 24px; }
+  .portfolio-heading { font-size: 26px !important; }
+  .portfolio-body { font-size: 14px; }
+  .portfolio-stats { grid-template-columns: 1fr !important; gap: 32px; margin-top: 48px; }
+  .ps-num { font-size: 52px; }
+
+  #sevenrooms { padding: 64px 24px; }
+  .sevenrooms-heading { font-size: 28px !important; }
+  .sevenrooms-body { font-size: 13px; }
+  .features-grid { grid-template-columns: 1fr !important; gap: 16px; }
+  .feature-item { padding: 24px 20px; }
+
+  #global { padding: 64px 24px; }
+  .global-heading { font-size: 28px !important; margin-bottom: 40px; }
+  .global-stats { grid-template-columns: 1fr !important; gap: 32px; }
+  .gstat-num { font-size: 52px; }
+}
+
+/* ── 480px — SMALL PHONES ── */
+@media (max-width: 480px) {
+  .hero-logo { width: 150px !important; }
+  #opening p { font-size: 24px !important; }
+  .stat-num { font-size: 56px !important; }
+  .quiz-heading { font-size: 22px; }
+  .quiz-question { font-size: 17px; }
+  .mobile-menu a { font-size: 32px; }
+  .demo-heading { font-size: 28px !important; }
+  .briefing-guest-name { font-size: 18px; }
+  .noshow-stat-num { font-size: 44px; }
+  .wine-heading { font-size: 28px; }
+  .strip-num { font-size: 44px; }
+  .step-num { font-size: 48px; }
+  footer { padding: 40px 20px; }
+  #how .how-label { margin-bottom: 40px; }
+}
+
+/* ── 375px — iPhone SE ── */
+@media (max-width: 375px) {
+  nav { height: 60px; }
+  .hero-logo { width: 130px !important; }
+  .quiz-panel { padding: 28px 18px !important; }
+  .quiz-option { font-size: 12px; }
+  .demo-input { font-size: 15px; }
+  .field input, .field select { font-size: 15px !important; }
+  .mobile-menu a { font-size: 28px; gap: 2px; }
+  .noshow-stat { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .briefing-header { padding: 12px 16px; }
+  .briefing-body { padding: 20px 16px; }
+}
+
+/* ── ENSURE NO HORIZONTAL OVERFLOW ── */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+img { max-width: 100%; height: auto; }
+.ticker-wrap { overflow: hidden; }

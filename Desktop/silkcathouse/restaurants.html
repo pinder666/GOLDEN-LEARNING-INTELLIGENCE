@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Restaurants — SilkCat House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #0D0D0D; color: #fff; font-family: 'Jost', sans-serif; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: #000; border-bottom: 1px solid rgba(196,152,30,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px; transition: background 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); }
+  nav .logo img { height: 44px; display: block; }
+  nav .links { display: flex; align-items: center; gap: 36px; }
+  nav .links a {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+    text-decoration: none; transition: color 0.3s;
+  }
+  nav .links a:hover { color: #C9A84C; }
+  nav .cta-btn {
+    border: 1px solid #C9A84C; background: transparent;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; padding: 10px 22px; cursor: pointer;
+    transition: background 0.3s, color 0.3s; text-decoration: none; display: inline-block;
+  }
+  nav .cta-btn:hover { background: #C9A84C; color: #8B0000; }
+
+  #hero {
+    height: 70vh; position: relative; display: flex; align-items: center;
+    justify-content: center; flex-direction: column; text-align: center;
+    padding: 0 48px; background: #8B0000;
+  }
+  #hero-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .hero-content { position: relative; z-index: 1; }
+  .hero-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 52px; color: #fff; line-height: 1.2;
+  }
+  .hero-subhead {
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.6); margin-top: 16px;
+  }
+
+  /* PAIN STRIP */
+  #pain-strip { background: #0D0D0D; padding: 80px 52px; overflow: hidden; }
+  .strip-inner { display: flex; gap: 32px; max-width: 1200px; margin: 0 auto; }
+  .strip-card {
+    flex: 1; min-width: 220px; padding: 40px 28px;
+    border: 1px solid rgba(196,152,30,0.15);
+    opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s;
+  }
+  .strip-card.visible { opacity: 1; transform: translateY(0); }
+  .strip-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 64px;
+    color: #C9A84C; font-weight: 300; line-height: 1;
+  }
+  .strip-head {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #fff; margin-top: 8px; margin-bottom: 12px;
+  }
+  .strip-copy { font-family: 'Jost', sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.8; }
+
+  /* PRODUCTS */
+  #products { padding: 96px 52px; position: relative; background: #8B0000; }
+  #products-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; }
+  .products-grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 64px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .product { opacity: 0; transform: translateY(30px); transition: opacity 0.7s, transform 0.7s; }
+  .product.visible { opacity: 1; transform: translateY(0); }
+  .product-line { width: 40px; height: 1.5px; background: #C9A84C; margin-bottom: 28px; }
+  .product-title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 28px; color: #fff; margin-bottom: 16px;
+  }
+  .product-body { font-family: 'Jost', sans-serif; font-size: 14px; color: rgba(255,255,255,0.62); line-height: 1.95; }
+
+  /* HOW IT WORKS */
+  #how { background: #0D0D0D; padding: 96px 52px; }
+  .how-inner { max-width: 1100px; margin: 0 auto; }
+  .how-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 64px; text-align: center;
+  }
+  .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 48px; }
+  .step { text-align: center; opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s; }
+  .step.visible { opacity: 1; transform: translateY(0); }
+  .step-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 72px; color: #C9A84C;
+    font-weight: 300; line-height: 1;
+  }
+  .step-text { font-family: 'Jost', sans-serif; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.85; margin-top: 16px; }
+
+  /* PRICING */
+  #pricing { background: #0D0D0D; padding: 96px 52px; }
+  .pricing-label {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: #C9A84C; text-align: center; margin-bottom: 64px;
+  }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; max-width: 1100px; margin: 0 auto; }
+  .price-card {
+    border: 1px solid rgba(196,152,30,0.3); padding: 48px;
+    background: rgba(196,152,30,0.03);
+    opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s;
+  }
+  .price-card.visible { opacity: 1; transform: translateY(0); }
+  .price-card.featured { border-color: rgba(196,152,30,0.6); }
+  .price-tier {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 28px; color: #C9A84C; margin-bottom: 16px;
+  }
+  .price-from {
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.5); margin-bottom: 24px;
+  }
+  .price-features { list-style: none; margin-bottom: 32px; }
+  .price-features li {
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: rgba(255,255,255,0.7); padding: 8px 0;
+    border-bottom: 1px solid rgba(196,152,30,0.1); line-height: 1.6;
+  }
+  .price-cta {
+    display: inline-block; border: 1px solid #C9A84C; color: #C9A84C;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; padding: 12px 28px; text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+  }
+  .price-cta:hover { background: #C9A84C; color: #8B0000; }
+  .price-card.featured .price-cta { background: #C9A84C; color: #8B0000; border-color: #C9A84C; }
+  .price-card.featured .price-cta:hover { background: #B8860B; }
+
+  /* ── INTELLIGENCE DEMOS ── */
+  #intel-demos { background: #000; padding: 96px 52px; }
+  .intel-demos-inner { max-width: 1160px; margin: 0 auto; }
+
+  .demo-block { margin-bottom: 120px; }
+  .demo-block:last-child { margin-bottom: 0; }
+
+  .demo-eyebrow {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 12px;
+  }
+  .demo-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 40px; color: #fff; line-height: 1.2; max-width: 680px; margin-bottom: 10px;
+  }
+  .demo-subhead {
+    font-family: 'Jost', sans-serif; font-size: 13px; color: rgba(255,255,255,0.45);
+    line-height: 1.75; max-width: 580px; margin-bottom: 48px;
+  }
+
+  /* BRIEFING CARD */
+  .briefing-card {
+    background: #0D0D0D; border: 1px solid rgba(196,152,30,0.35);
+    padding: 0; overflow: hidden;
+    opacity: 0; transform: translateY(28px); transition: opacity 0.7s, transform 0.7s;
+  }
+  .briefing-card.visible { opacity: 1; transform: translateY(0); }
+  .briefing-header {
+    background: #000; border-bottom: 1px solid rgba(196,152,30,0.2);
+    padding: 20px 32px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .briefing-header-left { display: flex; align-items: center; gap: 16px; }
+  .briefing-dot { width: 8px; height: 8px; border-radius: 50%; background: #C9A84C; }
+  .briefing-from {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+  }
+  .briefing-subject {
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.14em;
+    color: #C9A84C;
+  }
+  .briefing-time {
+    font-family: 'Jost', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25);
+  }
+  .briefing-body { padding: 36px 32px; }
+  .briefing-salutation {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 22px; color: #C9A84C; margin-bottom: 24px;
+  }
+  .briefing-guest-header {
+    display: flex; align-items: baseline; gap: 20px;
+    border-bottom: 1px solid rgba(196,152,30,0.15); padding-bottom: 16px; margin-bottom: 24px;
+  }
+  .briefing-guest-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #fff; font-weight: 300;
+  }
+  .briefing-guest-meta {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.18em;
+    color: rgba(196,152,30,0.7); text-transform: uppercase;
+  }
+  .briefing-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
+  .briefing-section-label {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 8px;
+  }
+  .briefing-section-text {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px;
+    color: rgba(255,255,255,0.78); line-height: 1.85;
+  }
+  .briefing-gesture {
+    margin-top: 28px; padding: 20px 24px;
+    border: 1px solid rgba(196,152,30,0.25); background: rgba(196,152,30,0.04);
+  }
+  .briefing-gesture-label {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 8px;
+  }
+  .briefing-gesture-text {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 16px; color: rgba(255,255,255,0.85); line-height: 1.8;
+  }
+  .briefing-generate-row {
+    margin-top: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .demo-generate-btn {
+    border: 1px solid #C9A84C; background: transparent; color: #C9A84C;
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; padding: 12px 28px; cursor: pointer;
+    transition: background 0.25s, color 0.25s; white-space: nowrap;
+  }
+  .demo-generate-btn:hover, .demo-generate-btn.loading { background: #C9A84C; color: #8B0000; }
+  .demo-generate-btn:disabled { opacity: 0.5; cursor: default; }
+  .demo-generate-note {
+    font-family: 'Jost', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25);
+  }
+  .briefing-live-output {
+    display: none; margin-top: 24px;
+    border: 1px solid rgba(196,152,30,0.2); background: #000;
+    padding: 32px; font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; color: rgba(255,255,255,0.8); line-height: 1.85;
+  }
+  .briefing-live-output.visible { display: block; }
+
+  /* NO-SHOW CARDS */
+  .noshow-stat {
+    display: inline-flex; align-items: baseline; gap: 12px;
+    margin-bottom: 48px;
+    opacity: 0; transform: translateY(16px); transition: opacity 0.6s, transform 0.6s;
+  }
+  .noshow-stat.visible { opacity: 1; transform: translateY(0); }
+  .noshow-stat-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 72px;
+    color: #C9A84C; font-weight: 300; line-height: 1;
+  }
+  .noshow-stat-label {
+    font-family: 'Jost', sans-serif; font-size: 11px; color: rgba(255,255,255,0.45);
+    line-height: 1.7; max-width: 200px;
+  }
+  .noshow-cards {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 36px;
+  }
+  .noshow-card {
+    border: 1px solid rgba(196,152,30,0.25); background: #0D0D0D;
+    padding: 28px 24px; display: flex; flex-direction: column; gap: 16px;
+    opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s;
+    position: relative; overflow: hidden;
+  }
+  .noshow-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #C9A84C, #B8860B);
+  }
+  .noshow-card.visible { opacity: 1; transform: translateY(0); }
+  .noshow-timing {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #C9A84C;
+  }
+  .noshow-sms {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px;
+    color: #fff; line-height: 1.75; flex: 1;
+  }
+  .noshow-channel {
+    font-family: 'Jost', sans-serif; font-size: 9px; color: rgba(255,255,255,0.22);
+    letter-spacing: 0.16em; text-transform: uppercase; margin-top: auto;
+  }
+  .noshow-generate-row {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .noshow-live-output { display: none; margin-top: 28px; }
+  .noshow-live-output.visible { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  .noshow-live-card {
+    border: 1px solid rgba(196,152,30,0.25); background: #0D0D0D;
+    padding: 24px; position: relative; overflow: hidden;
+  }
+  .noshow-live-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #C9A84C, #B8860B);
+  }
+  .noshow-live-timing {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 12px;
+  }
+  .noshow-live-sms {
+    font-family: 'Cormorant Garamond', serif; font-size: 14px;
+    color: rgba(255,255,255,0.85); line-height: 1.75; margin-bottom: 16px;
+  }
+  .noshow-live-email-label {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(255,255,255,0.2); margin-bottom: 6px;
+  }
+  .noshow-live-email {
+    font-family: 'Cormorant Garamond', serif; font-size: 13px;
+    color: rgba(255,255,255,0.5); line-height: 1.7;
+  }
+
+  /* CTA */
+  #page-cta { background: #8B0000; padding: 96px 52px; text-align: center; }
+  .cta-heading {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 40px; color: #fff; margin-bottom: 36px;
+  }
+  .gold-btn {
+    display: inline-block; background: #C9A84C; color: #8B0000;
+    font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; padding: 16px 40px; text-decoration: none;
+    transition: background 0.3s;
+  }
+  .gold-btn:hover { background: #B8860B; }
+
+  footer {
+    background: #000; padding: 48px 52px;
+    border-top: 1px solid rgba(196,152,30,0.12);
+  }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo img { height: 56px; display: block; }
+  .footer-center { display: flex; flex-direction: column; align-items: center; }
+  .footer-name {
+    font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #C9A84C; margin-bottom: 4px;
+  }
+  .footer-tag {
+    font-family: 'Jost', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(196,152,30,0.4);
+  }
+  .footer-right { font-family: 'Jost', sans-serif; font-size: 9px; color: rgba(196,152,30,0.35); }
+
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="restaurants.html">For Restaurants</a>
+  <a href="hotels.html">For Hotels</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+  <div class="menu-divider"></div>
+  <a href="contact.html" class="menu-cta">Request a Private Demonstration</a>
+</div>
+
+<nav id="main-nav">
+  <div class="logo"><a href="index.html"><img src="silkcat-logo.png" alt="SilkCat House"></a></div>
+  <div class="links">
+    <a href="restaurants.html">For Restaurants</a>
+    <a href="hotels.html">For Hotels</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" class="cta-btn">Request a Private Demonstration</a>
+  </div>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-heading">For Restaurant General Managers.</h1>
+    <p class="hero-subhead">Your guests chose you. Make sure they choose you again.</p>
+  </div>
+</section>
+
+<section id="pain-strip">
+  <div class="strip-inner">
+    <div class="strip-card">
+      <div class="strip-num">$39,000</div>
+      <div class="strip-head">Lost to Empty Tables</div>
+      <div class="strip-copy">Annual loss per location to no-shows and last-minute cancellations.</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-num">54%</div>
+      <div class="strip-head">Reviews Ignored</div>
+      <div class="strip-copy">Of all guest feedback goes completely unanswered. Globally.</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-num">Zero</div>
+      <div class="strip-head">Follow Up Messages</div>
+      <div class="strip-copy">The number of times a fine dining restaurant spoke to you after your $300 meal.</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-num">1998</div>
+      <div class="strip-head">OpenTable Founded</div>
+      <div class="strip-copy">It owns your guest relationship and charges you per cover for the privilege.</div>
+    </div>
+  </div>
+</section>
+
+<section id="products">
+  <div id="products-bg"></div>
+  <div class="products-grid">
+    <div class="product">
+      <div class="product-line"></div>
+      <div class="product-title">AI Concierge</div>
+      <div class="product-body">Answers every call. Speaks every language. Knows your menu. Never misses a reservation. Available before the first cover and after the last.</div>
+    </div>
+    <div class="product">
+      <div class="product-line"></div>
+      <div class="product-title">Wine Intelligence</div>
+      <div class="product-body">Your cellar. Your guests. Our AI. Perfect pairings every time in any language. The knowledge of a master sommelier without the salary.</div>
+    </div>
+    <div class="product">
+      <div class="product-line"></div>
+      <div class="product-title">Occasion Architecture</div>
+      <div class="product-body">Every birthday, anniversary, business dinner, proposal. Designed before they arrive. Feels inevitable when they experience it.</div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="how-inner">
+    <div class="how-label">How It Works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-text">We build your SilkCat House intelligence layer in 48 hours. No disruption. No rebuild.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-text">It lives on your existing presence. Nothing changes for your team. Everything changes for your guests.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-text">Your guests feel known. They return. They bring others. Your guest relationship is finally yours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="pricing-label">Private Pricing by Introduction</div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">Foundation</div>
+      <div class="price-from">From $1,500 per month</div>
+      <ul class="price-features">
+        <li>AI Concierge</li>
+        <li>Guest Quiz Funnel</li>
+        <li>Wine Sommelier Intelligence</li>
+        <li>Occasion Architecture</li>
+        <li>Guest Profile Database</li>
+      </ul>
+      <a href="contact.html" class="price-cta">Request Introduction</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-tier">Intelligence</div>
+      <div class="price-from">From $2,500 per month</div>
+      <ul class="price-features">
+        <li>Everything in Foundation</li>
+        <li>SevenRooms Integration</li>
+        <li>AI Voice Concierge</li>
+        <li>Review Intelligence Engine</li>
+        <li>Multi-language Guest Communication</li>
+      </ul>
+      <a href="contact.html" class="price-cta">Request Introduction</a>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">Private</div>
+      <div class="price-from">From $5,000 per month</div>
+      <ul class="price-features">
+        <li>Full White Label SilkCat House</li>
+        <li>Dedicated Intelligence Layer</li>
+        <li>Custom Integration Build</li>
+        <li>Private Onboarding Team</li>
+        <li>Ongoing Strategic Partnership</li>
+      </ul>
+      <a href="contact.html" class="price-cta">Request Introduction</a>
+    </div>
+  </div>
+</section>
+
+<section id="intel-demos">
+  <div class="intel-demos-inner">
+
+    <!-- FEATURE 1: PRE-ARRIVAL BRIEFING -->
+    <div class="demo-block">
+      <div class="demo-eyebrow">Feature 01 — Guest Intelligence</div>
+      <h2 class="demo-heading">Your team knows every guest before they arrive.</h2>
+      <p class="demo-subhead">Every morning at 9am SilkCat House delivers a complete intelligence brief on tonight's reservations. Not a guest list. A briefing.</p>
+
+      <div class="briefing-card" id="briefing-card">
+        <div class="briefing-header">
+          <div class="briefing-header-left">
+            <div class="briefing-dot"></div>
+            <div class="briefing-from">intelligence@silkcathouse.com &nbsp;→&nbsp; gm@therestaurant.com</div>
+          </div>
+          <div class="briefing-subject">SilkCat House — Tonight's Intelligence Brief</div>
+          <div class="briefing-time">09:00</div>
+        </div>
+        <div class="briefing-body">
+          <div class="briefing-salutation">Good morning. Tonight matters. Here is what you need to know.</div>
+
+          <div class="briefing-guest-header">
+            <div class="briefing-guest-name">Sarah &amp; James Whitmore</div>
+            <div class="briefing-guest-meta">Table 7 &nbsp;·&nbsp; 8:00pm &nbsp;·&nbsp; Party of 2 &nbsp;·&nbsp; Anniversary Dinner</div>
+          </div>
+
+          <div class="briefing-sections">
+            <div>
+              <div class="briefing-section-label">Who Is Coming &amp; Why</div>
+              <div class="briefing-section-text">Their seventh anniversary. James booked three weeks ago — longer than usual — which suggests this evening has been thought about. Sarah mentioned in her quiz that she values atmosphere over theatrics. They are not here for performance. They are here to be present with each other in a room that understands them.</div>
+            </div>
+            <div>
+              <div class="briefing-section-label">What the Server Should Know</div>
+              <div class="briefing-section-text">James tends to lead the conversation about wine but defers to Sarah on food. Do not assume he is the decision-maker at the table. Give them time. Their previous visit ran to three hours and they left satisfied — tonight should be allowed to breathe the same way. Sarah has a mild intolerance to shellfish. Nothing on the tasting menu is affected, but confirm quietly before the amuse-bouche arrives.</div>
+            </div>
+            <div>
+              <div class="briefing-section-label">Sommelier Intelligence</div>
+              <div class="briefing-section-text">James selected "old world, structured, not too fruit-forward" in his profile. Last visit he ordered the Barolo by the glass twice. Have the 2018 Giacomo Conterno Cascina Francia ready for a recommendation — not a suggestion, a recommendation, delivered with confidence. If they move to dessert, the Sauternes from bin 47 will close the evening perfectly.</div>
+            </div>
+            <div>
+              <div class="briefing-section-label">What to Avoid</div>
+              <div class="briefing-section-text">They are a quiet couple. Do not seat them near the service station or the large party on Table 12 tonight. Avoid over-checking. They will signal when they need attention. Previous feedback noted that they appreciated when the team "seemed to know without being asked." That is the standard for tonight.</div>
+            </div>
+          </div>
+
+          <div class="briefing-gesture">
+            <div class="briefing-gesture-label">The Unrequested Gesture</div>
+            <div class="briefing-gesture-text">Sarah mentioned in her intake that their first date was at a restaurant that used to serve a burnt honey ice cream. She has never forgotten it. Chef should know: a small quenelle of smoked honey gelato presented between courses — no explanation, no theatre — will mean more to her than any dish on the menu tonight.</div>
+          </div>
+
+          <div class="briefing-generate-row">
+            <button class="demo-generate-btn" id="briefing-gen-btn">Generate Live Brief with AI</button>
+            <span class="demo-generate-note">Uses your actual reservation data · Delivered at 9am before every service</span>
+          </div>
+          <div class="briefing-live-output" id="briefing-live-output"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE 2: NO-SHOW PREVENTION -->
+    <div class="demo-block">
+      <div class="demo-eyebrow">Feature 02 — No-Show Prevention</div>
+      <h2 class="demo-heading">Turn every reservation into an emotional commitment.</h2>
+      <p class="demo-subhead">Our anticipation sequence reduces no-shows by up to 80%. Not through reminders. Through relationship.</p>
+
+      <div class="noshow-stat" id="noshow-stat">
+        <div class="noshow-stat-num">25→5%</div>
+        <div class="noshow-stat-label">No-show rate drops from industry average to under 5% with the anticipation sequence active</div>
+      </div>
+
+      <div class="noshow-cards">
+        <div class="noshow-card" style="transition-delay:0s">
+          <div class="noshow-timing">On Booking</div>
+          <div class="noshow-sms">"Your table at Ember is confirmed for Saturday. We've noted your anniversary — the evening is already taking shape. We look forward to welcoming you."</div>
+          <div class="noshow-channel">SMS · 142 characters</div>
+        </div>
+        <div class="noshow-card" style="transition-delay:0.1s">
+          <div class="noshow-timing">72 Hours Before</div>
+          <div class="noshow-sms">"Saturday is almost here. Your anniversary table is set. One small question — any ingredients we should know about? We want everything to be right for you."</div>
+          <div class="noshow-channel">SMS · 158 characters</div>
+        </div>
+        <div class="noshow-card" style="transition-delay:0.2s">
+          <div class="noshow-timing">24 Hours Before</div>
+          <div class="noshow-sms">"Tomorrow evening. Table 7. 8pm. We're ready for you. Confirm with one tap — or let us know if anything has changed. Either way, we're here."</div>
+          <div class="noshow-channel">SMS · 139 characters · Confirm / Reschedule</div>
+        </div>
+        <div class="noshow-card" style="transition-delay:0.3s">
+          <div class="noshow-timing">4 Hours Before</div>
+          <div class="noshow-sms">"Tonight is yours. Valet is available on Kensington Lane. Ask for Marcus at the door — he's expecting you. Seven years deserves an evening like this."</div>
+          <div class="noshow-channel">SMS · 152 characters</div>
+        </div>
+      </div>
+
+      <div class="noshow-generate-row">
+        <button class="demo-generate-btn" id="noshow-gen-btn">Generate Live Sequence with AI</button>
+        <span class="demo-generate-note">Personalised to each guest's occasion, history, and quiz answers</span>
+      </div>
+      <div class="noshow-live-output" id="noshow-live-output"></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="page-cta">
+  <h2 class="cta-heading">Ready to transform your guest relationships?</h2>
+  <a href="contact.html" class="gold-btn">Request a Private Introduction</a>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="silkcat-logo.png" alt="SilkCat House"></div>
+    <div class="footer-center">
+      <div class="footer-name">SilkCat House</div>
+      <div class="footer-tag">Private Dining Intelligence</div>
+    </div>
+    <div class="footer-right">Powered by Sabian Technology</div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+(function() {
+  const btn = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }));
+})();
+
+async function loadBg(elementId, query, overlay) {
+  try {
+    const res = await fetch(`/api/images?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.src) {
+      document.getElementById(elementId).style.backgroundImage =
+        `linear-gradient(${overlay}), url('${data.src.large2x}')`;
+    }
+  } catch(e) {}
+}
+loadBg('hero-bg', 'fine dining restaurant service', 'rgba(139,0,0,0.80)');
+loadBg('products-bg', 'michelin star restaurant kitchen', 'rgba(139,0,0,0.82)');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.strip-card, .product, .step, .price-card').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4 * 0.12) + 's';
+  obs.observe(el);
+});
+
+// Observe demo elements
+document.querySelectorAll('.briefing-card, .noshow-card, .noshow-stat').forEach(el => obs.observe(el));
+
+// BRIEFING GENERATOR
+document.getElementById('briefing-gen-btn').addEventListener('click', async function() {
+  this.textContent = 'Generating…';
+  this.classList.add('loading');
+  this.disabled = true;
+
+  const sampleReservations = [{
+    guest_name: 'Sarah & James Whitmore',
+    occasion: 'Seventh Wedding Anniversary',
+    party_size: 2,
+    time: '8:00pm',
+    dietary_notes: 'Sarah — mild shellfish sensitivity. James — no restrictions.',
+    previous_visits: 2,
+    previous_orders: 'Barolo by the glass (x2), tasting menu both visits, declined dessert wine first visit, accepted second.',
+    quiz_answers: {
+      atmosphere: 'Intimate and unhurried — we prefer conversation to entertainment',
+      wine_preference: 'Old world, structured, not too fruit-forward',
+      occasion_feel: 'Private and personal rather than celebratory theatrics',
+      what_makes_great: 'When staff seem to know what we need before we ask'
+    }
+  }];
+
+  try {
+    const res = await fetch('/api/briefing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reservations: sampleReservations })
+    });
+    const data = await res.json();
+    const output = document.getElementById('briefing-live-output');
+    if (data.html) {
+      output.innerHTML = `<div style="font-family:'Jost',sans-serif;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#C9A84C;margin-bottom:16px;">Live AI Output — Generated Now</div>` + data.html;
+      output.classList.add('visible');
+    } else {
+      output.innerHTML = `<p style="color:rgba(255,255,255,0.4);font-family:'Jost',sans-serif;font-size:12px;">${data.error || 'Unable to generate. Please try again.'}</p>`;
+      output.classList.add('visible');
+    }
+  } catch(e) {
+    const output = document.getElementById('briefing-live-output');
+    output.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-family:\'Jost\',sans-serif;font-size:12px;">Connection error. Ensure the server is running.</p>';
+    output.classList.add('visible');
+  }
+
+  this.textContent = 'Regenerate Brief';
+  this.classList.remove('loading');
+  this.disabled = false;
+});
+
+// NO-SHOW SEQUENCE GENERATOR
+document.getElementById('noshow-gen-btn').addEventListener('click', async function() {
+  this.textContent = 'Generating…';
+  this.classList.add('loading');
+  this.disabled = true;
+
+  const sampleReservation = {
+    guest_name: 'Sarah & James Whitmore',
+    occasion: 'Seventh Wedding Anniversary',
+    party_size: 2,
+    date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
+    time: '8:00pm',
+    restaurant_name: 'Ember at The Langham',
+    previous_visits: 2,
+    quiz_answers: {
+      atmosphere: 'Intimate and unhurried',
+      wine_preference: 'Old world, structured',
+      occasion_feel: 'Private and personal rather than celebratory'
+    }
+  };
+
+  try {
+    const res = await fetch('/api/noshow-sequence', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sampleReservation)
+    });
+    const data = await res.json();
+    const output = document.getElementById('noshow-live-output');
+
+    if (data.messages && data.messages.length) {
+      output.innerHTML = data.messages.map(m => `
+        <div class="noshow-live-card">
+          <div class="noshow-live-timing">${m.timing}</div>
+          <div class="noshow-live-sms">${m.sms_version}</div>
+          <div class="noshow-live-email-label">Email version</div>
+          <div class="noshow-live-email">${m.email_version}</div>
+        </div>
+      `).join('');
+      output.classList.add('visible');
+    } else {
+      output.innerHTML = `<p style="color:rgba(255,255,255,0.4);font-family:'Jost',sans-serif;font-size:12px;grid-column:1/-1">${data.error || 'Unable to generate. Please try again.'}</p>`;
+      output.classList.add('visible');
+    }
+  } catch(e) {
+    const output = document.getElementById('noshow-live-output');
+    output.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-family:\'Jost\',sans-serif;font-size:12px;grid-column:1/-1">Connection error. Ensure the server is running.</p>';
+    output.classList.add('visible');
+  }
+
+  this.textContent = 'Regenerate Sequence';
+  this.classList.remove('loading');
+  this.disabled = false;
+});
+</script>
+</body>
+</html>
