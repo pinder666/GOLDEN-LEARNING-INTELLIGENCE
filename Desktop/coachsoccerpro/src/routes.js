@@ -19,6 +19,7 @@ import CoachProHabits from "layouts/coach/prohabits";
 import CoachPayments from "layouts/coach/payments";
 import CoachSettings from "layouts/coach/settings";
 import CoachDrills from "layouts/coach/drills";
+import TacticsBoard from "layouts/coach/tactics";
 import SessionPlanner from "layouts/coach/sessionplanner";
 
 // Auth Layouts
@@ -43,7 +44,7 @@ import ChildHabits from "layouts/child/habits";
 
 // React icons
 import { IoHome, IoPeople, IoCalendar, IoChatbubbles, IoCard, IoTrophy, IoSettings, IoFitness, IoImages, IoFlash } from "react-icons/io5";
-import { FaMedal, FaChartLine, FaFutbol } from "react-icons/fa";
+import { FaMedal, FaChartLine, FaFutbol, FaChessBoard } from "react-icons/fa";
 
 // =============================================
 // COACH ROUTES (Sidebar navigation)
@@ -168,6 +169,16 @@ const coachRoutes = [
     icon: <FaFutbol size="15px" color="inherit" />,
     route: "/coach/drills",
     component: <CoachDrills />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Tactics Board",
+    nameEs: "Tablero Táctico",
+    key: "coach-tactics",
+    icon: <FaChessBoard size="15px" color="inherit" />,
+    route: "/coach/tactics",
+    component: <TacticsBoard />,
     noCollapse: true,
   },
   {
