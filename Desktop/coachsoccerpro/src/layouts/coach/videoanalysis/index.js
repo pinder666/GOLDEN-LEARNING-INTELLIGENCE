@@ -4,20 +4,18 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-const DEMO_INSIGHTS = [
-  { label: "Body Position", labelEs: "Posición Corporal", score: 78, feedback: "Good open body shape on receive. Could improve backfoot positioning.", feedbackEs: "Buena posición corporal abierta al recibir. Podría mejorar el posicionamiento del pie trasero." },
-  { label: "Head Movement", labelEs: "Movimiento de Cabeza", score: 62, feedback: "Scans twice before receiving. Target is 3+ scans in the 5 seconds before the ball.", feedbackEs: "Escanea dos veces antes de recibir. El objetivo es 3+ escaneos en los 5 segundos antes del balón." },
-  { label: "First Touch", labelEs: "Primer Toque", score: 85, feedback: "Touch direction matches the pre-scan. Ball moved into space effectively.", feedbackEs: "Dirección del toque coincide con el escaneo previo. Balón movido al espacio efectivamente." },
-  { label: "Run Timing", labelEs: "Timing de Carrera", score: 71, feedback: "Slightly early run. Wait for passer's head to come up before initiating.", feedbackEs: "Carrera ligeramente temprana. Esperar a que el pasador levante la cabeza antes de iniciar." },
-];
+import { analyzeVideoElement, buildInsights } from "services/videoAnalysis";
 
 function VideoAnalysis() {
   const [lang, setLang] = useState("en");
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [results, setResults] = useState(null);
+  const [analysisError, setAnalysisError] = useState(null);
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
 
   const t = (en, es) => lang === "es" ? es : en;
 
@@ -27,21 +25,46 @@ function VideoAnalysis() {
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(file));
       setResults(null);
+      setAnalysisError(null);
     }
   };
 
-  const analyzeVideo = () => {
+  const analyzeVideo = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
     setAnalyzing(true);
-    setTimeout(() => {
-      setResults(DEMO_INSIGHTS);
+    setProgress(0);
+    setResults(null);
+    setAnalysisError(null);
+
+    try {
+      const outcome = await analyzeVideoElement(video, (p) => setProgress(p));
+      if (outcome.error) {
+        setAnalysisError(
+          outcome.error === "no-player"
+            ? t(
+                "No player detected in the clip. Make sure one player is clearly visible.",
+                "No se detectó ningún jugador en el clip. Asegúrate de que un jugador sea claramente visible."
+              )
+            : t("Could not read this video. Try a different clip.", "No se pudo leer este video. Prueba otro clip.")
+        );
+      } else {
+        setResults(buildInsights(outcome.metrics));
+      }
+    } catch (err) {
+      console.error("Video analysis failed:", err);
+      setAnalysisError(t("Analysis failed. Try a shorter clip.", "El análisis falló. Prueba un clip más corto."));
+    } finally {
       setAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const clearVideo = () => {
     setVideoFile(null);
     setVideoUrl(null);
     setResults(null);
+    setAnalysisError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -95,8 +118,11 @@ function VideoAnalysis() {
             }}>
               {videoUrl ? (
                 <video
+                  ref={videoRef}
                   src={videoUrl}
                   controls
+                  crossOrigin="anonymous"
+                  playsInline
                   style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 10 }}
                 />
               ) : (
@@ -131,7 +157,9 @@ function VideoAnalysis() {
                   fontSize: 13, fontWeight: 700, cursor: analyzing ? "not-allowed" : "pointer",
                   fontFamily: "Inter,sans-serif",
                 }}>
-                  {analyzing ? t("Analyzing...", "Analizando...") : t("🧠 Analyze Video", "🧠 Analizar Video")}
+                  {analyzing
+                    ? `${t("Analyzing", "Analizando")} ${Math.round(progress * 100)}%`
+                    : t("🧠 Analyze Video", "🧠 Analizar Video")}
                 </button>
                 <button onClick={clearVideo} style={{
                   background: "rgba(255,255,255,.08)", color: "rgba(255,255,255,.6)",
@@ -202,7 +230,14 @@ function VideoAnalysis() {
                   ))}
                 </div>
                 <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.5)" }}>
-                  {t("Analyzing player movement...", "Analizando movimiento del jugador...")}
+                  {t("Analyzing player movement", "Analizando movimiento del jugador")} — {Math.round(progress * 100)}%
+                </VuiTypography>
+              </VuiBox>
+            ) : analysisError ? (
+              <VuiBox sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "12px", px: 2 }}>
+                <span style={{ fontSize: 40 }}>🔍</span>
+                <VuiTypography variant="caption" sx={{ color: "#fbbf24", textAlign: "center", lineHeight: 1.6 }}>
+                  {analysisError}
                 </VuiTypography>
               </VuiBox>
             ) : (
