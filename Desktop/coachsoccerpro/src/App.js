@@ -126,8 +126,8 @@ export default function App() {
     }
   };
 
-  // Check if current route is an auth route or landing page (no sidebar needed)
-  const isAuthRoute = pathname.startsWith("/auth") || pathname === "/" || pathname === "/landing";
+  // Check if current route is an auth route (no sidebar needed)
+  const isAuthRoute = pathname.startsWith("/auth");
 
   // Settings button
   const configsButton = (

@@ -32,8 +32,9 @@ import CoachSignIn from "layouts/authentication/sign-in/coach";
 import CoachSignUp from "layouts/authentication/sign-up/coach";
 import ParentSignIn from "layouts/authentication/sign-in/parent";
 
-// Landing Page
-import LandingPage from "layouts/landing";
+// Landing redirect — the real landing page is a separate site (:3003).
+// Root of this app goes straight to the coach cockpit.
+import { Navigate } from "react-router-dom";
 
 // Parent Layouts
 import ParentDashboard from "layouts/parent/dashboard";
@@ -384,10 +385,10 @@ const authRoutes = [
     component: <ParentSignIn />,
   },
   {
-    name: "Landing Page",
-    key: "landing",
+    name: "Root",
+    key: "root-redirect",
     route: "/",
-    component: <LandingPage />,
+    component: <Navigate to="/coach/dashboard" replace />,
   },
   // TODO: Add password reset
 ];
