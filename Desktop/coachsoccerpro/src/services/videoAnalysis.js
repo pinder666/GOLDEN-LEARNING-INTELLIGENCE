@@ -19,6 +19,15 @@ import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 
 const landmarkerCache = {}; // keyed by numPoses
 
+// MediaPipe requires strictly increasing timestamps per landmarker instance.
+// One global monotonic clock shared by prescan, analysis, and share-card
+// keeps every call ahead of the last, across any number of runs.
+let lastTs = 0;
+function nextTs() {
+  lastTs = Math.max(lastTs + 33, performance.now());
+  return lastTs;
+}
+
 function getLandmarker(numPoses = 1) {
   if (!landmarkerCache[numPoses]) {
     landmarkerCache[numPoses] = (async () => {
@@ -95,21 +104,22 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const numPoses = scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
   const landmarker = await getLandmarker(numPoses);
 
-  const duration = Math.min(video.duration || 0, 30); // cap at 30s
+  // Length caps: penalty/duel are short moments (30s); open play can run
+  // longer (90s). Longer clips sample fewer frames/sec so timing stays sane.
+  const maxLen = scenario === "open" ? 90 : 30;
+  const duration = Math.min(video.duration || 0, maxLen);
   if (!duration || !isFinite(duration)) return { error: "no-duration" };
 
-  const fps = 6;
+  const fps = duration > 45 ? 3 : duration > 20 ? 4 : 6;
   const step = 1 / fps;
   const rawFrames = []; // every scenario: per-frame raw landmark sets (also feeds the replay)
 
   video.pause();
   video.muted = true;
 
-  let ts = performance.now();
   for (let t = 0; t < duration; t += step) {
     await seekTo(video, t);
-    ts += 33; // monotonically increasing timestamp for VIDEO mode
-    const result = landmarker.detectForVideo(video, ts);
+    const result = landmarker.detectForVideo(video, nextTs());
     const poses = result?.landmarks || [];
     if (opts.onFrame) opts.onFrame(poses, t);
     rawFrames.push({ t, poses });
@@ -277,11 +287,9 @@ export async function prescanPlayers(video, maxPoses = 4) {
   const end = Math.min(video.duration || 2, 2.5);
   const raw = [];
   video.pause();
-  let ts = performance.now() + 500000;
   for (let t = 0.1; t < end; t += 0.4) {
     await seekTo(video, t);
-    ts += 33;
-    const result = landmarker.detectForVideo(video, ts);
+    const result = landmarker.detectForVideo(video, nextTs());
     raw.push({ t, poses: result?.landmarks || [] });
   }
   const tracks = trackPeople(raw, maxPoses).filter((trk) => trk.length >= 2);
@@ -638,7 +646,7 @@ export async function buildShareCard(video, frameT, insights, { scenario = "open
   const landmarker = await getLandmarker(numPoses);
 
   await seekTo(video, Math.max(0, frameT));
-  const result = landmarker.detectForVideo(video, performance.now() + 100000);
+  const result = landmarker.detectForVideo(video, nextTs());
   const poses = result?.landmarks || [];
 
   const vw = video.videoWidth || 640;
