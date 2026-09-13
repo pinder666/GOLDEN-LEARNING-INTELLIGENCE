@@ -100,9 +100,11 @@ const R_HIP = 24;
 export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const scenario = opts.scenario || "open";
   const targetIndex = opts.targetIndex ?? 0;
-  // Multi-person whenever the scenario or picker needs it
-  const numPoses = scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
+  const anchors = opts.anchors?.length ? opts.anchors : null;
+  // Crowded shots: with taps we detect generously (5) and keep only tapped
+  const numPoses = anchors ? 5 : scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
   const landmarker = await getLandmarker(numPoses);
+  const ballTracker = opts.ballAnchor ? createBallTracker(video, opts.ballAnchor) : null;
 
   // Length caps: penalty/duel are short moments (30s); open play can run
   // longer (90s). Longer clips sample fewer frames/sec so timing stays sane.
@@ -117,23 +119,44 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   video.pause();
   video.muted = true;
 
+  const ballPath = [];
   for (let t = 0; t < duration; t += step) {
     await seekTo(video, t);
     const result = landmarker.detectForVideo(video, nextTs());
     const poses = result?.landmarks || [];
-    if (opts.onFrame) opts.onFrame(poses, t);
+    let ball = null;
+    if (ballTracker) {
+      ball = ballTracker.step();
+      ball.t = t;
+      ballPath.push(ball);
+    }
+    if (opts.onFrame) opts.onFrame(poses, t, ball);
     rawFrames.push({ t, poses });
     if (onProgress) onProgress(Math.min(1, (t + step) / duration));
   }
 
+  // With taps: keep ONLY the tapped players — background people vanish here.
+  let anchorTracks = null;
+  let framesForAnalysis = rawFrames;
+  if (anchors) {
+    anchorTracks = matchTracksToAnchors(rawFrames, anchors);
+    framesForAnalysis = rawFrames.map(({ t, poses: _ignored, ...rest }) => {
+      const kept = anchorTracks
+        .map((trk) => trk.find((f) => f.t === t))
+        .filter(Boolean)
+        .map((f) => f.lm);
+      return { t, poses: kept, ...rest };
+    });
+  }
+
   let outcome;
   if (scenario === "penalty") {
-    outcome = analyzePenalty(rawFrames, duration);
+    outcome = analyzePenalty(framesForAnalysis, duration, ballPath);
   } else if (scenario === "duel") {
-    outcome = analyzeDuel(rawFrames, duration, targetIndex);
+    outcome = analyzeDuel(framesForAnalysis, duration, targetIndex);
   } else {
-    // Open play: analyze the PICKED player (left-to-right index)
-    const tracks = trackPeople(rawFrames, numPoses);
+    // Open play: the tapped player (or picker index without taps)
+    const tracks = anchorTracks || trackPeople(rawFrames, numPoses);
     const trk = tracks[Math.min(targetIndex, tracks.length - 1)];
     const valid = trk ? trk.map((f) => extractFrame(f.lm, f.t)) : [];
     if (valid.length < 6) {
@@ -143,7 +166,10 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     }
   }
 
-  if (!outcome.error) outcome.allFrames = rawFrames; // for the Analyst Replay
+  if (!outcome.error) {
+    outcome.allFrames = anchors ? framesForAnalysis : rawFrames; // replay shows only who matters
+    if (ballPath.length) outcome.ballPath = ballPath;
+  }
   return outcome;
 }
 
@@ -278,6 +304,124 @@ function trackPeople(rawFrames, maxPeople = 4) {
 }
 
 /**
+ * Match detected poses to the coach's TAPPED anchor points, frame by frame.
+ * Each anchor becomes one track: per frame we take the nearest unclaimed
+ * pose (hip center) within a radius, then follow it by continuity. Bigger
+ * skeletons win ties — background bystanders are small.
+ * Returns one track per anchor (same order as anchors).
+ */
+function matchTracksToAnchors(rawFrames, anchors) {
+  const cur = anchors.map((a) => ({ x: a.x, y: a.y, lost: 0 }));
+  const tracks = anchors.map(() => []);
+  for (const { t, poses } of rawFrames) {
+    if (!poses.length) continue;
+    const info = poses.map((lm) => ({
+      lm,
+      x: (lm[L_HIP].x + lm[R_HIP].x) / 2,
+      y: (lm[L_HIP].y + lm[R_HIP].y) / 2,
+      size: Math.abs((lm[L_SHOULDER].y + lm[R_SHOULDER].y) / 2 - (lm[L_HIP].y + lm[R_HIP].y) / 2),
+    }));
+    const used = new Set();
+    cur.forEach((c, ai) => {
+      let best = -1;
+      let bestCost = Infinity;
+      const radius = Math.min(0.12 + c.lost * 0.05, 0.3);
+      info.forEach((p, pi) => {
+        if (used.has(pi)) return;
+        const d = Math.hypot(p.x - c.x, p.y - c.y);
+        if (d > radius) return;
+        const cost = d - p.size * 0.5; // closeness first, size breaks ties
+        if (cost < bestCost) {
+          bestCost = cost;
+          best = pi;
+        }
+      });
+      if (best >= 0) {
+        used.add(best);
+        tracks[ai].push({ t, lm: info[best].lm });
+        c.x = info[best].x;
+        c.y = info[best].y;
+        c.lost = 0;
+      } else {
+        c.lost += 1;
+      }
+    });
+  }
+  return tracks;
+}
+
+/**
+ * Tiny ball tracker: template patch from the tapped ball position, followed
+ * frame-to-frame by SSD search in a small window on a downscaled canvas.
+ * Best-effort — when it loses the ball it says so via conf, never crashes.
+ */
+function createBallTracker(video, ballAnchor) {
+  const W = 240;
+  const H = Math.max(1, Math.round((video.videoHeight / video.videoWidth) * W));
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const P = 12; // patch half-size
+  let template = null;
+  let pos = { x: ballAnchor.x * W, y: ballAnchor.y * H };
+
+  const grab = () => {
+    ctx.drawImage(video, 0, 0, W, H);
+    return ctx.getImageData(0, 0, W, H).data;
+  };
+  const patchAt = (data, cx, cy) => {
+    const out = [];
+    for (let dy = -P; dy <= P; dy += 2) {
+      for (let dx = -P; dx <= P; dx += 2) {
+        const x = Math.min(W - 1, Math.max(0, Math.round(cx + dx)));
+        const y = Math.min(H - 1, Math.max(0, Math.round(cy + dy)));
+        const i = (y * W + x) * 4;
+        out.push(data[i], data[i + 1], data[i + 2]);
+      }
+    }
+    return out;
+  };
+
+  return {
+    step() {
+      const data = grab();
+      if (!template) {
+        template = patchAt(data, pos.x, pos.y);
+        return { x: pos.x / W, y: pos.y / H, conf: 1 };
+      }
+      const SEARCH = 30;
+      let best = null;
+      let bestSSD = Infinity;
+      for (let dy = -SEARCH; dy <= SEARCH; dy += 3) {
+        for (let dx = -SEARCH; dx <= SEARCH; dx += 3) {
+          const cx = pos.x + dx;
+          const cy = pos.y + dy;
+          if (cx < P || cy < P || cx > W - P || cy > H - P) continue;
+          const cand = patchAt(data, cx, cy);
+          let ssd = 0;
+          for (let i = 0; i < cand.length; i++) {
+            const d = cand[i] - template[i];
+            ssd += d * d;
+            if (ssd > bestSSD) break;
+          }
+          if (ssd < bestSSD) {
+            bestSSD = ssd;
+            best = { x: cx, y: cy };
+          }
+        }
+      }
+      if (best) {
+        pos = best;
+        const conf = Math.max(0, 1 - bestSSD / (template.length * 5500));
+        return { x: pos.x / W, y: pos.y / H, conf };
+      }
+      return { x: pos.x / W, y: pos.y / H, conf: 0 };
+    },
+  };
+}
+
+/**
  * Quick pre-scan: sample the first ~2s and report each player found, with a
  * head position for drawing the number badge. Returns [{index, x, y}] in
  * left-to-right order.
@@ -305,7 +449,7 @@ export async function prescanPlayers(video, maxPoses = 4) {
  * (the strike); the keeper is the other. The strike frame is the moment of
  * peak kicking-foot speed. Metrics are read at and around that frame.
  */
-function analyzePenalty(rawFrames, duration) {
+function analyzePenalty(rawFrames, duration, ballPath = null) {
   // Track up to 2 identities by hip-midpoint continuity
   const tracks = [[], []]; // arrays of {t, lm}
   for (const { t, poses } of rawFrames) {
@@ -374,7 +518,24 @@ function analyzePenalty(rawFrames, duration) {
   const strike = p0.maxV >= p1.maxV ? p0 : p1;
   const kickFoot = strike.foot;
   const plantFoot = kickFoot === L_ANKLE ? R_ANKLE : L_ANKLE;
-  const strikeT = strike.maxT;
+  let strikeT = strike.maxT;
+
+  // Tapped ball refines the strike: the true strike is when the kicking
+  // foot meets the ball, not just the fastest frame.
+  if (ballPath?.length) {
+    let bestT = null;
+    let bestD = Infinity;
+    for (const f of takerTrack) {
+      const b = ballPath.reduce((p, c) => (Math.abs(c.t - f.t) < Math.abs(p.t - f.t) ? c : p));
+      if (b.conf < 0.3) continue;
+      const d = Math.hypot(f.lm[kickFoot].x - b.x, f.lm[kickFoot].y - b.y);
+      if (d < bestD) {
+        bestD = d;
+        bestT = f.t;
+      }
+    }
+    if (bestT !== null && Math.abs(bestT - strikeT) <= 1.2) strikeT = bestT;
+  }
 
   const at = (trk, t) => {
     let best = trk[0];

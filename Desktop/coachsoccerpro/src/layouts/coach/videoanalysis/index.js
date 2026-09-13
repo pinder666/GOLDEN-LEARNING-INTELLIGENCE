@@ -28,6 +28,9 @@ function VideoAnalysis() {
   const [shareBusy, setShareBusy] = useState(false);
   const [players, setPlayers] = useState([]);       // prescan: numbered badges
   const [targetIndex, setTargetIndex] = useState(0); // which player the coach picked
+  const [anchors, setAnchors] = useState([]);        // coach-tapped player targets
+  const [ballAnchor, setBallAnchor] = useState(null);
+  const [tapMode, setTapMode] = useState("player");  // "player" | "ball"
   const [reviewing, setReviewing] = useState(false);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -65,8 +68,8 @@ function VideoAnalysis() {
     audioRef.current = playAnalysisLine(insight.audioKey, lang);
   };
 
-  // Live skeleton overlay during analysis
-  const drawOverlay = (poses) => {
+  // Live skeleton overlay during analysis (+ tracked ball when tapped)
+  const drawOverlay = (poses, _t, ball) => {
     const canvas = overlayRef.current;
     const video = videoRef.current;
     if (!canvas || !video || !video.videoWidth) return;
@@ -79,6 +82,14 @@ function VideoAnalysis() {
     poses.forEach((lm, i) =>
       drawSkeleton(ctx, lm, canvas.width, canvas.height, i === 0 ? "#4ade80" : "#60a5fa")
     );
+    if (ball && ball.conf > 0.25) {
+      const r = Math.max(8, canvas.width / 70);
+      ctx.beginPath();
+      ctx.arc(ball.x * canvas.width, ball.y * canvas.height, r, 0, Math.PI * 2);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#fb923c";
+      ctx.stroke();
+    }
   };
 
   const clearOverlay = () => {
@@ -96,6 +107,8 @@ function VideoAnalysis() {
       setAnalysisError(null);
       setPlayers([]);
       setTargetIndex(0);
+      setAnchors([]);
+      setBallAnchor(null);
     }
   };
 
@@ -115,6 +128,86 @@ function VideoAnalysis() {
     } catch (err) {
       console.error("Prescan failed:", err);
     }
+  };
+
+  // Coach taps the video to mark exactly who (and what) matters —
+  // everything untapped is background noise the engine ignores.
+  const handleVideoTap = (e) => {
+    const video = videoRef.current;
+    if (!video || analyzing || reviewing) return;
+    const rect = video.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return;
+
+    if (tapMode === "ball") {
+      setBallAnchor({ x, y });
+      drawMarkers(anchors, { x, y }, targetIndex);
+      return;
+    }
+    // Tap near an existing marker removes it
+    const hit = anchors.findIndex((a) => Math.hypot(a.x - x, a.y - y) < 0.05);
+    let next;
+    if (hit >= 0) {
+      next = anchors.filter((_, i) => i !== hit);
+    } else if (anchors.length < 4) {
+      next = [...anchors, { x, y }];
+    } else {
+      next = anchors;
+    }
+    setAnchors(next);
+    setTargetIndex(0);
+    drawMarkers(next, ballAnchor, 0);
+  };
+
+  const drawMarkers = (marks, ball, picked = targetIndex) => {
+    const canvas = overlayRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video || !video.videoWidth) return;
+    if (canvas.width !== video.videoWidth) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const r = Math.max(14, canvas.width / 42);
+    marks.forEach((p, i) => {
+      const x = p.x * canvas.width;
+      const y = p.y * canvas.height;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = i === picked ? "#4ade80" : "rgba(10,14,35,0.85)";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = i === picked ? "#4ade80" : "rgba(255,255,255,0.8)";
+      ctx.stroke();
+      ctx.fillStyle = i === picked ? "#000" : "#fff";
+      ctx.font = `800 ${Math.round(r * 1.1)}px Inter, Arial, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), x, y + 1);
+    });
+    if (ball) {
+      const x = ball.x * canvas.width;
+      const y = ball.y * canvas.height;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.8, 0, Math.PI * 2);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#fb923c";
+      ctx.stroke();
+      ctx.font = `${Math.round(r)}px Inter, Arial, sans-serif`;
+      ctx.fillText("⚽", x, y + 1);
+    }
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
+  };
+
+  const clearTaps = () => {
+    setAnchors([]);
+    setBallAnchor(null);
+    setTargetIndex(0);
+    if (players.length) drawBadges(players, 0);
+    else clearOverlay();
   };
 
   const drawBadges = (found, picked = targetIndex) => {
@@ -163,6 +256,8 @@ function VideoAnalysis() {
         scenario,
         targetIndex,
         multi: players.length > 1,
+        anchors: anchors.length ? anchors : undefined,
+        ballAnchor: ballAnchor || undefined,
         onFrame: drawOverlay,
       });
       outcomeRef.current = outcome;
@@ -260,10 +355,15 @@ function VideoAnalysis() {
     const momentT = outcome.strikeT ?? (outcome.duration ? outcome.duration / 2 : 0);
     let momentDone = false;
 
+    const ballPath = outcome.ballPath || null;
     const drawAt = (time) => {
       let best = frames[0];
       for (const f of frames) if (Math.abs(f.t - time) < Math.abs(best.t - time)) best = f;
-      drawOverlay(best.poses);
+      let ball = null;
+      if (ballPath) {
+        ball = ballPath.reduce((p, c) => (Math.abs(c.t - time) < Math.abs(p.t - time) ? c : p));
+      }
+      drawOverlay(best.poses, time, ball);
     };
 
     const onTime = () => {
@@ -302,7 +402,8 @@ function VideoAnalysis() {
       video.pause();
       stopVoice();
       setReviewing(false);
-      if (players.length) drawBadges(players);
+      if (anchors.length) drawMarkers(anchors, ballAnchor);
+      else if (players.length) drawBadges(players);
       else clearOverlay();
     };
     reviewRef.current.stop = stopReview;
@@ -331,6 +432,9 @@ function VideoAnalysis() {
     setAnalysisError(null);
     setPlayers([]);
     setTargetIndex(0);
+    setAnchors([]);
+    setBallAnchor(null);
+    setTapMode("player");
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
   };
@@ -413,7 +517,10 @@ function VideoAnalysis() {
               border: "2px dashed rgba(255,255,255,.15)", position: "relative", overflow: "hidden",
             }}>
               {videoUrl ? (
-                <VuiBox sx={{ position: "relative", maxWidth: "100%", maxHeight: "100%", display: "flex" }}>
+                <VuiBox
+                  onClick={handleVideoTap}
+                  sx={{ position: "relative", maxWidth: "100%", maxHeight: "100%", display: "flex", cursor: analyzing || reviewing ? "default" : "crosshair" }}
+                >
                   <video
                     ref={videoRef}
                     src={videoUrl}
@@ -475,16 +582,58 @@ function VideoAnalysis() {
               )}
             </VuiBox>
 
-            {/* Player picker — appears when more than one player is in frame */}
-            {videoUrl && players.length > 1 && (
+            {/* Tap-to-target toolbar */}
+            {videoUrl && !analyzing && (
+              <VuiBox display="flex" gap="8px" alignItems="center" flexWrap="wrap">
+                <div style={{ display: "flex", gap: 3, background: "rgba(255,255,255,.08)", borderRadius: 16, padding: 3 }}>
+                  <button onClick={() => setTapMode("player")} style={{
+                    background: tapMode === "player" ? "#4ade80" : "transparent",
+                    color: tapMode === "player" ? "#000" : "rgba(255,255,255,.6)",
+                    border: "none", borderRadius: 14, padding: "4px 12px",
+                    fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>
+                    👤 {t("Tap Players", "Marcar Jugadores")}
+                  </button>
+                  <button onClick={() => setTapMode("ball")} style={{
+                    background: tapMode === "ball" ? "#fb923c" : "transparent",
+                    color: tapMode === "ball" ? "#000" : "rgba(255,255,255,.6)",
+                    border: "none", borderRadius: 14, padding: "4px 12px",
+                    fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>
+                    ⚽ {t("Tap Ball", "Marcar Balón")}
+                  </button>
+                </div>
+                {(anchors.length > 0 || ballAnchor) && (
+                  <button onClick={clearTaps} style={{
+                    background: "rgba(255,255,255,.08)", color: "rgba(255,255,255,.6)",
+                    border: "none", borderRadius: 14, padding: "4px 12px",
+                    fontSize: 11, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>
+                    ✕ {t("Clear marks", "Borrar marcas")}
+                  </button>
+                )}
+                <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.4)", fontSize: 11 }}>
+                  {anchors.length
+                    ? t(`${anchors.length} marked — only they get analyzed`, `${anchors.length} marcados — solo ellos se analizan`)
+                    : t("Tap each player on the video (then the ball)", "Toca cada jugador en el video (luego el balón)")}
+                </VuiTypography>
+              </VuiBox>
+            )}
+
+            {/* Player picker — tapped marks first, prescan badges as fallback */}
+            {videoUrl && (anchors.length > 1 || (!anchors.length && players.length > 1)) && (
               <VuiBox display="flex" gap="8px" alignItems="center" flexWrap="wrap">
                 <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.5)", fontSize: 11 }}>
                   {t("Analyzing player:", "Analizando jugador:")}
                 </VuiTypography>
-                {players.map((p, i) => (
+                {(anchors.length ? anchors : players).map((p, i) => (
                   <button
                     key={i}
-                    onClick={() => { setTargetIndex(i); drawBadges(players, i); }}
+                    onClick={() => {
+                      setTargetIndex(i);
+                      if (anchors.length) drawMarkers(anchors, ballAnchor, i);
+                      else drawBadges(players, i);
+                    }}
                     disabled={analyzing}
                     style={{
                       width: 34, height: 34, borderRadius: "50%",
