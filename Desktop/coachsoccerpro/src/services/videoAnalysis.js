@@ -447,6 +447,36 @@ function createBallTracker(video, ballAnchor) {
 }
 
 /**
+ * BODY-SCAN LOCK: detect on the CURRENT frozen frame and lock onto the one
+ * body nearest the coach's tap. Returns { lm, hip:{x,y} } — the skeleton to
+ * flash as confirmation and the precise anchor for analysis — or null when
+ * nothing lockable is under the tap.
+ */
+export async function lockPlayerAt(video, point) {
+  const landmarker = await getLandmarker(6);
+  const result = landmarker.detectForVideo(video, nextTs());
+  const poses = result?.landmarks || [];
+  let best = null;
+  let bestD = 0.15; // must tap ON the player
+  for (const lm of poses) {
+    let d = Infinity;
+    for (const q of lm) {
+      const dd = Math.hypot(q.x - point.x, q.y - point.y);
+      if (dd < d) d = dd;
+    }
+    if (d < bestD) {
+      bestD = d;
+      best = lm;
+    }
+  }
+  if (!best) return null;
+  return {
+    lm: best,
+    hip: { x: (best[L_HIP].x + best[R_HIP].x) / 2, y: (best[L_HIP].y + best[R_HIP].y) / 2 },
+  };
+}
+
+/**
  * Quick pre-scan: sample the first ~2s and report each player found, with a
  * head position for drawing the number badge. Returns [{index, x, y}] in
  * left-to-right order.

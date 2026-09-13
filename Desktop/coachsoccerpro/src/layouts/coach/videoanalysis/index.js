@@ -12,7 +12,10 @@ import {
   buildShareCard,
   playAnalysisLine,
   drawSkeleton,
+  lockPlayerAt,
 } from "services/videoAnalysis";
+
+const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
 
 function VideoAnalysis() {
   const [lang, setLang] = useState("en");
@@ -111,12 +114,14 @@ function VideoAnalysis() {
     }
   };
 
-  // Coach taps the video to mark exactly who (and what) matters —
-  // everything untapped is background noise the engine ignores.
-  // Only active during the tap steps; the video stays frozen throughout.
-  const handleVideoTap = (e) => {
+  // BODY-SCAN LOCK: each tap scans that spot on the frozen frame, finds the
+  // body under it, flashes its skeleton — locked BEFORE analysis ever runs.
+  const [locking, setLocking] = useState(false);
+  const [lockError, setLockError] = useState(false);
+
+  const handleVideoTap = async (e) => {
     const video = videoRef.current;
-    if (!video || analyzing || reviewing) return;
+    if (!video || analyzing || reviewing || locking) return;
     if (step !== "players" && step !== "ball") return;
     video.pause();
     const rect = video.getBoundingClientRect();
@@ -127,22 +132,38 @@ function VideoAnalysis() {
     if (step === "ball") {
       setBallAnchor({ x, y });
       drawMarkers(anchors, { x, y }, targetIndex);
-      setStep("ready"); // ball tapped → ritual complete, ready to analyze
+      setStep("ready"); // ball locked → ritual complete
       return;
     }
-    // Tap near an existing marker removes it
+
+    // Tap near an existing lock removes it
     const hit = anchors.findIndex((a) => Math.hypot(a.x - x, a.y - y) < 0.035);
-    let next;
     if (hit >= 0) {
-      next = anchors.filter((_, i) => i !== hit);
-    } else if (anchors.length < 4) {
-      next = [...anchors, { x, y }];
-    } else {
-      next = anchors;
+      const next = anchors.filter((_, i) => i !== hit);
+      setAnchors(next);
+      setTargetIndex(0);
+      drawMarkers(next, ballAnchor, 0);
+      return;
     }
-    setAnchors(next);
-    setTargetIndex(0);
-    drawMarkers(next, ballAnchor, 0);
+    if (anchors.length >= 4) return;
+
+    // Scan for the body under the tap
+    setLocking(true);
+    setLockError(false);
+    try {
+      const lock = await lockPlayerAt(video, { x, y });
+      if (!lock) {
+        setLockError(true);
+        setTimeout(() => setLockError(false), 2500);
+        return;
+      }
+      const next = [...anchors, { x: lock.hip.x, y: lock.hip.y, lm: lock.lm }];
+      setAnchors(next);
+      setTargetIndex(0);
+      drawMarkers(next, ballAnchor, 0);
+    } finally {
+      setLocking(false);
+    }
   };
 
   const drawMarkers = (marks, ball, picked = targetIndex) => {
@@ -158,14 +179,18 @@ function VideoAnalysis() {
     // Small marks — players can stand shoulder to shoulder
     const r = Math.max(9, canvas.width / 80);
     marks.forEach((p, i) => {
+      const color = LOCK_COLORS[i % LOCK_COLORS.length];
+      // The lock confirmation: the scanned body's skeleton in this
+      // player's color — "got you"
+      if (p.lm) drawSkeleton(ctx, p.lm, canvas.width, canvas.height, color);
       const x = p.x * canvas.width;
       const y = p.y * canvas.height;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = i === picked ? "#4ade80" : "rgba(10,14,35,0.85)";
+      ctx.fillStyle = i === picked ? color : "rgba(10,14,35,0.85)";
       ctx.fill();
       ctx.lineWidth = 2.5;
-      ctx.strokeStyle = i === picked ? "#4ade80" : "rgba(255,255,255,0.8)";
+      ctx.strokeStyle = color;
       ctx.stroke();
       ctx.fillStyle = i === picked ? "#000" : "#fff";
       ctx.font = `800 ${Math.round(r * 1.1)}px Inter, Arial, sans-serif`;
@@ -548,18 +573,25 @@ function VideoAnalysis() {
               }}>
                 <VuiTypography variant="button" sx={{ color: step === "players" ? "#4ade80" : "#fb923c", fontWeight: 800 }}>
                   {step === "players"
-                    ? `1/3 — ${t("Tap each player to analyze", "Toca cada jugador a analizar")}`
+                    ? `1/3 — ${t("Tap a player to lock on", "Toca un jugador para fijarlo")}`
                     : `2/3 — ${t("Now tap the ball", "Ahora toca el balón")}`}
                 </VuiTypography>
-                <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.55)", fontSize: 11, flex: 1 }}>
-                  {step === "players"
+                <VuiTypography variant="caption" sx={{
+                  color: lockError ? "#ef4444" : "rgba(255,255,255,.55)",
+                  fontSize: 11, flex: 1, fontWeight: lockError ? 700 : 400,
+                }}>
+                  {locking
+                    ? t("Scanning...", "Escaneando...")
+                    : lockError
+                    ? t("No body found there — tap directly ON the player", "No se encontró un cuerpo ahí — toca directamente SOBRE el jugador")
+                    : step === "players"
                     ? anchors.length
-                      ? t(`${anchors.length} marked — tap a mark to remove it`, `${anchors.length} marcados — toca una marca para quitarla`)
+                      ? t(`🔒 ${anchors.length} locked — skeleton confirms each lock. Tap a mark to remove.`, `🔒 ${anchors.length} fijados — el esqueleto confirma cada uno. Toca una marca para quitarla.`)
                       : scenario === "duel"
-                        ? t("Tap both players in the duel", "Toca a ambos jugadores del duelo")
+                        ? t("Lock both players in the duel — you'll see their skeleton when locked", "Fija a ambos jugadores del duelo — verás su esqueleto al fijarse")
                         : scenario === "penalty"
-                          ? t("Tap the kicker and the keeper", "Toca al lanzador y al portero")
-                          : t("Tap 1-4 players — everyone else is ignored", "Toca 1-4 jugadores — el resto se ignora")
+                          ? t("Lock the kicker and the keeper", "Fija al lanzador y al portero")
+                          : t("Lock 1-4 players — everyone else is ignored", "Fija 1-4 jugadores — el resto se ignora")
                     : t("The orange ring will follow it", "El anillo naranja lo seguirá")}
                 </VuiTypography>
                 {step === "players" && (
