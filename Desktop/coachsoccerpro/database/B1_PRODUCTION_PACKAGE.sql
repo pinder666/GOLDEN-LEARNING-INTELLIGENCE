@@ -28,6 +28,11 @@ ALTER TABLE parents
   ADD COLUMN IF NOT EXISTS email VARCHAR(255),
   ADD COLUMN IF NOT EXISTS phone VARCHAR(30);
 
+-- The app filters players by is_active everywhere, but schema.sql never
+-- created the column. Add it (default true so existing players stay visible).
+ALTER TABLE players
+  ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+
 
 -- ─────────────────────────────────────────────
 -- 2. MEDIA
@@ -120,34 +125,39 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-DROP POLICY IF EXISTS "Coaches can upload media" ON storage.objects;
-CREATE POLICY "Coaches can upload media" ON storage.objects
-FOR INSERT TO authenticated
-WITH CHECK (
-  bucket_id = 'media' AND
-  (storage.foldername(name))[1] IN (
-    SELECT t.id::text FROM teams t
-    JOIN coaches c ON c.team_id = t.id
-    WHERE c.user_id = auth.uid()
-  )
-);
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Coaches can upload media" ON storage.objects;
+  CREATE POLICY "Coaches can upload media" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'media' AND
+    (storage.foldername(name))[1] IN (
+      SELECT t.id::text FROM teams t
+      JOIN coaches c ON c.team_id = t.id
+      WHERE c.user_id = auth.uid()
+    )
+  );
 
-DROP POLICY IF EXISTS "Public media read access" ON storage.objects;
-CREATE POLICY "Public media read access" ON storage.objects
-FOR SELECT TO public
-USING (bucket_id = 'media');
+  DROP POLICY IF EXISTS "Public media read access" ON storage.objects;
+  CREATE POLICY "Public media read access" ON storage.objects
+  FOR SELECT TO public
+  USING (bucket_id = 'media');
 
-DROP POLICY IF EXISTS "Coaches can delete media" ON storage.objects;
-CREATE POLICY "Coaches can delete media" ON storage.objects
-FOR DELETE TO authenticated
-USING (
-  bucket_id = 'media' AND
-  (storage.foldername(name))[1] IN (
-    SELECT t.id::text FROM teams t
-    JOIN coaches c ON c.team_id = t.id
-    WHERE c.user_id = auth.uid()
-  )
-);
+  DROP POLICY IF EXISTS "Coaches can delete media" ON storage.objects;
+  CREATE POLICY "Coaches can delete media" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (
+    bucket_id = 'media' AND
+    (storage.foldername(name))[1] IN (
+      SELECT t.id::text FROM teams t
+      JOIN coaches c ON c.team_id = t.id
+      WHERE c.user_id = auth.uid()
+    )
+  );
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipped media storage policies (create them in Dashboard > Storage > Policies)';
+END $$;
 
 
 -- ─────────────────────────────────────────────
@@ -572,23 +582,28 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-DROP POLICY IF EXISTS "Coaches can upload avatars" ON storage.objects;
-CREATE POLICY "Coaches can upload avatars" ON storage.objects
-FOR INSERT TO authenticated
-WITH CHECK (
-  bucket_id = 'avatars' AND
-  (storage.foldername(name))[1] = 'players'
-);
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Coaches can upload avatars" ON storage.objects;
+  CREATE POLICY "Coaches can upload avatars" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'avatars' AND
+    (storage.foldername(name))[1] = 'players'
+  );
 
-DROP POLICY IF EXISTS "Public avatar read access" ON storage.objects;
-CREATE POLICY "Public avatar read access" ON storage.objects
-FOR SELECT TO public
-USING (bucket_id = 'avatars');
+  DROP POLICY IF EXISTS "Public avatar read access" ON storage.objects;
+  CREATE POLICY "Public avatar read access" ON storage.objects
+  FOR SELECT TO public
+  USING (bucket_id = 'avatars');
 
-DROP POLICY IF EXISTS "Coaches can update avatars" ON storage.objects;
-CREATE POLICY "Coaches can update avatars" ON storage.objects
-FOR UPDATE TO authenticated
-USING (bucket_id = 'avatars');
+  DROP POLICY IF EXISTS "Coaches can update avatars" ON storage.objects;
+  CREATE POLICY "Coaches can update avatars" ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'avatars');
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipped avatar storage policies (create them in Dashboard > Storage > Policies)';
+END $$;
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
