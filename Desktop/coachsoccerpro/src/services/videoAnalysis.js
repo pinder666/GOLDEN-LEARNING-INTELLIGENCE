@@ -38,6 +38,11 @@ function getLandmarker(numPoses = 1) {
         },
         runningMode: "VIDEO",
         numPoses,
+        // Low thresholds so SMALL/DISTANT players get detected at all —
+        // the coach's taps decide who matters, not detection confidence.
+        minPoseDetectionConfidence: numPoses > 1 ? 0.3 : 0.5,
+        minPosePresenceConfidence: numPoses > 1 ? 0.3 : 0.5,
+        minTrackingConfidence: numPoses > 1 ? 0.3 : 0.5,
       });
     })();
   }
@@ -101,8 +106,8 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const scenario = opts.scenario || "open";
   const targetIndex = opts.targetIndex ?? 0;
   const anchors = opts.anchors?.length ? opts.anchors : null;
-  // Crowded shots: with taps we detect generously (5) and keep only tapped
-  const numPoses = anchors ? 5 : scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
+  // Crowded shots: with taps we detect generously (6) and keep only tapped
+  const numPoses = anchors ? 6 : scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
   const landmarker = await getLandmarker(numPoses);
   const ballTracker = opts.ballAnchor ? createBallTracker(video, opts.ballAnchor) : null;
 
@@ -311,40 +316,60 @@ function trackPeople(rawFrames, maxPeople = 4) {
  * Returns one track per anchor (same order as anchors).
  */
 function matchTracksToAnchors(rawFrames, anchors) {
-  const cur = anchors.map((a) => ({ x: a.x, y: a.y, lost: 0 }));
+  // The tap is LAW: pure nearest-distance matching, no size preference —
+  // a big body near the camera must never steal a lock from a tapped player.
+  const cur = anchors.map((a) => ({ x: a.x, y: a.y, lost: 0, locked: false }));
   const tracks = anchors.map(() => []);
+
+  // Distance from a point to a pose: before first lock, nearest of ANY
+  // landmark (the coach may have tapped the head or a foot); after locking,
+  // hip-center continuity.
+  const distToPose = (c, p) => {
+    if (c.locked) return Math.hypot(p.hipX - c.x, p.hipY - c.y);
+    let min = Infinity;
+    for (const q of p.lm) {
+      const d = Math.hypot(q.x - c.x, q.y - c.y);
+      if (d < min) min = d;
+    }
+    return min;
+  };
+
   for (const { t, poses } of rawFrames) {
-    if (!poses.length) continue;
+    if (!poses.length) {
+      cur.forEach((c) => { c.lost += 1; });
+      continue;
+    }
     const info = poses.map((lm) => ({
       lm,
-      x: (lm[L_HIP].x + lm[R_HIP].x) / 2,
-      y: (lm[L_HIP].y + lm[R_HIP].y) / 2,
-      size: Math.abs((lm[L_SHOULDER].y + lm[R_SHOULDER].y) / 2 - (lm[L_HIP].y + lm[R_HIP].y) / 2),
+      hipX: (lm[L_HIP].x + lm[R_HIP].x) / 2,
+      hipY: (lm[L_HIP].y + lm[R_HIP].y) / 2,
     }));
     const used = new Set();
+    // Greedy global assignment: closest (anchor, pose) pairs first, so a
+    // pose can never be claimed by a farther anchor before a nearer one.
+    const pairs = [];
     cur.forEach((c, ai) => {
-      let best = -1;
-      let bestCost = Infinity;
-      const radius = Math.min(0.12 + c.lost * 0.05, 0.3);
       info.forEach((p, pi) => {
-        if (used.has(pi)) return;
-        const d = Math.hypot(p.x - c.x, p.y - c.y);
-        if (d > radius) return;
-        const cost = d - p.size * 0.5; // closeness first, size breaks ties
-        if (cost < bestCost) {
-          bestCost = cost;
-          best = pi;
-        }
+        pairs.push({ ai, pi, d: distToPose(c, p) });
       });
-      if (best >= 0) {
-        used.add(best);
-        tracks[ai].push({ t, lm: info[best].lm });
-        c.x = info[best].x;
-        c.y = info[best].y;
-        c.lost = 0;
-      } else {
-        c.lost += 1;
-      }
+    });
+    pairs.sort((a, b) => a.d - b.d);
+    const assigned = new Set();
+    for (const { ai, pi, d } of pairs) {
+      if (assigned.has(ai) || used.has(pi)) continue;
+      const c = cur[ai];
+      const radius = c.locked ? Math.min(0.14 + c.lost * 0.06, 0.35) : 0.18;
+      if (d > radius) continue;
+      assigned.add(ai);
+      used.add(pi);
+      tracks[ai].push({ t, lm: info[pi].lm });
+      c.x = info[pi].hipX;
+      c.y = info[pi].hipY;
+      c.lost = 0;
+      c.locked = true;
+    }
+    cur.forEach((c, ai) => {
+      if (!assigned.has(ai)) c.lost += 1;
     });
   }
   return tracks;
