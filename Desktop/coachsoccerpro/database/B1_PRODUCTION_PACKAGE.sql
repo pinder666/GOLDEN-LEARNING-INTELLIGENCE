@@ -510,16 +510,13 @@ RETURNS TABLE (
     p.first_name,
     p.last_name,
     p.date_of_birth,
-    ((DATE_PART('doy', (p.date_of_birth + ((DATE_PART('year', AGE(CURRENT_DATE, p.date_of_birth)) + 1) * INTERVAL '1 year'))::date)
-      - DATE_PART('doy', CURRENT_DATE) + 365)::int % 365 AS days_until,
-    (DATE_PART('year', AGE(CURRENT_DATE + p_days, p.date_of_birth)))::int + 1 AS turning
+    (((DATE_PART('doy', p.date_of_birth)::int - DATE_PART('doy', CURRENT_DATE)::int) % 365) + 365) % 365 AS days_until,
+    DATE_PART('year', AGE(CURRENT_DATE, p.date_of_birth))::int + 1 AS turning
   FROM players p
   WHERE p.team_id = p_team_id
     AND p.date_of_birth IS NOT NULL
     AND p.is_active = true
-    AND (
-      (DATE_PART('doy', p.date_of_birth) - DATE_PART('doy', CURRENT_DATE) + 365)::int % 365
-    ) <= p_days
+    AND (((DATE_PART('doy', p.date_of_birth)::int - DATE_PART('doy', CURRENT_DATE)::int) % 365) + 365) % 365 <= p_days
   ORDER BY days_until;
 $$ LANGUAGE sql SECURITY DEFINER;
 
