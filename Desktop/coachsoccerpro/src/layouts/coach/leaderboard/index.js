@@ -27,7 +27,7 @@ const LEADERBOARD_TYPES = [
   { key: "attendance", labelEn: "Attendance Streak", labelEs: "Racha de Asistencia", field: "attendance_streak" },
 ];
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_PLAYERS = [
   { id: 1, first_name: "Marcus", last_name: "Johnson", total_points: 450, badge_count: 8, attendance_streak: 12 },

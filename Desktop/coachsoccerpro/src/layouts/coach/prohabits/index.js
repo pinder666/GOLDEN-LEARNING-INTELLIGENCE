@@ -35,7 +35,7 @@ const HABIT_CATEGORIES = [
   { key: "mindset", labelEn: "Mindset", labelEs: "Mentalidad", icon: "🧠" },
 ];
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_HABITS = [
   // SLEEP HABITS

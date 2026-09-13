@@ -20,7 +20,7 @@ import { IoPerson, IoPeople, IoSparkles } from "react-icons/io5";
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_MESSAGES = [
   {

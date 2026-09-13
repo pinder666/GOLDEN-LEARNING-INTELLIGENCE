@@ -18,7 +18,7 @@ import Footer from "examples/Footer";
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_TEAM_PLAYERS = [
   { id: 2, first_name: "Sofia", last_name: "G.", total_points: 480, card_frame: "gold", attendance_streak: 15 },

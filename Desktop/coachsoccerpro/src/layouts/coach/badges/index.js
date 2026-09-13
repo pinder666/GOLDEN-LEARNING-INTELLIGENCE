@@ -45,7 +45,7 @@ const RARITY_COLORS = {
   legendary: { color: "#FF9800", label: "Legendary", labelEs: "Legendario" },
 };
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_BADGES = [
   { id: 1, key: "attendance_5", name_en: "5 Sessions", name_es: "5 Sesiones", description_en: "Attended 5 sessions", description_es: "Asistió a 5 sesiones", emoji: "⭐", category: "attendance", rarity: "common" },

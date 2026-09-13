@@ -61,7 +61,7 @@ const DAILY_HABITS = [
   },
 ];
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_PRO_HABIT = {
   player_name: "Cristiano Ronaldo",

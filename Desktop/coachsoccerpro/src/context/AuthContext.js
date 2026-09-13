@@ -6,7 +6,7 @@ const AuthContext = createContext({});
 export const useAuth = () => useContext(AuthContext);
 
 // DEV MODE: bypass auth for testing UI
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 const DEV_USER = DEV_MODE ? { id: 'dev-user', email: 'coach@test.com' } : null;
 
 export const AuthProvider = ({ children }) => {

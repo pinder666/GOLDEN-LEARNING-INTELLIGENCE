@@ -22,7 +22,7 @@ import { IoCheckmarkCircle, IoCloseCircle, IoTime, IoLocation } from "react-icon
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
 
-const DEV_MODE = process.env.NODE_ENV === 'development';
+import { DEV_MODE } from "devMode";
 
 const DEMO_EVENTS = [
   { id: 1, title: "Practice", event_type: "practice", start_time: new Date(Date.now() + 86400000).toISOString(), location: "Main Field", notes: "Bring water and shin guards" },
