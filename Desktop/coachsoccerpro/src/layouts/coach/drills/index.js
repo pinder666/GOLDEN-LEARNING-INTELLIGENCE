@@ -463,6 +463,32 @@ function CoachDrills() {
                   </VuiTypography>
                 )}
 
+                {/* With your squad — the diagram shows the PATTERN, this
+                    line shows how to scale it to a real group */}
+                {activeDrill.players && (() => {
+                  const unit = activeDrill.players.filter(p => p.col !== "#fbbf24").length || activeDrill.players.length;
+                  const stationsFor10 = Math.max(2, Math.round(10 / unit));
+                  return (
+                    <VuiBox style={{
+                      background:"rgba(96,165,250,.07)", borderRadius:6, padding:"6px 10px",
+                      border:"1px solid rgba(96,165,250,.2)", marginBottom:4,
+                    }}>
+                      <VuiTypography variant="caption" style={{color:"#60a5fa",fontSize:10.5,lineHeight:1.5}}>
+                        👥 {t("WITH YOUR SQUAD: ","CON TU GRUPO: ")}
+                        {unit <= 1
+                          ? t(
+                              "1 player works at a time — run it as a rotation so nobody waits more than one turn.",
+                              "Trabaja 1 jugador a la vez — hazlo en rotación para que nadie espere más de un turno."
+                            )
+                          : t(
+                              `This pattern uses ${unit} players. With 10 kids, run ~${stationsFor10} stations side by side, or rotate groups every 2 minutes. Nobody stands in line longer than one round.`,
+                              `Este patrón usa ${unit} jugadores. Con 10 niños, monta ~${stationsFor10} estaciones en paralelo, o rota grupos cada 2 minutos. Nadie espera más de una ronda.`
+                            )}
+                      </VuiTypography>
+                    </VuiBox>
+                  );
+                })()}
+
                 {activeDrill.sm && (
                   <VuiBox style={{
                     background:"rgba(74,222,128,.07)", borderRadius:6, padding:"6px 10px",
