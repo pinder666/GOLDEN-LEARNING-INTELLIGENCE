@@ -13,6 +13,7 @@ import {
   playAnalysisLine,
   drawSkeleton,
   lockPlayerAt,
+  computeAutoCrop,
 } from "services/videoAnalysis";
 
 const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
@@ -33,6 +34,13 @@ function VideoAnalysis() {
   const [ballAnchor, setBallAnchor] = useState(null);
   // The ritual: upload → tap players → tap ball → analyze
   const [step, setStep] = useState("idle");          // "idle" | "players" | "ball" | "ready"
+  // THE ARENA: analysis is blind outside this box. Auto-built around the
+  // locked players; a finger-drag on the video overrides it.
+  const [cropRect, setCropRect] = useState(null);
+  const manualCropRef = useRef(false);
+  const cropRef = useRef(null);
+  cropRef.current = cropRect;
+  const dragRef = useRef(null); // {x0,y0} while dragging
   const [reviewing, setReviewing] = useState(false);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -81,8 +89,9 @@ function VideoAnalysis() {
     }
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawArena(ctx, cropRef.current, canvas.width, canvas.height);
     poses.forEach((lm, i) =>
-      drawSkeleton(ctx, lm, canvas.width, canvas.height, i === 0 ? "#4ade80" : "#60a5fa")
+      drawSkeleton(ctx, lm, canvas.width, canvas.height, LOCK_COLORS[i % LOCK_COLORS.length])
     );
     if (ball && ball.conf > 0.25) {
       const r = Math.max(8, canvas.width / 70);
@@ -119,19 +128,80 @@ function VideoAnalysis() {
   const [locking, setLocking] = useState(false);
   const [lockError, setLockError] = useState(false);
 
-  const handleVideoTap = async (e) => {
+  const toNorm = (e) => {
+    const video = videoRef.current;
+    if (!video) return null;
+    const rect = video.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return null;
+    return { x, y };
+  };
+
+  // Drag = draw the arena by hand. Tap = lock a player/ball.
+  const handlePointerDown = (e) => {
+    if (analyzing || reviewing || locking) return;
+    if (step !== "players" && step !== "ball") return;
+    const p = toNorm(e);
+    if (!p) return;
+    dragRef.current = { x0: p.x, y0: p.y, moved: false };
+  };
+
+  const handlePointerMove = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const p = toNorm(e);
+    if (!p) return;
+    if (!d.moved && Math.hypot(p.x - d.x0, p.y - d.y0) < 0.015) return;
+    d.moved = true;
+    const live = {
+      x: Math.min(d.x0, p.x), y: Math.min(d.y0, p.y),
+      w: Math.abs(p.x - d.x0), h: Math.abs(p.y - d.y0),
+    };
+    drawMarkers(anchors, ballAnchor, targetIndex, live);
+  };
+
+  const handlePointerUp = async (e) => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    if (!d) return;
+    const p = toNorm(e) || { x: d.x0, y: d.y0 };
+
+    if (d.moved) {
+      const box = {
+        x: Math.min(d.x0, p.x), y: Math.min(d.y0, p.y),
+        w: Math.abs(p.x - d.x0), h: Math.abs(p.y - d.y0),
+      };
+      if (box.w > 0.06 && box.h > 0.06) {
+        manualCropRef.current = true;
+        setCropRect(box);
+        drawMarkers(anchors, ballAnchor, targetIndex, box);
+      } else {
+        drawMarkers(anchors, ballAnchor, targetIndex, cropRef.current);
+      }
+      return;
+    }
+    await handleVideoTap(p);
+  };
+
+  const handleVideoTap = async ({ x, y }) => {
     const video = videoRef.current;
     if (!video || analyzing || reviewing || locking) return;
     if (step !== "players" && step !== "ball") return;
     video.pause();
-    const rect = video.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    if (x < 0 || x > 1 || y < 0 || y > 1) return;
+
+    const refreshCrop = (nextAnchors, nextBall) => {
+      const box = manualCropRef.current
+        ? cropRef.current
+        : computeAutoCrop(nextAnchors, nextBall, scenario);
+      setCropRect(box);
+      return box;
+    };
 
     if (step === "ball") {
+      const box = refreshCrop(anchors, { x, y });
       setBallAnchor({ x, y });
-      drawMarkers(anchors, { x, y }, targetIndex);
+      drawMarkers(anchors, { x, y }, targetIndex, box);
       setStep("ready"); // ball locked → ritual complete
       return;
     }
@@ -142,7 +212,7 @@ function VideoAnalysis() {
       const next = anchors.filter((_, i) => i !== hit);
       setAnchors(next);
       setTargetIndex(0);
-      drawMarkers(next, ballAnchor, 0);
+      drawMarkers(next, ballAnchor, 0, refreshCrop(next, ballAnchor));
       return;
     }
     if (anchors.length >= 4) return;
@@ -163,13 +233,30 @@ function VideoAnalysis() {
       }
       setAnchors(next);
       setTargetIndex(0);
-      drawMarkers(next, ballAnchor, 0);
+      drawMarkers(next, ballAnchor, 0, refreshCrop(next, ballAnchor));
     } finally {
       setLocking(false);
     }
   };
 
-  const drawMarkers = (marks, ball, picked = targetIndex) => {
+  const drawArena = (ctx, crop, w, h) => {
+    if (!crop) return;
+    ctx.save();
+    ctx.strokeStyle = "rgba(34,211,238,0.9)";
+    ctx.lineWidth = Math.max(2, w / 400);
+    ctx.setLineDash([10, 7]);
+    ctx.strokeRect(crop.x * w, crop.y * h, crop.w * w, crop.h * h);
+    // dim everything outside the arena
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(5,8,20,0.45)";
+    ctx.fillRect(0, 0, w, crop.y * h);
+    ctx.fillRect(0, (crop.y + crop.h) * h, w, h - (crop.y + crop.h) * h);
+    ctx.fillRect(0, crop.y * h, crop.x * w, crop.h * h);
+    ctx.fillRect((crop.x + crop.w) * w, crop.y * h, w - (crop.x + crop.w) * w, crop.h * h);
+    ctx.restore();
+  };
+
+  const drawMarkers = (marks, ball, picked = targetIndex, crop = cropRef.current) => {
     const canvas = overlayRef.current;
     const video = videoRef.current;
     if (!canvas || !video || !video.videoWidth) return;
@@ -179,6 +266,7 @@ function VideoAnalysis() {
     }
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawArena(ctx, crop, canvas.width, canvas.height);
     // Small marks — players can stand shoulder to shoulder
     const r = Math.max(9, canvas.width / 80);
     marks.forEach((p, i) => {
@@ -220,6 +308,8 @@ function VideoAnalysis() {
     setAnchors([]);
     setBallAnchor(null);
     setTargetIndex(0);
+    setCropRect(null);
+    manualCropRef.current = false;
     clearOverlay();
     setStep("players"); // restart the ritual from the tap step
   };
@@ -240,6 +330,7 @@ function VideoAnalysis() {
         targetIndex,
         anchors: anchors.length ? anchors : undefined,
         ballAnchor: ballAnchor || undefined,
+        crop: cropRect || undefined,
         onFrame: drawOverlay,
       });
       outcomeRef.current = outcome;
@@ -414,6 +505,8 @@ function VideoAnalysis() {
     setTargetIndex(0);
     setAnchors([]);
     setBallAnchor(null);
+    setCropRect(null);
+    manualCropRef.current = false;
     setStep("idle");
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
@@ -498,8 +591,10 @@ function VideoAnalysis() {
             }}>
               {videoUrl ? (
                 <VuiBox
-                  onClick={handleVideoTap}
-                  sx={{ position: "relative", maxWidth: "100%", maxHeight: "100%", display: "flex", cursor: analyzing || reviewing ? "default" : "crosshair" }}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  sx={{ position: "relative", maxWidth: "100%", maxHeight: "100%", display: "flex", cursor: analyzing || reviewing ? "default" : "crosshair", touchAction: step === "players" || step === "ball" ? "none" : "auto" }}
                 >
                   <video
                     ref={videoRef}
@@ -594,7 +689,7 @@ function VideoAnalysis() {
                         ? t("Lock both players in the duel — you'll see their skeleton when locked", "Fija a ambos jugadores del duelo — verás su esqueleto al fijarse")
                         : scenario === "penalty"
                           ? t("Lock the kicker and the keeper", "Fija al lanzador y al portero")
-                          : t("Lock 1-4 players — everyone else is ignored", "Fija 1-4 jugadores — el resto se ignora")
+                          : t("Lock 1-4 players — or drag a box to set the arena first", "Fija 1-4 jugadores — o arrastra un recuadro para definir el área primero")
                     : t("The orange ring will follow it", "El anillo naranja lo seguirá")}
                 </VuiTypography>
                 {step === "players" && (
@@ -613,7 +708,14 @@ function VideoAnalysis() {
                 )}
                 {step === "ball" && (
                   <button
-                    onClick={() => setStep("ready")}
+                    onClick={() => {
+                      if (!manualCropRef.current) {
+                        const box = computeAutoCrop(anchors, null, scenario);
+                        setCropRect(box);
+                        drawMarkers(anchors, null, targetIndex, box);
+                      }
+                      setStep("ready");
+                    }}
                     style={{
                       background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.7)",
                       border: "none", borderRadius: 8, padding: "8px 14px",

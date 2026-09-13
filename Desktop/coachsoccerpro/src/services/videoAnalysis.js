@@ -124,11 +124,39 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   video.pause();
   video.muted = true;
 
+  // THE ARENA: when a crop is set, every frame is cut to that region and
+  // magnified before detection — the engine cannot see outside it. Landmark
+  // coordinates are mapped back to full-frame space so nothing downstream
+  // changes.
+  const crop = opts.crop && opts.crop.w > 0.05 && opts.crop.h > 0.05 ? opts.crop : null;
+  let cropCanvas = null;
+  let cropCtx = null;
+  if (crop) {
+    cropCanvas = document.createElement("canvas");
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 360;
+    cropCanvas.width = 640;
+    cropCanvas.height = Math.max(64, Math.round(((crop.h * vh) / (crop.w * vw)) * 640));
+    cropCtx = cropCanvas.getContext("2d");
+  }
+
+  const detectFrame = () => {
+    if (!crop) return landmarker.detectForVideo(video, nextTs())?.landmarks || [];
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    cropCtx.drawImage(
+      video,
+      crop.x * vw, crop.y * vh, crop.w * vw, crop.h * vh,
+      0, 0, cropCanvas.width, cropCanvas.height
+    );
+    const raw = landmarker.detectForVideo(cropCanvas, nextTs())?.landmarks || [];
+    return raw.map((lm) => lm.map((q) => ({ ...q, x: crop.x + q.x * crop.w, y: crop.y + q.y * crop.h })));
+  };
+
   const ballPath = [];
   for (let t = 0; t < duration; t += step) {
     await seekTo(video, t);
-    const result = landmarker.detectForVideo(video, nextTs());
-    const poses = result?.landmarks || [];
+    const poses = detectFrame();
     let ball = null;
     if (ballTracker) {
       ball = ballTracker.step();
@@ -321,17 +349,12 @@ function matchTracksToAnchors(rawFrames, anchors) {
   const cur = anchors.map((a) => ({ x: a.x, y: a.y, lost: 0, locked: false }));
   const tracks = anchors.map(() => []);
 
-  // Distance from a point to a pose: before first lock, nearest of ANY
-  // landmark (the coach may have tapped the head or a foot); after locking,
-  // hip-center continuity.
+  // Distance from a point to a pose: before first lock, distance to the
+  // body's bounding box (tap inside the body = 0, beats any big neighbor);
+  // after locking, hip-center continuity.
   const distToPose = (c, p) => {
     if (c.locked) return Math.hypot(p.hipX - c.x, p.hipY - c.y);
-    let min = Infinity;
-    for (const q of p.lm) {
-      const d = Math.hypot(q.x - c.x, q.y - c.y);
-      if (d < min) min = d;
-    }
-    return min;
+    return bboxDist({ x: c.x, y: c.y }, p.lm);
   };
 
   for (const { t, poses } of rawFrames) {
@@ -469,15 +492,27 @@ function getImageLandmarker() {
   return imageLandmarkerPromise;
 }
 
+// Distance from a point to a pose's BOUNDING BOX: 0 when the tap lands
+// INSIDE the body's outline. A tap ON a small player beats any sprawling
+// big body nearby — size can never steal a lock again.
+function bboxDist(point, lm) {
+  let minX = 1, minY = 1, maxX = 0, maxY = 0;
+  for (const q of lm) {
+    if (q.x < minX) minX = q.x;
+    if (q.y < minY) minY = q.y;
+    if (q.x > maxX) maxX = q.x;
+    if (q.y > maxY) maxY = q.y;
+  }
+  const dx = point.x < minX ? minX - point.x : point.x > maxX ? point.x - maxX : 0;
+  const dy = point.y < minY ? minY - point.y : point.y > maxY ? point.y - maxY : 0;
+  return Math.hypot(dx, dy);
+}
+
 function nearestPose(poses, point, maxD) {
   let best = null;
   let bestD = maxD;
   for (const lm of poses) {
-    let d = Infinity;
-    for (const q of lm) {
-      const dd = Math.hypot(q.x - point.x, q.y - point.y);
-      if (dd < d) d = dd;
-    }
+    const d = bboxDist(point, lm);
     if (d < bestD) {
       bestD = d;
       best = lm;
@@ -510,6 +545,37 @@ async function zoomScan(video, point) {
   if (!best) return null;
   // map crop-space landmarks back to full-frame space
   return best.map((q) => ({ ...q, x: cx + q.x * cw, y: cy + q.y * ch }));
+}
+
+/**
+ * Auto-crop: build the arena around the locked players (and ball) with
+ * scenario-sized breathing room. Returns {x,y,w,h} normalized, clamped.
+ */
+export function computeAutoCrop(anchors, ballAnchor, scenario = "open") {
+  const pts = [];
+  for (const a of anchors) {
+    if (a.lm) {
+      for (const q of a.lm) pts.push(q);
+    } else {
+      pts.push({ x: a.x, y: a.y });
+    }
+  }
+  if (ballAnchor) pts.push(ballAnchor);
+  if (!pts.length) return null;
+
+  let minX = 1, minY = 1, maxX = 0, maxY = 0;
+  for (const q of pts) {
+    if (q.x < minX) minX = q.x;
+    if (q.y < minY) minY = q.y;
+    if (q.x > maxX) maxX = q.x;
+    if (q.y > maxY) maxY = q.y;
+  }
+  const pad = scenario === "duel" ? 0.16 : scenario === "penalty" ? 0.28 : 0.3;
+  minX = Math.max(0, minX - pad);
+  minY = Math.max(0, minY - pad);
+  maxX = Math.min(1, maxX + pad);
+  maxY = Math.min(1, maxY + pad);
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
 /**
