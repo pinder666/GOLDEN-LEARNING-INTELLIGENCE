@@ -54,6 +54,52 @@ const LINES = {
     en: "Focus on balance. Keep your head steady over your hips, especially when you turn.",
     es: "Enfócate en el equilibrio. Mantén la cabeza firme sobre las caderas, sobre todo al girar.",
   },
+
+  // ── PENALTY PACK ──
+  'intro-penalty': {
+    en: "Penalty analyzed. Here's the breakdown.",
+    es: "Penal analizado. Aquí está el desglose.",
+  },
+  'plant-good': {
+    en: "Strong plant foot. Right beside the ball, body balanced over it.",
+    es: "Buen pie de apoyo. Justo al lado del balón, con el cuerpo equilibrado.",
+  },
+  'plant-low': {
+    en: "Watch the plant foot. Step it level with the ball, not behind it — that's where balance comes from.",
+    es: "Cuida el pie de apoyo. Colócalo a la altura del balón, no detrás — de ahí viene el equilibrio.",
+  },
+  'shape-good': {
+    en: "Good body shape at contact. Chest over the ball, hips driving through the target.",
+    es: "Buena postura al contacto. Pecho sobre el balón, caderas hacia el objetivo.",
+  },
+  'shape-low': {
+    en: "Open those hips through contact. Drive them at your target — don't let the body lean away.",
+    es: "Abre las caderas en el contacto. Llévalas hacia tu objetivo — no dejes que el cuerpo se incline hacia atrás.",
+  },
+  'head-good': {
+    en: "Head down and steady at the strike. That's how you keep it under the bar.",
+    es: "Cabeza abajo y firme en el golpeo. Así lo mantienes bajo el travesaño.",
+  },
+  'head-low': {
+    en: "Keep the head down through the strike. Look at the ball, not the keeper.",
+    es: "Mantén la cabeza abajo durante el golpeo. Mira el balón, no al portero.",
+  },
+  'approach-good': {
+    en: "Confident run-up. Controlled speed into the strike.",
+    es: "Carrera decidida. Velocidad controlada hasta el golpeo.",
+  },
+  'approach-low': {
+    en: "Slow the run-up down a touch. Controlled steps beat a rushed sprint.",
+    es: "Baja un poco la carrera. Pasos controlados ganan a un sprint apurado.",
+  },
+  'keeper-early': {
+    en: "And look at the keeper — moving before the strike. A calm taker punishes that.",
+    es: "Y mira al portero — se mueve antes del golpeo. Un lanzador tranquilo castiga eso.",
+  },
+  'keeper-held': {
+    en: "The keeper held the line until contact. Good discipline — place it in the corner.",
+    es: "El portero aguantó la línea hasta el contacto. Buena disciplina — colócalo en la esquina.",
+  },
 };
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
