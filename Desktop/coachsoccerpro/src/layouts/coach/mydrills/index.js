@@ -38,7 +38,7 @@ function EditorPitch({ players, cones, arrows, positions, tool, tempArrow, onPit
       onPointerMove={(e) => onPitchEvent("move", toPitch(e))}
       onPointerUp={(e) => onPitchEvent("up", toPitch(e))}
       style={{
-        width: "100%", height: "auto", display: "block",
+        width: "100%", height: "100%", display: "block",
         background: "#1a4a2a", borderRadius: 10, touchAction: "none",
         cursor: tool === "move" ? "grab" : "crosshair",
       }}
@@ -363,17 +363,6 @@ function MyDrills() {
     setAudioBlob(null); setAudioUrl(null);
   };
 
-  const toolBtn = (key, label) => (
-    <button key={key} onClick={() => setTool(key)} style={{
-      background: tool === key ? "#4ade80" : "rgba(255,255,255,.08)",
-      color: tool === key ? "#000" : "#fff",
-      border: "none", borderRadius: 8, padding: "7px 12px",
-      fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
-    }}>
-      {label}
-    </button>
-  );
-
   const inputStyle = {
     width: "100%", background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.15)",
     borderRadius: 8, padding: "9px 12px", color: "#fff", fontSize: 13, fontFamily: "Inter,sans-serif",
@@ -382,15 +371,15 @@ function MyDrills() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={1} sx={{ minHeight: "calc(100vh - 100px)", display: "flex", flexDirection: "column" }}>
+      <VuiBox py={1} sx={{ height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header */}
-        <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="8px">
+        <VuiBox mb={0.5} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="8px">
           <VuiBox>
-            <VuiTypography variant="h4" color="white" fontWeight="bold">
+            <VuiTypography variant="h5" color="white" fontWeight="bold">
               {t("My Drills", "Mis Ejercicios")}
             </VuiTypography>
-            <VuiTypography variant="body2" color="text">
+            <VuiTypography variant="caption" color="text">
               {t("Your board. Draw it — or tell the AI what to work on.", "Tu pizarra. Dibújalo — o dile a la IA qué trabajar.")}
             </VuiTypography>
           </VuiBox>
@@ -409,9 +398,10 @@ function MyDrills() {
         </VuiBox>
 
         {/* AI bar */}
-        <VuiBox mb={1.5} sx={{
+        <VuiBox mb={1} sx={{
           background: "rgba(96,165,250,.08)", border: "1px solid rgba(96,165,250,.25)",
-          borderRadius: "10px", padding: "10px 12px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap",
+          borderRadius: "10px", padding: "7px 10px", display: "flex", gap: "10px", alignItems: "center",
+          flexShrink: 0,
         }}>
           <input
             placeholder={t("e.g. U10, work on scanning before receiving, 8 players, 15 minutes", "ej. U10, trabajar el escaneo antes de recibir, 8 jugadores, 15 minutos")}
@@ -435,52 +425,28 @@ function MyDrills() {
           )}
         </VuiBox>
 
-        {/* Board + side panel */}
-        <VuiBox sx={{ display: "flex", gap: "14px", flexDirection: { xs: "column", lg: "row" }, alignItems: "flex-start" }}>
+        {/* Board + tools + side panel — everything fits one screen, no scroll */}
+        <VuiBox sx={{ flex: 1, minHeight: 0, display: "flex", gap: "12px", alignItems: "stretch" }}>
 
           {/* Board column */}
-          <VuiBox sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-            {/* Toolbar */}
-            <VuiBox display="flex" gap="6px" flexWrap="wrap" mb={1} alignItems="center">
-              {toolBtn("move", t("✋ Move", "✋ Mover"))}
-              {toolBtn("player", `👤 ${lang === "es" ? PLAYER_COLS[playerColIdx].nameEs : PLAYER_COLS[playerColIdx].name}`)}
-              {tool === "player" && (
-                <button onClick={() => setPlayerColIdx((i) => (i + 1) % PLAYER_COLS.length)} style={{
-                  width: 26, height: 26, borderRadius: "50%", border: "2px solid rgba(255,255,255,.4)",
-                  background: PLAYER_COLS[playerColIdx].col, cursor: "pointer",
-                }} title={t("Change colour", "Cambiar color")} />
-              )}
-              {toolBtn("cone", t("🔺 Cone", "🔺 Cono"))}
-              {tool === "cone" && (
-                <button onClick={() => setConeColIdx((i) => (i + 1) % CONE_COLS.length)} style={{
-                  width: 26, height: 26, borderRadius: 6, border: "2px solid rgba(255,255,255,.4)",
-                  background: CONE_COLS[coneColIdx], cursor: "pointer",
-                }} title={t("Change colour", "Cambiar color")} />
-              )}
-              {toolBtn("arrow", t("↗ Arrow", "↗ Flecha"))}
-              {toolBtn("erase", t("🧹 Erase", "🧹 Borrar"))}
-              <div style={{ flex: 1 }} />
-              <button onClick={clearBoard} style={{
-                background: "rgba(239,68,68,.15)", color: "#ef4444", border: "none",
-                borderRadius: 8, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "Inter,sans-serif",
-              }}>
-                {t("Clear board", "Limpiar pizarra")}
-              </button>
+          <VuiBox sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            {/* Pitch — scales to the space, never scrolls */}
+            <VuiBox sx={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <VuiBox sx={{ height: "100%", maxWidth: "100%", aspectRatio: "3 / 2" }}>
+                {preview && previewDrill ? (
+                  <PitchCanvas drill={previewDrill} playing speed={1} />
+                ) : (
+                  <EditorPitch
+                    players={players} cones={cones} arrows={arrows}
+                    positions={positions} tool={tool} tempArrow={tempArrow}
+                    onPitchEvent={onPitchEvent}
+                  />
+                )}
+              </VuiBox>
             </VuiBox>
 
-            {/* Pitch */}
-            {preview && previewDrill ? (
-              <PitchCanvas drill={previewDrill} playing speed={1} />
-            ) : (
-              <EditorPitch
-                players={players} cones={cones} arrows={arrows}
-                positions={positions} tool={tool} tempArrow={tempArrow}
-                onPitchEvent={onPitchEvent}
-              />
-            )}
-
             {/* Steps + preview */}
-            <VuiBox display="flex" gap="6px" mt={1} alignItems="center" flexWrap="wrap">
+            <VuiBox display="flex" gap="6px" mt={0.5} alignItems="center" flexWrap="wrap" sx={{ flexShrink: 0 }}>
               <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.5)", fontSize: 11 }}>
                 {t("Steps:", "Pasos:")}
               </VuiTypography>
@@ -520,16 +486,56 @@ function MyDrills() {
               </button>
             </VuiBox>
 
-            <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.35)", fontSize: 10.5, display: "block", mt: 0.5 }}>
-              {t(
-                "Each step is a moment of the drill — place the pieces, add a step, move them again. Preview plays the movement.",
-                "Cada paso es un momento del ejercicio — coloca las piezas, añade un paso, muévelas de nuevo. La vista previa reproduce el movimiento."
-              )}
-            </VuiTypography>
+          </VuiBox>
+
+          {/* Vertical tool strip — tools live beside the pitch, no scroll */}
+          <VuiBox sx={{ width: 48, flexShrink: 0, display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+            {[
+              { key: "move", icon: "✋", en: "Move", es: "Mover" },
+              { key: "player", icon: "👤", en: "Add player", es: "Añadir jugador" },
+              { key: "cone", icon: "🔺", en: "Add cone", es: "Añadir cono" },
+              { key: "arrow", icon: "↗", en: "Draw arrow", es: "Dibujar flecha" },
+              { key: "erase", icon: "🧹", en: "Erase", es: "Borrar" },
+            ].map((tb) => (
+              <button key={tb.key} onClick={() => setTool(tb.key)} title={lang === "es" ? tb.es : tb.en} style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: tool === tb.key ? "#4ade80" : "rgba(255,255,255,.08)",
+                border: "none", fontSize: 17, cursor: "pointer",
+              }}>
+                {tb.icon}
+              </button>
+            ))}
+            {tool === "player" && (
+              <button onClick={() => setPlayerColIdx((i) => (i + 1) % PLAYER_COLS.length)}
+                title={lang === "es" ? PLAYER_COLS[playerColIdx].nameEs : PLAYER_COLS[playerColIdx].name}
+                style={{
+                  width: 26, height: 26, borderRadius: "50%", border: "2px solid rgba(255,255,255,.5)",
+                  background: PLAYER_COLS[playerColIdx].col, cursor: "pointer",
+                }} />
+            )}
+            {tool === "cone" && (
+              <button onClick={() => setConeColIdx((i) => (i + 1) % CONE_COLS.length)}
+                title={t("Change colour", "Cambiar color")}
+                style={{
+                  width: 26, height: 26, borderRadius: 6, border: "2px solid rgba(255,255,255,.5)",
+                  background: CONE_COLS[coneColIdx], cursor: "pointer",
+                }} />
+            )}
+            <div style={{ flex: 1 }} />
+            <button onClick={clearBoard} title={t("Clear board", "Limpiar pizarra")} style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: "rgba(239,68,68,.15)", border: "none", fontSize: 16, cursor: "pointer",
+            }}>
+              🗑
+            </button>
           </VuiBox>
 
           {/* Side panel */}
-          <VuiBox sx={{ width: { xs: "100%", lg: 320 }, flexShrink: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+          <VuiBox sx={{
+            width: 300, flexShrink: 0, display: "flex", flexDirection: "column", gap: "8px",
+            minHeight: 0, overflowY: "auto",
+            scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
+          }}>
             <input placeholder={t("Drill name *", "Nombre del ejercicio *")} value={meta.title}
               onChange={(e) => setMeta((m) => ({ ...m, title: e.target.value }))} style={inputStyle} />
             <VuiBox display="flex" gap="8px">

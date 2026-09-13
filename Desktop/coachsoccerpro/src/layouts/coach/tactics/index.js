@@ -5,7 +5,6 @@ import VuiTypography from "components/VuiTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 
 import { COACH_PLAYS } from "data/drills";
 
@@ -178,15 +177,15 @@ function TacticsBoard() {
   return (
     <DashboardLayout>
       <DashboardNavbar/>
-      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
+      <VuiBox py={1} sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 100px)", overflow: "hidden" }}>
 
         {/* Header */}
-        <VuiBox mb={2} display="flex" justifyContent="space-between" alignItems="center">
+        <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
           <VuiBox>
-            <VuiTypography variant="h4" color="white" fontWeight="bold">
+            <VuiTypography variant="h5" color="white" fontWeight="bold">
               {lang==="es" ? "Tablero Táctico" : "Tactics Board"}
             </VuiTypography>
-            <VuiTypography variant="body2" color="text">
+            <VuiTypography variant="caption" color="text">
               {lang==="es"
                 ? "Juegos de los mejores entrenadores. Construye los tuyos."
                 : "Great coach plays. Build your own."}
@@ -205,7 +204,7 @@ function TacticsBoard() {
         </VuiBox>
 
         {/* Mode toggle */}
-        <VuiBox display="flex" gap="8px" mb={2}>
+        <VuiBox display="flex" gap="8px" mb={1} sx={{ flexShrink: 0 }}>
           {[["coach", lang==="es"?"🏆 Juegos de Élite":"🏆 Elite Plays"],
             ["custom", lang==="es"?"✏️ Mi Juego":"✏️ My Play"]].map(([m,lbl])=>(
             <button key={m} onClick={()=>setMode(m)} style={{
@@ -217,12 +216,13 @@ function TacticsBoard() {
           ))}
         </VuiBox>
 
-        <VuiBox display="flex" gap="16px" style={{minHeight:500}}>
+        <VuiBox display="flex" gap="16px" sx={{ flex: 1, minHeight: 0 }}>
 
           {/* ── Left panel ── */}
-          <VuiBox style={{
+          <VuiBox sx={{
             width:230,flexShrink:0,background:"rgba(255,255,255,.04)",
-            borderRadius:12,padding:12,overflowY:"auto",maxHeight:620,
+            borderRadius:"12px",padding:"12px",overflowY:"auto",minHeight:0,
+            scrollbarWidth:"none","&::-webkit-scrollbar":{display:"none"},
           }}>
             {mode==="coach" ? (
               <>
@@ -354,13 +354,13 @@ function TacticsBoard() {
           </VuiBox>
 
           {/* ── Pitch ── */}
-          <VuiBox style={{flex:1}}>
-            <div style={{position:"relative",marginBottom:12}}>
+          <VuiBox sx={{flex:1, minWidth:0, minHeight:0, display:"flex", flexDirection:"column"}}>
+            <div style={{position:"relative",marginBottom:8, flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <svg
                 ref={svgRef}
                 viewBox={`0 0 ${W} ${H}`}
                 style={{
-                  width:"100%",height:"auto",display:"block",
+                  maxWidth:"100%",maxHeight:"100%",height:"100%",display:"block",
                   background:"#1a4a2a",borderRadius:12,
                   cursor:drawMode?"crosshair":"default",
                 }}
@@ -437,9 +437,11 @@ function TacticsBoard() {
 
             {/* Coach play info */}
             {mode==="coach" && selectedPlay && (
-              <VuiBox style={{
-                background:"rgba(255,255,255,.05)",borderRadius:12,padding:16,
+              <VuiBox sx={{
+                background:"rgba(255,255,255,.05)",borderRadius:"12px",padding:"12px 16px",
                 borderLeft:"3px solid #fbbf24",
+                flexShrink:0,maxHeight:"34%",overflowY:"auto",
+                scrollbarWidth:"none","&::-webkit-scrollbar":{display:"none"},
               }}>
                 <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
                   <VuiBox>
@@ -512,9 +514,9 @@ function TacticsBoard() {
             )}
 
             {mode==="custom" && (
-              <VuiBox style={{
-                background:"rgba(255,255,255,.04)",borderRadius:12,padding:14,
-                border:"1px solid rgba(255,255,255,.08)",marginTop:0,
+              <VuiBox sx={{
+                background:"rgba(255,255,255,.04)",borderRadius:"12px",padding:"10px 14px",
+                border:"1px solid rgba(255,255,255,.08)",flexShrink:0,
               }}>
                 <VuiTypography variant="caption" color="text">
                   {lang==="es"
@@ -524,10 +526,6 @@ function TacticsBoard() {
               </VuiBox>
             )}
           </VuiBox>
-        </VuiBox>
-
-        <VuiBox mt="auto" pt={3}>
-          <Footer/>
         </VuiBox>
       </VuiBox>
     </DashboardLayout>

@@ -15,8 +15,10 @@ function Checkmatch() {
           overflow: "hidden",
         }}
       >
+        {/* The REAL Checkmatch, served by the SoccerMental game-server —
+            the copied HTML lacked its supporting assets and broke. */}
         <iframe
-          src="/checkmatch.html"
+          src="http://localhost:8091/checkmatch.html"
           title="Checkmatch"
           style={{
             width: "100%",
