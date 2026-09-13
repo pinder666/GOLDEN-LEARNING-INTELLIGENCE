@@ -22,6 +22,8 @@ import Footer from "examples/Footer";
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
 
+const DEV_MODE = process.env.NODE_ENV === 'development';
+
 function AddPlayer() {
   const { t, i18n } = useTranslation(["common", "coach"]);
   const navigate = useNavigate();
@@ -39,6 +41,16 @@ function AddPlayer() {
   const [jerseyNumber, setJerseyNumber] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [parentPhone, setParentPhone] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+
+  const handlePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
 
   const language = i18n.language || "en";
 
@@ -62,7 +74,30 @@ function AddPlayer() {
     setLoading(true);
     setError("");
 
+    if (DEV_MODE) {
+      // Dev mode: skip Supabase, show success immediately
+      setTimeout(() => {
+        setLoading(false);
+        setSuccess(true);
+      }, 600);
+      return;
+    }
+
     try {
+      // Upload photo to storage first (if provided)
+      let avatarUrl = null;
+      if (photoFile) {
+        const fileExt = photoFile.name.split(".").pop();
+        const filePath = `players/${teamData.id}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, photoFile);
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+          avatarUrl = urlData?.publicUrl || null;
+        }
+      }
+
       // Create player
       const { data: playerData, error: playerError } = await supabase
         .from("players")
@@ -74,6 +109,7 @@ function AddPlayer() {
             date_of_birth: dateOfBirth || null,
             position: position || null,
             jersey_number: jerseyNumber ? parseInt(jerseyNumber) : null,
+            avatar_url: avatarUrl,
           },
         ])
         .select()
@@ -223,6 +259,67 @@ function AddPlayer() {
                   <VuiTypography variant="h6" color="white" mb={2}>
                     {language === "es" ? "Información del Jugador" : "Player Information"}
                   </VuiTypography>
+
+                  {/* Player Photo */}
+                  <VuiBox display="flex" alignItems="center" gap={3} mb={3}>
+                    <VuiBox
+                      sx={{
+                        width: 90,
+                        height: 90,
+                        borderRadius: "50%",
+                        background: photoPreview
+                          ? "transparent"
+                          : "linear-gradient(135deg, rgba(0,117,255,.3) 0%, rgba(0,212,255,.15) 100%)",
+                        border: "2px dashed rgba(255,255,255,.25)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                        position: "relative",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {photoPreview ? (
+                        <VuiBox
+                          component="img"
+                          src={photoPreview}
+                          alt="Player"
+                          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <VuiTypography variant="h4">📷</VuiTypography>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoSelect}
+                        style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+                      />
+                    </VuiBox>
+                    <VuiBox>
+                      <VuiTypography variant="button" color="white" fontWeight="medium" display="block">
+                        {language === "es" ? "Foto del Jugador" : "Player Photo"}
+                      </VuiTypography>
+                      <VuiTypography variant="caption" color="text">
+                        {language === "es"
+                          ? "Toca el círculo para subir una foto. Aparece en su tarjeta de jugador."
+                          : "Tap the circle to upload a photo. It shows on their player card."}
+                      </VuiTypography>
+                      {photoPreview && (
+                        <VuiBox mt={0.5}>
+                          <VuiButton
+                            color="secondary"
+                            size="small"
+                            variant="outlined"
+                            onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                          >
+                            {language === "es" ? "Quitar" : "Remove"}
+                          </VuiButton>
+                        </VuiBox>
+                      )}
+                    </VuiBox>
+                  </VuiBox>
 
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
@@ -377,8 +474,8 @@ function AddPlayer() {
                 <VuiBox mb={2}>
                   <VuiTypography variant="body2" color="text">
                     {language === "es"
-                      ? "• Puedes agregar la foto después desde el perfil del jugador"
-                      : "• You can add photo later from the player profile"}
+                      ? "• La fecha de nacimiento activa mensajes automáticos de cumpleaños"
+                      : "• Date of birth enables automatic birthday messages"}
                   </VuiTypography>
                 </VuiBox>
               </VuiBox>

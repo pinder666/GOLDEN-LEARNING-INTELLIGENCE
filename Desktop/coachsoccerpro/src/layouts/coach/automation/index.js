@@ -6,6 +6,17 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 const AUTOMATIONS = [
   {
+    id: "birthday-messages",
+    title: "Birthday Messages",
+    titleEs: "Mensajes de Cumpleaños",
+    desc: "On each player's birthday: parent receives a warm message from you automatically, and the player's card gets a birthday celebration. You get a reminder the day before.",
+    descEs: "En el cumpleaños de cada jugador: el padre recibe automáticamente un mensaje cálido de tu parte, y la tarjeta del jugador se celebra. Recibes un recordatorio el día anterior.",
+    icon: "🎂",
+    color: "#f472b6",
+    enabled: true,
+    schedule: "Day before + birthday morning",
+  },
+  {
     id: "payment-reminder",
     title: "Payment Reminders",
     titleEs: "Recordatorios de Pago",

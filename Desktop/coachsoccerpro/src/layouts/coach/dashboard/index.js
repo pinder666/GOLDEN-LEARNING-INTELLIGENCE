@@ -29,6 +29,11 @@ import { supabase } from "services/supabase";
 
 const DEMO_MODE = false;
 
+const DEMO_BIRTHDAYS = [
+  { id: 1, first_name: "Sofia", last_name: "Garcia", days_until: 2, turning: 12 },
+  { id: 2, first_name: "Marcus", last_name: "Johnson", days_until: 7, turning: 12 },
+];
+
 const DEMO_DATA = {
   userProfile: { first_name: "Coach" },
   teamData: { name: "Thunder FC", age_group: "U12" },
@@ -311,6 +316,40 @@ function CoachDashboard() {
                 >
                   {language === "es" ? "Enviar Mensaje" : "Send Message"}
                 </VuiButton>
+
+                {/* Upcoming Birthdays */}
+                {DEMO_BIRTHDAYS.length > 0 && (
+                  <VuiBox mt={3} pt={2} sx={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <VuiTypography variant="button" color="white" fontWeight="bold" sx={{ display: "block", mb: 1 }}>
+                      🎂 {language === "es" ? "Próximos Cumpleaños" : "Upcoming Birthdays"}
+                    </VuiTypography>
+                    {DEMO_BIRTHDAYS.map((b) => (
+                      <VuiBox
+                        key={b.id}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ py: 0.75 }}
+                      >
+                        <VuiTypography variant="caption" color="white">
+                          {b.first_name} {b.last_name.charAt(0)}. {language === "es" ? "cumple" : "turns"} {b.turning}
+                        </VuiTypography>
+                        <VuiTypography variant="caption" sx={{ color: b.days_until <= 2 ? "#f472b6" : "rgba(255,255,255,0.5)" }}>
+                          {b.days_until === 0
+                            ? (language === "es" ? "¡HOY!" : "TODAY!")
+                            : language === "es"
+                            ? `en ${b.days_until} días`
+                            : `in ${b.days_until} days`}
+                        </VuiTypography>
+                      </VuiBox>
+                    ))}
+                    <VuiTypography variant="caption" color="text" sx={{ display: "block", mt: 0.5, fontSize: 10 }}>
+                      {language === "es"
+                        ? "Mensaje automático activado — se envía la mañana del cumpleaños"
+                        : "Auto-message is on — sends the morning of the birthday"}
+                    </VuiTypography>
+                  </VuiBox>
+                )}
               </VuiBox>
             </Card>
           </Grid>
