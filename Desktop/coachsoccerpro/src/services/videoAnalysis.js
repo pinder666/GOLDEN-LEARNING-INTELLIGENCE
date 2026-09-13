@@ -90,7 +90,9 @@ const R_HIP = 24;
  */
 export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const scenario = opts.scenario || "open";
-  const numPoses = scenario === "penalty" ? 2 : 1;
+  const targetIndex = opts.targetIndex ?? 0;
+  // Multi-person whenever the scenario or picker needs it
+  const numPoses = scenario === "penalty" || scenario === "duel" || opts.multi ? 4 : 1;
   const landmarker = await getLandmarker(numPoses);
 
   const duration = Math.min(video.duration || 0, 30); // cap at 30s
@@ -98,8 +100,7 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
 
   const fps = 6;
   const step = 1 / fps;
-  const samples = [];      // open-play: extracted frames
-  const rawFrames = [];    // penalty: per-frame array of raw landmark sets
+  const rawFrames = []; // every scenario: per-frame raw landmark sets (also feeds the replay)
 
   video.pause();
   video.muted = true;
@@ -111,24 +112,29 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     const result = landmarker.detectForVideo(video, ts);
     const poses = result?.landmarks || [];
     if (opts.onFrame) opts.onFrame(poses, t);
-    if (scenario === "penalty") {
-      rawFrames.push({ t, poses });
-    } else {
-      samples.push(poses[0] ? extractFrame(poses[0], t) : null);
-    }
+    rawFrames.push({ t, poses });
     if (onProgress) onProgress(Math.min(1, (t + step) / duration));
   }
 
+  let outcome;
   if (scenario === "penalty") {
-    return analyzePenalty(rawFrames, duration);
+    outcome = analyzePenalty(rawFrames, duration);
+  } else if (scenario === "duel") {
+    outcome = analyzeDuel(rawFrames, duration, targetIndex);
+  } else {
+    // Open play: analyze the PICKED player (left-to-right index)
+    const tracks = trackPeople(rawFrames, numPoses);
+    const trk = tracks[Math.min(targetIndex, tracks.length - 1)];
+    const valid = trk ? trk.map((f) => extractFrame(f.lm, f.t)) : [];
+    if (valid.length < 6) {
+      outcome = { error: "no-player" };
+    } else {
+      outcome = { metrics: computeMetrics(valid, duration), framesAnalyzed: valid.length, duration };
+    }
   }
 
-  const valid = samples.filter(Boolean);
-  if (valid.length < Math.max(6, samples.length * 0.25)) {
-    return { error: "no-player" };
-  }
-
-  return { metrics: computeMetrics(valid, duration), framesAnalyzed: valid.length, duration };
+  if (!outcome.error) outcome.allFrames = rawFrames; // for the Analyst Replay
+  return outcome;
 }
 
 function extractFrame(lm, t) {
@@ -219,6 +225,71 @@ const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length :
 
 const L_ANKLE = 27;
 const R_ANKLE = 28;
+
+/** Track up to maxPeople identities across frames by hip-x continuity.
+ *  Returns tracks ordered left-to-right by first appearance. */
+function trackPeople(rawFrames, maxPeople = 4) {
+  const tracks = [];
+  for (const { t, poses } of rawFrames) {
+    if (!poses.length) continue;
+    const centers = poses.map((lm) => (lm[L_HIP].x + lm[R_HIP].x) / 2);
+    const used = new Set();
+    // match existing tracks first
+    for (const trk of tracks) {
+      const lastX = (trk[trk.length - 1].lm[L_HIP].x + trk[trk.length - 1].lm[R_HIP].x) / 2;
+      let best = -1;
+      let bestD = 0.18; // max jump between samples
+      poses.forEach((lm, pi) => {
+        if (used.has(pi)) return;
+        const d = Math.abs(centers[pi] - lastX);
+        if (d < bestD) {
+          bestD = d;
+          best = pi;
+        }
+      });
+      if (best >= 0) {
+        used.add(best);
+        trk.push({ t, lm: poses[best] });
+      }
+    }
+    // unmatched poses start new tracks
+    poses.forEach((lm, pi) => {
+      if (used.has(pi) || tracks.length >= maxPeople) return;
+      tracks.push([{ t, lm }]);
+    });
+  }
+  const kept = tracks.filter((trk) => trk.length >= 6);
+  kept.sort((a, b) => {
+    const ax = (a[0].lm[L_HIP].x + a[0].lm[R_HIP].x) / 2;
+    const bx = (b[0].lm[L_HIP].x + b[0].lm[R_HIP].x) / 2;
+    return ax - bx;
+  });
+  return kept;
+}
+
+/**
+ * Quick pre-scan: sample the first ~2s and report each player found, with a
+ * head position for drawing the number badge. Returns [{index, x, y}] in
+ * left-to-right order.
+ */
+export async function prescanPlayers(video, maxPoses = 4) {
+  const landmarker = await getLandmarker(maxPoses);
+  const end = Math.min(video.duration || 2, 2.5);
+  const raw = [];
+  video.pause();
+  let ts = performance.now() + 500000;
+  for (let t = 0.1; t < end; t += 0.4) {
+    await seekTo(video, t);
+    ts += 33;
+    const result = landmarker.detectForVideo(video, ts);
+    raw.push({ t, poses: result?.landmarks || [] });
+  }
+  const tracks = trackPeople(raw, maxPoses).filter((trk) => trk.length >= 2);
+  return tracks.map((trk, i) => {
+    const f = trk[Math.floor(trk.length / 2)].lm;
+    return { index: i, x: f[NOSE].x, y: Math.max(0.04, f[NOSE].y - 0.09) };
+  });
+}
 
 /**
  * PENALTY PACK v1.
@@ -359,6 +430,126 @@ function analyzePenalty(rawFrames, duration) {
     duration,
     metrics: { plantScore, shapeScore, headScore, approachScore, plantDist: Math.round(plantDist * 100) / 100, keeper },
   };
+}
+
+/**
+ * DUEL / TACKLE PACK v1 — analyzes BOTH players in a contact.
+ * Target player = picker index (left-to-right). Opponent = whoever comes
+ * closest to them. Contact = moment of minimum distance between hip centers.
+ */
+function analyzeDuel(rawFrames, duration, targetIndex = 0) {
+  const tracks = trackPeople(rawFrames, 4);
+  if (tracks.length < 2) return { error: "no-player" };
+
+  const target = tracks[Math.min(targetIndex, tracks.length - 1)];
+  const hipC = (f) => ({
+    x: (f.lm[L_HIP].x + f.lm[R_HIP].x) / 2,
+    y: (f.lm[L_HIP].y + f.lm[R_HIP].y) / 2,
+  });
+  const nearestAt = (trk, t) => {
+    let best = trk[0];
+    for (const f of trk) if (Math.abs(f.t - t) < Math.abs(best.t - t)) best = f;
+    return best;
+  };
+
+  // Opponent = track with smallest minimum distance to target
+  let opponent = null;
+  let contactT = target[0].t;
+  let minD = Infinity;
+  for (const trk of tracks) {
+    if (trk === target) continue;
+    for (const f of target) {
+      const o = nearestAt(trk, f.t);
+      if (Math.abs(o.t - f.t) > 0.3) continue;
+      const a = hipC(f);
+      const b = hipC(o);
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < minD) {
+        minD = d;
+        opponent = trk;
+        contactT = f.t;
+      }
+    }
+  }
+  if (!opponent) return { error: "no-player" };
+
+  const evalPlayer = (trk) => {
+    const at = nearestAt(trk, contactT).lm;
+    const torso = Math.abs((at[L_SHOULDER].y + at[R_SHOULDER].y) / 2 - (at[L_HIP].y + at[R_HIP].y) / 2) || 0.0001;
+    const baseHipY = avg(trk.map((f) => hipC(f).y));
+    const contactHipY = (at[L_HIP].y + at[R_HIP].y) / 2;
+    // Lower at contact than their own baseline = good (y grows downward)
+    const drop = (contactHipY - baseHipY) / torso;
+    const heightScore = clamp(Math.round(50 + drop * 220));
+
+    // Recovery: the second after contact — did they stay tall and steady?
+    const post = trk.filter((f) => f.t > contactT && f.t <= contactT + 1.0);
+    let balanceScore = 50;
+    if (post.length >= 3) {
+      const torsos = post.map(
+        (f) => Math.abs((f.lm[L_SHOULDER].y + f.lm[R_SHOULDER].y) / 2 - (f.lm[L_HIP].y + f.lm[R_HIP].y) / 2)
+      );
+      const torsoKept = avg(torsos) / torso; // < 1 = crumpled / went down
+      const ys = post.map((f) => hipC(f).y);
+      const sway = Math.max(...ys) - Math.min(...ys);
+      balanceScore = clamp(Math.round(torsoKept * 80 - Math.min(sway / 0.25, 1) * 25 + 20));
+    }
+    return { heightScore, balanceScore, total: heightScore + balanceScore };
+  };
+
+  const p1 = evalPlayer(target);
+  const p2 = evalPlayer(opponent);
+
+  return {
+    scenario: "duel",
+    strikeT: contactT,
+    duration,
+    framesAnalyzed: target.length,
+    metrics: { p1, p2, winner: p1.total >= p2.total ? 1 : 2 },
+  };
+}
+
+/** Build duel insights (EN/ES): both players reviewed, winner named. */
+export function buildDuelInsights(m) {
+  const playerCards = (p, n) => [
+    {
+      label: `Player ${n} — Contact Height`,
+      labelEs: `Jugador ${n} — Altura al Contacto`,
+      audioKey: p.heightScore >= 65 ? "duel-height-good" : "duel-height-low",
+      score: p.heightScore,
+      feedback:
+        p.heightScore >= 65
+          ? "Got low into the contact — strong base, hard to knock off the ball."
+          : "Arrived too upright. Bend the knees and drop the hips before contact.",
+      feedbackEs:
+        p.heightScore >= 65
+          ? "Se agachó en el contacto — base fuerte, difícil de desequilibrar."
+          : "Llegó demasiado erguido. Flexiona las rodillas y baja las caderas antes del contacto.",
+    },
+    {
+      label: `Player ${n} — Balance & Recovery`,
+      labelEs: `Jugador ${n} — Equilibrio y Recuperación`,
+      audioKey: p.balanceScore >= 65 ? "duel-balance-good" : "duel-balance-low",
+      score: p.balanceScore,
+      feedback:
+        p.balanceScore >= 65
+          ? "Stayed on their feet and ready for the next action."
+          : "Lost shape after the contact — balance work will keep them in the play.",
+      feedbackEs:
+        p.balanceScore >= 65
+          ? "Se mantuvo en pie y listo para la siguiente acción."
+          : "Perdió la forma tras el contacto — trabajo de equilibrio lo mantendrá en la jugada.",
+    },
+  ];
+
+  const cards = [...playerCards(m.p1, 1), ...playerCards(m.p2, 2)];
+  const w = m.winner;
+  const duelNote = {
+    audioKey: "duel-winner",
+    text: `Player ${w} won this duel — lower at contact and balanced coming out of it. Player ${w === 1 ? 2 : 1}: the duel is won before contact.`,
+    textEs: `El Jugador ${w} ganó este duelo — más bajo en el contacto y equilibrado al salir. Jugador ${w === 1 ? 2 : 1}: el duelo se gana antes del contacto.`,
+  };
+  return { cards, duelNote };
 }
 
 /** Build penalty insights (EN/ES) with audio keys. */

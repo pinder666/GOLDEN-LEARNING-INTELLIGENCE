@@ -100,6 +100,32 @@ const LINES = {
     en: "The keeper held the line until contact. Good discipline — place it in the corner.",
     es: "El portero aguantó la línea hasta el contacto. Buena disciplina — colócalo en la esquina.",
   },
+
+  // ── DUEL PACK ──
+  'intro-duel': {
+    en: "Duel analyzed. Both players — here's the read.",
+    es: "Duelo analizado. Ambos jugadores — aquí está la lectura.",
+  },
+  'duel-height-good': {
+    en: "Got low into the contact. Strong base — that's how you stay on the ball.",
+    es: "Se agachó en el contacto. Base fuerte — así te quedas con el balón.",
+  },
+  'duel-height-low': {
+    en: "Too upright at contact. Bend the knees, drop the hips — get under the challenge.",
+    es: "Demasiado erguido en el contacto. Flexiona las rodillas, baja las caderas — entra por debajo.",
+  },
+  'duel-balance-good': {
+    en: "Balanced through the contact and ready for the next action. Excellent.",
+    es: "Equilibrado durante el contacto y listo para la siguiente acción. Excelente.",
+  },
+  'duel-balance-low': {
+    en: "Lost balance after the contact. Land on both feet and stay in the play.",
+    es: "Perdió el equilibrio tras el contacto. Cae con ambos pies y sigue en la jugada.",
+  },
+  'duel-winner': {
+    en: "The duel was won before the contact — lower body, better balance, ball protected. That's the lesson for both players.",
+    es: "El duelo se ganó antes del contacto — cuerpo más bajo, mejor equilibrio, balón protegido. Esa es la lección para ambos jugadores.",
+  },
 };
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });

@@ -8,9 +8,11 @@ import {
   analyzeVideoElement,
   buildInsights,
   buildPenaltyInsights,
+  buildDuelInsights,
   buildShareCard,
   playAnalysisLine,
   drawSkeleton,
+  prescanPlayers,
 } from "services/videoAnalysis";
 
 function VideoAnalysis() {
@@ -24,11 +26,16 @@ function VideoAnalysis() {
   const [scenario, setScenario] = useState("open");
   const [keeperNote, setKeeperNote] = useState(null);
   const [shareBusy, setShareBusy] = useState(false);
+  const [players, setPlayers] = useState([]);       // prescan: numbered badges
+  const [targetIndex, setTargetIndex] = useState(0); // which player the coach picked
+  const [reviewing, setReviewing] = useState(false);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const overlayRef = useRef(null);
   const outcomeRef = useRef(null);
+  const reviewRef = useRef({ active: false });
 
   const t = (en, es) => lang === "es" ? es : en;
 
@@ -85,8 +92,60 @@ function VideoAnalysis() {
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(file));
       setResults(null);
+      setKeeperNote(null);
       setAnalysisError(null);
+      setPlayers([]);
+      setTargetIndex(0);
     }
+  };
+
+  // Pre-scan once the video is loaded: find everyone, drop numbered badges
+  const runPrescan = async () => {
+    const video = videoRef.current;
+    if (!video || players.length) return;
+    try {
+      const found = await prescanPlayers(video);
+      setPlayers(found);
+      drawBadges(found);
+      await new Promise((r) => {
+        const done = () => { video.removeEventListener("seeked", done); r(); };
+        video.addEventListener("seeked", done);
+        video.currentTime = 0;
+      });
+    } catch (err) {
+      console.error("Prescan failed:", err);
+    }
+  };
+
+  const drawBadges = (found, picked = targetIndex) => {
+    const canvas = overlayRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video || !video.videoWidth) return;
+    if (canvas.width !== video.videoWidth) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const r = Math.max(14, canvas.width / 42);
+    found.forEach((p, i) => {
+      const x = p.x * canvas.width;
+      const y = p.y * canvas.height;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = i === picked ? "#4ade80" : "rgba(10,14,35,0.85)";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = i === picked ? "#4ade80" : "rgba(255,255,255,0.7)";
+      ctx.stroke();
+      ctx.fillStyle = i === picked ? "#000" : "#fff";
+      ctx.font = `800 ${Math.round(r * 1.1)}px Inter, Arial, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), x, y + 1);
+    });
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
   };
 
   const analyzeVideo = async () => {
@@ -102,6 +161,8 @@ function VideoAnalysis() {
     try {
       const outcome = await analyzeVideoElement(video, (p) => setProgress(p), {
         scenario,
+        targetIndex,
+        multi: players.length > 1,
         onFrame: drawOverlay,
       });
       outcomeRef.current = outcome;
@@ -122,6 +183,11 @@ function VideoAnalysis() {
         const keys = ["intro-penalty", ...cards.map((c) => c.audioKey)];
         if (kn) keys.push(kn.audioKey);
         speakKeys(keys, lang);
+      } else if (scenario === "duel") {
+        const { cards, duelNote } = buildDuelInsights(outcome.metrics);
+        setResults(cards);
+        setKeeperNote(duelNote);
+        speakKeys(["intro-duel", ...cards.map((c) => c.audioKey), duelNote.audioKey], lang);
       } else {
         const insights = buildInsights(outcome.metrics);
         setResults(insights);
@@ -142,7 +208,9 @@ function VideoAnalysis() {
     }
   };
 
-  // Parent-facing share card (SoccerMental-stamped) — downloads a PNG
+  // Parent-facing share card (SoccerMental-stamped).
+  // On the phone: opens the native share sheet (WhatsApp/SMS) straight from
+  // the pitch. On desktop: downloads the PNG.
   const sendToParent = async () => {
     const video = videoRef.current;
     const outcome = outcomeRef.current;
@@ -151,18 +219,108 @@ function VideoAnalysis() {
     try {
       const frameT = outcome.strikeT ?? (outcome.duration ? outcome.duration / 2 : 0);
       const dataUrl = await buildShareCard(video, frameT, results, { scenario, lang });
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `analysis-${scenario}-${Date.now()}.png`;
-      a.click();
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `analysis-${Date.now()}.png`, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: t("Video Analysis", "Análisis de Video"),
+          text: t(
+            "Here's today's analysis of your child's play.",
+            "Aquí está el análisis de hoy del juego de tu hijo."
+          ),
+        });
+      } else {
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = file.name;
+        a.click();
+      }
     } catch (err) {
-      console.error("Share card failed:", err);
+      if (err?.name !== "AbortError") console.error("Share card failed:", err);
     } finally {
       setShareBusy(false);
     }
   };
 
+  // ANALYST REPLAY: slow-motion playback with live skeletons; pauses at the
+  // key moment and lets the coach voice deliver the verdicts, then rolls on.
+  const startReview = () => {
+    const video = videoRef.current;
+    const outcome = outcomeRef.current;
+    if (!video || !outcome?.allFrames?.length || reviewing) return;
+
+    stopVoice();
+    setReviewing(true);
+    const state = { active: true, paused: false };
+    reviewRef.current = state;
+
+    const frames = outcome.allFrames;
+    const momentT = outcome.strikeT ?? (outcome.duration ? outcome.duration / 2 : 0);
+    let momentDone = false;
+
+    const drawAt = (time) => {
+      let best = frames[0];
+      for (const f of frames) if (Math.abs(f.t - time) < Math.abs(best.t - time)) best = f;
+      drawOverlay(best.poses);
+    };
+
+    const onTime = () => {
+      if (!state.active) return;
+      drawAt(video.currentTime);
+      if (!momentDone && video.currentTime >= momentT) {
+        momentDone = true;
+        video.pause();
+        drawAt(momentT);
+        // Speak the verdicts over the frozen key moment, then resume
+        const keys = (results || []).map((c) => c.audioKey);
+        if (keeperNote) keys.push(keeperNote.audioKey);
+        let idx = 0;
+        const next = () => {
+          if (!state.active) return;
+          if (idx >= keys.length) {
+            video.play().catch(() => {});
+            return;
+          }
+          const audio = playAnalysisLine(keys[idx], lang);
+          audioRef.current = audio;
+          idx += 1;
+          audio.onended = next;
+        };
+        next();
+      }
+    };
+
+    const onEnded = () => stopReview();
+
+    const stopReview = () => {
+      state.active = false;
+      video.removeEventListener("timeupdate", onTime);
+      video.removeEventListener("ended", onEnded);
+      video.playbackRate = 1;
+      video.pause();
+      stopVoice();
+      setReviewing(false);
+      if (players.length) drawBadges(players);
+      else clearOverlay();
+    };
+    reviewRef.current.stop = stopReview;
+
+    video.addEventListener("timeupdate", onTime);
+    video.addEventListener("ended", onEnded);
+    video.currentTime = Math.max(0, momentT - 3);
+    video.playbackRate = 0.35;
+    video.muted = true;
+    video.play().catch(() => {});
+  };
+
+  const stopReviewIfRunning = () => {
+    if (reviewRef.current?.stop) reviewRef.current.stop();
+  };
+
   const clearVideo = () => {
+    stopReviewIfRunning();
     stopVoice();
     clearOverlay();
     outcomeRef.current = null;
@@ -171,7 +329,10 @@ function VideoAnalysis() {
     setResults(null);
     setKeeperNote(null);
     setAnalysisError(null);
+    setPlayers([]);
+    setTargetIndex(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
   };
 
   const getScoreColor = (score) => {
@@ -183,7 +344,12 @@ function VideoAnalysis() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={1} sx={{ height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <VuiBox py={1} sx={{
+        height: { xs: "auto", md: "calc(100vh - 100px)" },
+        minHeight: { xs: "calc(100vh - 100px)", md: "auto" },
+        display: "flex", flexDirection: "column",
+        overflow: { xs: "visible", md: "hidden" },
+      }}>
 
         {/* Header */}
         <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
@@ -202,6 +368,7 @@ function VideoAnalysis() {
               {[
                 { key: "open", en: "Open Play", es: "Juego" },
                 { key: "penalty", en: "Penalty", es: "Penal" },
+                { key: "duel", en: "Duel", es: "Duelo" },
               ].map(s => (
                 <button key={s.key} onClick={() => setScenario(s.key)} disabled={analyzing} style={{
                   background: scenario === s.key ? "#60a5fa" : "transparent",
@@ -230,7 +397,11 @@ function VideoAnalysis() {
         </VuiBox>
 
         {/* Main content */}
-        <VuiBox sx={{ flex: 1, display: "flex", gap: "16px", overflow: "hidden" }}>
+        <VuiBox sx={{
+          flex: 1, display: "flex", gap: "16px",
+          flexDirection: { xs: "column", md: "row" },
+          overflow: { xs: "visible", md: "hidden" },
+        }}>
 
           {/* Video panel */}
           <VuiBox sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -249,6 +420,7 @@ function VideoAnalysis() {
                     controls
                     crossOrigin="anonymous"
                     playsInline
+                    onLoadedData={runPrescan}
                     style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 10 }}
                   />
                   <canvas
@@ -268,6 +440,20 @@ function VideoAnalysis() {
                   <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.25)", display: "block", marginTop: 4 }}>
                     {t("MP4, MOV, or WEBM • Max 100MB", "MP4, MOV o WEBM • Máx 100MB")}
                   </VuiTypography>
+
+                  {/* Film straight from the phone camera */}
+                  <button
+                    onClick={() => cameraInputRef.current?.click()}
+                    style={{
+                      position: "relative", zIndex: 2, marginTop: 18,
+                      background: "#4ade80", color: "#000", border: "none",
+                      borderRadius: 10, padding: "12px 26px", fontSize: 14,
+                      fontWeight: 800, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                    }}
+                  >
+                    📹 {t("Film Now", "Grabar Ahora")}
+                  </button>
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -277,13 +463,47 @@ function VideoAnalysis() {
                       position: "absolute", inset: 0, opacity: 0, cursor: "pointer",
                     }}
                   />
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="video/*"
+                    capture="environment"
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
                 </VuiBox>
               )}
             </VuiBox>
 
+            {/* Player picker — appears when more than one player is in frame */}
+            {videoUrl && players.length > 1 && (
+              <VuiBox display="flex" gap="8px" alignItems="center" flexWrap="wrap">
+                <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.5)", fontSize: 11 }}>
+                  {t("Analyzing player:", "Analizando jugador:")}
+                </VuiTypography>
+                {players.map((p, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setTargetIndex(i); drawBadges(players, i); }}
+                    disabled={analyzing}
+                    style={{
+                      width: 34, height: 34, borderRadius: "50%",
+                      background: targetIndex === i ? "#4ade80" : "rgba(255,255,255,.1)",
+                      color: targetIndex === i ? "#000" : "#fff",
+                      border: targetIndex === i ? "none" : "1px solid rgba(255,255,255,.25)",
+                      fontSize: 15, fontWeight: 800, cursor: "pointer",
+                      fontFamily: "Inter,sans-serif",
+                    }}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </VuiBox>
+            )}
+
             {/* Controls */}
             {videoUrl && (
-              <VuiBox display="flex" gap="10px">
+              <VuiBox display="flex" gap="10px" flexWrap="wrap">
                 <button onClick={analyzeVideo} disabled={analyzing} style={{
                   background: analyzing ? "rgba(255,255,255,.1)" : "#4ade80",
                   color: analyzing ? "rgba(255,255,255,.5)" : "#000",
@@ -295,6 +515,20 @@ function VideoAnalysis() {
                     ? `${t("Analyzing", "Analizando")} ${Math.round(progress * 100)}%`
                     : t("🧠 Analyze Video", "🧠 Analizar Video")}
                 </button>
+                {results && !analyzing && (
+                  <button
+                    onClick={reviewing ? stopReviewIfRunning : startReview}
+                    style={{
+                      background: reviewing ? "#fbbf24" : "rgba(255,255,255,.12)",
+                      color: reviewing ? "#000" : "#fff",
+                      border: "1px solid rgba(255,255,255,.2)", borderRadius: 8,
+                      padding: "10px 20px", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer", fontFamily: "Inter,sans-serif",
+                    }}
+                  >
+                    {reviewing ? t("⏹ Stop Review", "⏹ Parar Revisión") : t("🎬 Analyst Replay", "🎬 Repetición Analista")}
+                  </button>
+                )}
                 {results && (
                   <button onClick={sendToParent} disabled={shareBusy} style={{
                     background: shareBusy ? "rgba(255,255,255,.1)" : "#60a5fa",
@@ -319,9 +553,11 @@ function VideoAnalysis() {
 
           {/* Results panel */}
           <VuiBox sx={{
-            width: 340, flexShrink: 0, background: "rgba(255,255,255,.04)",
-            borderRadius: "12px", padding: "14px 16px", overflow: "hidden",
+            width: { xs: "100%", md: 340 }, flexShrink: 0, background: "rgba(255,255,255,.04)",
+            borderRadius: "12px", padding: "14px 16px",
+            overflow: { xs: "visible", md: "hidden" },
             display: "flex", flexDirection: "column",
+            minHeight: { xs: 300, md: "auto" },
           }}>
             <VuiTypography variant="button" color="white" fontWeight="bold" mb={1.5}>
               {t("Analysis Results", "Resultados del Análisis")}
