@@ -452,12 +452,26 @@ function createBallTracker(video, ballAnchor) {
  * flash as confirmation and the precise anchor for analysis — or null when
  * nothing lockable is under the tap.
  */
-export async function lockPlayerAt(video, point) {
-  const landmarker = await getLandmarker(6);
-  const result = landmarker.detectForVideo(video, nextTs());
-  const poses = result?.landmarks || [];
+let imageLandmarkerPromise = null;
+function getImageLandmarker() {
+  if (!imageLandmarkerPromise) {
+    imageLandmarkerPromise = (async () => {
+      const fileset = await FilesetResolver.forVisionTasks("/wasm");
+      return PoseLandmarker.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: "/models/pose_landmarker_lite.task" },
+        runningMode: "IMAGE",
+        numPoses: 3,
+        minPoseDetectionConfidence: 0.25,
+        minPosePresenceConfidence: 0.25,
+      });
+    })();
+  }
+  return imageLandmarkerPromise;
+}
+
+function nearestPose(poses, point, maxD) {
   let best = null;
-  let bestD = 0.15; // must tap ON the player
+  let bestD = maxD;
   for (const lm of poses) {
     let d = Infinity;
     for (const q of lm) {
@@ -468,6 +482,61 @@ export async function lockPlayerAt(video, point) {
       bestD = d;
       best = lm;
     }
+  }
+  return best;
+}
+
+// ZOOM SCAN: crop a window around the tap, magnify it, detect on the crop.
+// A far-away player becomes detector-sized. Landmarks map back to full frame.
+async function zoomScan(video, point) {
+  const landmarker = await getImageLandmarker();
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw) return null;
+  const cw = 0.38; // crop width as fraction of frame
+  const ch = Math.min(0.7, (cw * vw) / vh);
+  const cx = Math.min(Math.max(point.x - cw / 2, 0), 1 - cw);
+  const cy = Math.min(Math.max(point.y - ch / 2, 0), 1 - ch);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 384;
+  canvas.height = Math.round((ch * vh) / (cw * vw) * 384);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, cx * vw, cy * vh, cw * vw, ch * vh, 0, 0, canvas.width, canvas.height);
+
+  const result = landmarker.detect(canvas);
+  const local = { x: (point.x - cx) / cw, y: (point.y - cy) / ch };
+  const best = nearestPose(result?.landmarks || [], local, 0.3);
+  if (!best) return null;
+  // map crop-space landmarks back to full-frame space
+  return best.map((q) => ({ ...q, x: cx + q.x * cw, y: cy + q.y * ch }));
+}
+
+/**
+ * BODY-SCAN LOCK, three layers deep:
+ *  1. Zoom scan around the tap (small/distant players become findable)
+ *  2. Full-frame scan
+ *  3. The same two scans on the next moments of the clip
+ * Returns { lm, hip } or null (caller then keeps the tap as a manual mark).
+ */
+export async function lockPlayerAt(video, point) {
+  const t0 = video.currentTime;
+  const attempt = async () => {
+    const zoomed = await zoomScan(video, point);
+    if (zoomed) return zoomed;
+    const landmarker = await getLandmarker(6);
+    const result = landmarker.detectForVideo(video, nextTs());
+    return nearestPose(result?.landmarks || [], point, 0.15);
+  };
+
+  let best = await attempt();
+  if (!best) {
+    for (const dt of [0.4, 0.8, 1.2]) {
+      await seekTo(video, t0 + dt);
+      best = await attempt();
+      if (best) break;
+    }
+    await seekTo(video, t0); // always restore the frozen frame
   }
   if (!best) return null;
   return {

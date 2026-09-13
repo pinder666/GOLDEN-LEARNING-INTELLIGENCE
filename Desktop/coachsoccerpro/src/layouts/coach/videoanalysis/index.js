@@ -147,17 +147,20 @@ function VideoAnalysis() {
     }
     if (anchors.length >= 4) return;
 
-    // Scan for the body under the tap
+    // Scan for the body under the tap — zoom scan, then wider search.
+    // A failed scan NEVER blocks: the tap stays as a manual mark and the
+    // lock happens during analysis across every frame.
     setLocking(true);
     setLockError(false);
     try {
       const lock = await lockPlayerAt(video, { x, y });
+      const next = lock
+        ? [...anchors, { x: lock.hip.x, y: lock.hip.y, lm: lock.lm }]
+        : [...anchors, { x, y, manual: true }];
       if (!lock) {
-        setLockError(true);
+        setLockError(true); // shown as info, not a stop
         setTimeout(() => setLockError(false), 2500);
-        return;
       }
-      const next = [...anchors, { x: lock.hip.x, y: lock.hip.y, lm: lock.lm }];
       setAnchors(next);
       setTargetIndex(0);
       drawMarkers(next, ballAnchor, 0);
@@ -577,13 +580,13 @@ function VideoAnalysis() {
                     : `2/3 — ${t("Now tap the ball", "Ahora toca el balón")}`}
                 </VuiTypography>
                 <VuiTypography variant="caption" sx={{
-                  color: lockError ? "#ef4444" : "rgba(255,255,255,.55)",
+                  color: lockError ? "#fbbf24" : "rgba(255,255,255,.55)",
                   fontSize: 11, flex: 1, fontWeight: lockError ? 700 : 400,
                 }}>
                   {locking
                     ? t("Scanning...", "Escaneando...")
                     : lockError
-                    ? t("No body found there — tap directly ON the player", "No se encontró un cuerpo ahí — toca directamente SOBRE el jugador")
+                    ? t("Marked — couldn't confirm the body yet, I'll lock on during analysis", "Marcado — no pude confirmar el cuerpo aún, lo fijaré durante el análisis")
                     : step === "players"
                     ? anchors.length
                       ? t(`🔒 ${anchors.length} locked — skeleton confirms each lock. Tap a mark to remove.`, `🔒 ${anchors.length} fijados — el esqueleto confirma cada uno. Toca una marca para quitarla.`)
