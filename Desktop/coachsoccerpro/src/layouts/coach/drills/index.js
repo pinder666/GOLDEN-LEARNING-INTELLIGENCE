@@ -12,7 +12,7 @@ import { speakDrill, stop as coachStop } from "services/voice";
 // ─── Pitch renderer ────────────────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
 
-function PitchCanvas({ drill, playing, speed }) {
+export function PitchCanvas({ drill, playing, speed }) {
   const rafRef = useRef(null);
   const startRef = useRef(null);
   const pausedAtRef = useRef(0);
@@ -146,6 +146,14 @@ function PitchCanvas({ drill, playing, speed }) {
 // ─── Voice (ElevenLabs via SoccerMental, device fallback) ─────────────────
 
 // ─── Main ────────────────────────────────────────────────────────────────────
+export function loadCustomDrills() {
+  try {
+    return JSON.parse(localStorage.getItem("csp_my_drills") || "[]");
+  } catch {
+    return [];
+  }
+}
+
 function CoachDrills() {
   const [activeCat, setActiveCat] = useState("All");
   const [activeDrill, setActiveDrill] = useState(DRILLS[0]);
@@ -156,11 +164,24 @@ function CoachDrills() {
   const [parentOpen, setParentOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [customs, setCustoms] = useState(loadCustomDrills);
+  const customAudioRef = useRef(null);
+
+  // Coach's own drills refresh when returning from My Drills
+  useEffect(() => {
+    const refresh = () => setCustoms(loadCustomDrills());
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, []);
 
   const ages = ["All", "U8", "U10", "U12", "U14+"];
+  const allDrills = [...customs, ...DRILLS];
 
-  const filtered = DRILLS.filter(d => {
-    const catOk = activeCat === "All" || d.cat === activeCat;
+  const filtered = allDrills.filter(d => {
+    const catOk =
+      activeCat === "All" ? true :
+      activeCat === "Mine" ? !!d.custom :
+      d.cat === activeCat;
     const ageOk = ageFilter === "All" || (d.ages && d.ages.includes(ageFilter));
     return catOk && ageOk;
   });
@@ -171,9 +192,26 @@ function CoachDrills() {
 
   const handleSpeak = () => {
     if (!activeDrill) return;
-    if (speaking) { coachStop(); setSpeaking(false); return; }
+    if (speaking) {
+      coachStop();
+      if (customAudioRef.current) { customAudioRef.current.pause(); customAudioRef.current = null; }
+      setSpeaking(false);
+      return;
+    }
 
     setSpeaking(true);
+    if (activeDrill.custom) {
+      // Coach's own drill: their recorded voice IS the audio
+      if (activeDrill.audio) {
+        const a = new Audio(activeDrill.audio);
+        customAudioRef.current = a;
+        a.onended = () => setSpeaking(false);
+        a.play().catch(() => setSpeaking(false));
+      } else {
+        setSpeaking(false);
+      }
+      return;
+    }
     speakDrill(activeDrill.id, lang, {
       onEnd: () => setSpeaking(false),
     });
@@ -224,14 +262,14 @@ function CoachDrills() {
 
         {/* Filters */}
         <VuiBox display="flex" gap="6px" flexWrap="wrap" mb={1}>
-          {["All", ...CATS].map(cat=>(
+          {["All", ...(customs.length ? ["Mine"] : []), ...CATS].map(cat=>(
             <button key={cat} onClick={()=>setActiveCat(cat)} style={{
-              background: activeCat===cat ? (CAT_COLORS[cat]||"#4ade80") : "rgba(255,255,255,.08)",
+              background: activeCat===cat ? (cat==="Mine" ? "#22d3ee" : (CAT_COLORS[cat]||"#4ade80")) : "rgba(255,255,255,.08)",
               color: activeCat===cat ? "#000" : "#fff",
               border:"none", borderRadius:20, padding:"5px 14px",
               fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"Inter,sans-serif",
             }}>
-              {cat==="All" ? t("All","Todos") : cat}
+              {cat==="All" ? t("All","Todos") : cat==="Mine" ? t("Mine","Míos") : cat}
             </button>
           ))}
           <div style={{width:1,background:"rgba(255,255,255,.12)",margin:"0 4px"}}/>
