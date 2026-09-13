@@ -175,12 +175,24 @@ function computeMetrics(frames, duration) {
 const clamp = (n) => Math.max(5, Math.min(100, n));
 const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
 
+/**
+ * Play the pre-generated coach-voice line for one insight (or the intro).
+ * Files live at /audio/analysis/<key>-<lang>.mp3 — bundled, zero API calls.
+ * Returns the Audio element so callers can chain or stop playback.
+ */
+export function playAnalysisLine(key, lang = "en") {
+  const audio = new Audio(`/audio/analysis/${key}-${lang === "es" ? "es" : "en"}.mp3`);
+  audio.play().catch(() => {});
+  return audio;
+}
+
 /** Build the display insights (EN/ES) from computed metrics. */
 export function buildInsights(m) {
   return [
     {
       label: "Scanning",
       labelEs: "Escaneo",
+      audioKey: m.scansPer5s >= 3 ? "scanning-good" : "scanning-low",
       score: m.scanScore,
       feedback:
         `${m.scans} head checks detected (${m.scansPer5s} per 5 seconds). ` +
@@ -196,6 +208,7 @@ export function buildInsights(m) {
     {
       label: "Body Orientation",
       labelEs: "Orientación Corporal",
+      audioKey: m.bodyScore >= 75 ? "body-good" : "body-low",
       score: m.bodyScore,
       feedback:
         m.bodyScore >= 75
@@ -209,6 +222,7 @@ export function buildInsights(m) {
     {
       label: "Movement Intensity",
       labelEs: "Intensidad de Movimiento",
+      audioKey: m.moveScore >= 70 ? "movement-good" : "movement-low",
       score: m.moveScore,
       feedback:
         m.moveScore >= 70
@@ -222,6 +236,7 @@ export function buildInsights(m) {
     {
       label: "Posture & Balance",
       labelEs: "Postura y Equilibrio",
+      audioKey: m.postureScore >= 75 ? "posture-good" : "posture-low",
       score: m.postureScore,
       feedback:
         m.postureScore >= 75

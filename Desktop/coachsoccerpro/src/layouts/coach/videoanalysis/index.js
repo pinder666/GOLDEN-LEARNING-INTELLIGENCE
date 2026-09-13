@@ -4,7 +4,7 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-import { analyzeVideoElement, buildInsights } from "services/videoAnalysis";
+import { analyzeVideoElement, buildInsights, playAnalysisLine } from "services/videoAnalysis";
 
 function VideoAnalysis() {
   const [lang, setLang] = useState("en");
@@ -16,8 +16,36 @@ function VideoAnalysis() {
   const [analysisError, setAnalysisError] = useState(null);
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
   const t = (en, es) => lang === "es" ? es : en;
+
+  const stopVoice = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+  };
+
+  // Coach voice reads the verdicts in sequence: intro, then each insight.
+  const speakResults = (insights, language) => {
+    stopVoice();
+    const keys = ["intro", ...insights.map((i) => i.audioKey)];
+    let idx = 0;
+    const playNext = () => {
+      if (idx >= keys.length) return;
+      const audio = playAnalysisLine(keys[idx], language);
+      audioRef.current = audio;
+      idx += 1;
+      audio.onended = playNext;
+    };
+    playNext();
+  };
+
+  const speakOne = (insight) => {
+    stopVoice();
+    audioRef.current = playAnalysisLine(insight.audioKey, lang);
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -50,7 +78,9 @@ function VideoAnalysis() {
             : t("Could not read this video. Try a different clip.", "No se pudo leer este video. Prueba otro clip.")
         );
       } else {
-        setResults(buildInsights(outcome.metrics));
+        const insights = buildInsights(outcome.metrics);
+        setResults(insights);
+        speakResults(insights, lang);
       }
     } catch (err) {
       console.error("Video analysis failed:", err);
@@ -61,6 +91,7 @@ function VideoAnalysis() {
   };
 
   const clearVideo = () => {
+    stopVoice();
     setVideoFile(null);
     setVideoUrl(null);
     setResults(null);
@@ -193,13 +224,26 @@ function VideoAnalysis() {
                       <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.5)", fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
                         {lang === "es" ? insight.labelEs : insight.label}
                       </VuiTypography>
-                      <span style={{
-                        background: getScoreColor(insight.score) + "20",
-                        color: getScoreColor(insight.score),
-                        borderRadius: 12, padding: "2px 8px", fontSize: 12, fontWeight: 800,
-                      }}>
-                        {insight.score}
-                      </span>
+                      <VuiBox display="flex" alignItems="center" gap="6px">
+                        <button
+                          onClick={() => speakOne(insight)}
+                          title={lang === "es" ? "Escuchar" : "Listen"}
+                          style={{
+                            background: "rgba(255,255,255,.08)", border: "none",
+                            borderRadius: 10, padding: "2px 8px", fontSize: 12,
+                            cursor: "pointer", lineHeight: 1.4,
+                          }}
+                        >
+                          🔊
+                        </button>
+                        <span style={{
+                          background: getScoreColor(insight.score) + "20",
+                          color: getScoreColor(insight.score),
+                          borderRadius: 12, padding: "2px 8px", fontSize: 12, fontWeight: 800,
+                        }}>
+                          {insight.score}
+                        </span>
+                      </VuiBox>
                     </VuiBox>
                     <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.7)", fontSize: 11, lineHeight: 1.5 }}>
                       {lang === "es" ? insight.feedbackEs : insight.feedback}
