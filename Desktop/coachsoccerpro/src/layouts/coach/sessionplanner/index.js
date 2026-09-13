@@ -106,7 +106,7 @@ Respond ONLY with valid JSON in this exact shape:
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3}>
+      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
 
         {/* Header */}
         <VuiBox mb={3}>
@@ -287,8 +287,10 @@ Respond ONLY with valid JSON in this exact shape:
           </VuiBox>
         )}
 
+        <VuiBox mt="auto" pt={3}>
+          <Footer />
+        </VuiBox>
       </VuiBox>
-      <Footer />
     </DashboardLayout>
   );
 }

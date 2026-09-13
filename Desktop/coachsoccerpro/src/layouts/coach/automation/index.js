@@ -1,0 +1,206 @@
+import { useState } from "react";
+import VuiBox from "components/VuiBox";
+import VuiTypography from "components/VuiTypography";
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+
+const AUTOMATIONS = [
+  {
+    id: "payment-reminder",
+    title: "Payment Reminders",
+    titleEs: "Recordatorios de Pago",
+    desc: "Auto-send reminders to parents with unpaid dues. Triggers 3 days before due date, on due date, and 3 days after.",
+    descEs: "Envía recordatorios automáticos a padres con pagos pendientes. Se activa 3 días antes, el día del vencimiento, y 3 días después.",
+    icon: "💳",
+    color: "#4ade80",
+    enabled: true,
+    schedule: "3 days before, on due, 3 days after",
+  },
+  {
+    id: "attendance-summary",
+    title: "Weekly Attendance Summary",
+    titleEs: "Resumen Semanal de Asistencia",
+    desc: "Send coaches a summary every Monday: who attended, who missed, streaks at risk.",
+    descEs: "Envía a los entrenadores un resumen cada lunes: quién asistió, quién faltó, rachas en riesgo.",
+    icon: "📊",
+    color: "#60a5fa",
+    enabled: true,
+    schedule: "Every Monday 8am",
+  },
+  {
+    id: "parent-report",
+    title: "Weekly Parent Report",
+    titleEs: "Informe Semanal a Padres",
+    desc: "Every Friday, parents receive: what their child worked on, badges earned, coach notes, next session info.",
+    descEs: "Cada viernes, los padres reciben: qué trabajó su hijo, insignias ganadas, notas del entrenador, info de la próxima sesión.",
+    icon: "📣",
+    color: "#fbbf24",
+    enabled: false,
+    schedule: "Every Friday 5pm",
+  },
+  {
+    id: "inactive-nudge",
+    title: "Inactive Player Nudge",
+    titleEs: "Recordatorio de Jugador Inactivo",
+    desc: "Alert coaches when a player hasn't received feedback in 2 weeks. Suggest quick actions.",
+    descEs: "Alerta a los entrenadores cuando un jugador no ha recibido retroalimentación en 2 semanas.",
+    icon: "👋",
+    color: "#a78bfa",
+    enabled: true,
+    schedule: "Daily check",
+  },
+  {
+    id: "session-prep",
+    title: "Session Prep Reminder",
+    titleEs: "Recordatorio de Preparación",
+    desc: "24 hours before a scheduled session, remind coach to prep: roster, drills, equipment checklist.",
+    descEs: "24 horas antes de una sesión, recordar al entrenador: plantilla, ejercicios, lista de equipamiento.",
+    icon: "⚡",
+    color: "#f97316",
+    enabled: true,
+    schedule: "24h before session",
+  },
+  {
+    id: "drill-suggestion",
+    title: "AI Drill Suggestions",
+    titleEs: "Sugerencias de Ejercicios IA",
+    desc: "Based on recent session tags and player performance, suggest drills for next session.",
+    descEs: "Basado en etiquetas recientes y rendimiento de jugadores, sugerir ejercicios para la próxima sesión.",
+    icon: "🧠",
+    color: "#f43f5e",
+    enabled: false,
+    schedule: "After each session",
+  },
+];
+
+function Automation() {
+  const [lang, setLang] = useState("en");
+  const [automations, setAutomations] = useState(AUTOMATIONS);
+
+  const t = (en, es) => lang === "es" ? es : en;
+
+  const toggleAutomation = (id) => {
+    setAutomations(prev => prev.map(a =>
+      a.id === id ? { ...a, enabled: !a.enabled } : a
+    ));
+  };
+
+  const enabledCount = automations.filter(a => a.enabled).length;
+
+  return (
+    <DashboardLayout>
+      <DashboardNavbar />
+      <VuiBox py={1} sx={{ height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+        {/* Header */}
+        <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
+          <VuiBox>
+            <VuiTypography variant="h5" color="white" fontWeight="bold">
+              {t("Automation", "Automatización")}
+            </VuiTypography>
+            <VuiTypography variant="caption" color="text">
+              {t(`${enabledCount} of ${automations.length} automations active`, `${enabledCount} de ${automations.length} automatizaciones activas`)}
+            </VuiTypography>
+          </VuiBox>
+
+          {/* Language toggle */}
+          <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
+            {["en", "es"].map(l => (
+              <button key={l} onClick={() => setLang(l)} style={{
+                background: lang === l ? "#4ade80" : "transparent",
+                color: lang === l ? "#000" : "rgba(255,255,255,.6)",
+                border: "none", borderRadius: 18, padding: "4px 14px",
+                fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
+              }}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </VuiBox>
+
+        {/* Automation grid */}
+        <VuiBox sx={{ flex: 1, overflow: "hidden", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "12px", alignContent: "start" }}>
+          {automations.map(auto => (
+            <VuiBox key={auto.id} sx={{
+              background: "rgba(255,255,255,.04)",
+              border: `1px solid ${auto.enabled ? auto.color + "40" : "rgba(255,255,255,.08)"}`,
+              borderRadius: "12px",
+              padding: "14px 16px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}>
+              <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start">
+                <VuiBox display="flex" alignItems="center" gap="10px">
+                  <span style={{ fontSize: 24 }}>{auto.icon}</span>
+                  <VuiBox>
+                    <VuiTypography variant="button" color="white" fontWeight="bold" sx={{ display: "block" }}>
+                      {lang === "es" ? auto.titleEs : auto.title}
+                    </VuiTypography>
+                    <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.4)", fontSize: 10 }}>
+                      {auto.schedule}
+                    </VuiTypography>
+                  </VuiBox>
+                </VuiBox>
+
+                {/* Toggle */}
+                <button onClick={() => toggleAutomation(auto.id)} style={{
+                  width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
+                  background: auto.enabled ? auto.color : "rgba(255,255,255,.15)",
+                  position: "relative", transition: "background .2s",
+                }}>
+                  <span style={{
+                    position: "absolute", top: 3, left: auto.enabled ? 23 : 3,
+                    width: 18, height: 18, borderRadius: "50%",
+                    background: "#fff", transition: "left .2s",
+                  }} />
+                </button>
+              </VuiBox>
+
+              <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.6)", lineHeight: 1.5, fontSize: 11 }}>
+                {lang === "es" ? auto.descEs : auto.desc}
+              </VuiTypography>
+
+              {auto.enabled && (
+                <VuiBox display="flex" gap="6px" mt={0.5}>
+                  <button style={{
+                    background: "rgba(255,255,255,.08)", border: "none", borderRadius: 6,
+                    padding: "5px 10px", color: "rgba(255,255,255,.7)", fontSize: 10,
+                    fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>
+                    {t("Configure", "Configurar")}
+                  </button>
+                  <button style={{
+                    background: "rgba(255,255,255,.08)", border: "none", borderRadius: 6,
+                    padding: "5px 10px", color: "rgba(255,255,255,.7)", fontSize: 10,
+                    fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>
+                    {t("View History", "Ver Historial")}
+                  </button>
+                </VuiBox>
+              )}
+            </VuiBox>
+          ))}
+        </VuiBox>
+
+        {/* Bottom info */}
+        <VuiBox mt={1} sx={{
+          background: "rgba(74,222,128,.06)",
+          border: "1px solid rgba(74,222,128,.15)",
+          borderRadius: "10px",
+          padding: "10px 14px",
+        }}>
+          <VuiTypography variant="caption" sx={{ color: "#4ade80", fontSize: 11 }}>
+            {t(
+              "Automations run in the background. You'll be notified when actions are taken. All messages are sent from your coach profile.",
+              "Las automatizaciones se ejecutan en segundo plano. Serás notificado cuando se tomen acciones. Todos los mensajes se envían desde tu perfil de entrenador."
+            )}
+          </VuiTypography>
+        </VuiBox>
+
+      </VuiBox>
+    </DashboardLayout>
+  );
+}
+
+export default Automation;

@@ -21,6 +21,11 @@ import CoachSettings from "layouts/coach/settings";
 import CoachDrills from "layouts/coach/drills";
 import TacticsBoard from "layouts/coach/tactics";
 import SessionPlanner from "layouts/coach/sessionplanner";
+import Checkmatch from "layouts/coach/checkmatch";
+import Automation from "layouts/coach/automation";
+import Demo from "layouts/coach/demo";
+import MyDrills from "layouts/coach/mydrills";
+import VideoAnalysis from "layouts/coach/videoanalysis";
 
 // Auth Layouts
 import CoachSignIn from "layouts/authentication/sign-in/coach";
@@ -43,7 +48,7 @@ import ChildLeaderboard from "layouts/child/leaderboard";
 import ChildHabits from "layouts/child/habits";
 
 // React icons
-import { IoHome, IoPeople, IoCalendar, IoChatbubbles, IoCard, IoTrophy, IoSettings, IoFitness, IoImages, IoFlash } from "react-icons/io5";
+import { IoHome, IoPeople, IoCalendar, IoChatbubbles, IoCard, IoTrophy, IoSettings, IoFitness, IoImages, IoFlash, IoGameController, IoCog, IoHelpCircle, IoCreate } from "react-icons/io5";
 import { FaMedal, FaChartLine, FaFutbol, FaChessBoard } from "react-icons/fa";
 
 // =============================================
@@ -173,6 +178,16 @@ const coachRoutes = [
   },
   {
     type: "collapse",
+    name: "My Drills",
+    nameEs: "Mis Ejercicios",
+    key: "coach-mydrills",
+    icon: <IoCreate size="15px" color="inherit" />,
+    route: "/coach/mydrills",
+    component: <MyDrills />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     name: "Tactics Board",
     nameEs: "Tablero Táctico",
     key: "coach-tactics",
@@ -189,6 +204,46 @@ const coachRoutes = [
     icon: <IoFlash size="15px" color="inherit" />,
     route: "/coach/session",
     component: <SessionPlanner />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Checkmatch",
+    nameEs: "Checkmatch",
+    key: "coach-checkmatch",
+    icon: <IoGameController size="15px" color="inherit" />,
+    route: "/coach/checkmatch",
+    component: <Checkmatch />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Automation",
+    nameEs: "Automatización",
+    key: "coach-automation",
+    icon: <IoCog size="15px" color="inherit" />,
+    route: "/coach/automation",
+    component: <Automation />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "How To Use",
+    nameEs: "Cómo Usar",
+    key: "coach-demo",
+    icon: <IoHelpCircle size="15px" color="inherit" />,
+    route: "/coach/demo",
+    component: <Demo />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Video Analysis",
+    nameEs: "Análisis de Video",
+    key: "coach-video",
+    icon: <IoImages size="15px" color="inherit" />,
+    route: "/coach/video",
+    component: <VideoAnalysis />,
     noCollapse: true,
   },
   { type: "divider", key: "divider-settings" },

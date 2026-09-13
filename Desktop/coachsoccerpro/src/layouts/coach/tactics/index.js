@@ -61,7 +61,7 @@ function arrowMarker(col) {
 // ─── Tactics Board ───────────────────────────────────────────────────────────
 function TacticsBoard() {
   const [mode, setMode] = useState("coach"); // "coach" | "custom"
-  const [selectedPlay, setSelectedPlay] = useState(COACH_PLAYS[0]);
+  const [selectedPlay, setSelectedPlay] = useState((COACH_PLAYS && COACH_PLAYS.length) ? COACH_PLAYS[0] : null);
   const [lang, setLang] = useState("en");
 
   // Custom play state
@@ -171,13 +171,14 @@ function TacticsBoard() {
   const clearArrows = () => setCustomArrows([]);
 
   const activePlay = mode === "coach" ? selectedPlay : null;
-  const displayPlayers = mode === "coach" ? (comparing || selectedPlay).players : customPlayers;
-  const displayArrows = mode === "coach" ? (comparing || selectedPlay).arrows : customArrows;
+  const coachSource = comparing || selectedPlay;
+  const displayPlayers = mode === "coach" ? (coachSource ? coachSource.players : []) : customPlayers;
+  const displayArrows = mode === "coach" ? (coachSource ? coachSource.arrows : []) : customArrows;
 
   return (
     <DashboardLayout>
       <DashboardNavbar/>
-      <VuiBox py={3}>
+      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
 
         {/* Header */}
         <VuiBox mb={2} display="flex" justifyContent="space-between" alignItems="center">
@@ -524,8 +525,11 @@ function TacticsBoard() {
             )}
           </VuiBox>
         </VuiBox>
+
+        <VuiBox mt="auto" pt={3}>
+          <Footer/>
+        </VuiBox>
       </VuiBox>
-      <Footer/>
     </DashboardLayout>
   );
 }

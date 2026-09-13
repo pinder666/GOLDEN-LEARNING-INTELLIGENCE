@@ -5,9 +5,9 @@ import VuiTypography from "components/VuiTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 
 import { DRILLS, CATS, CAT_COLORS } from "data/drills";
+import { speakDrill, stop as coachStop } from "services/voice";
 
 // ─── Pitch renderer ────────────────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -58,7 +58,7 @@ function PitchCanvas({ drill, playing, speed }) {
   useEffect(() => { pausedAtRef.current = 0; startRef.current = Date.now(); }, [drill]);
 
   if (!drill) return null;
-  const W = 680, H = 440;
+  const W = 720, H = 480;
 
   const markerFill = (col) => {
     if (!col) return "#4ade80";
@@ -72,7 +72,9 @@ function PitchCanvas({ drill, playing, speed }) {
 
   return (
     <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`}
-      style={{ width:"100%", height:"auto", display:"block", background:"#1a4a2a", borderRadius:12 }}>
+      style={{ width:"100%", maxWidth:"100%", height:"auto", display:"block", background:"#1a4a2a", borderRadius:10 }}>
+      {/* Green background with equal padding around pitch */}
+      <rect x={0} y={0} width={W} height={H} fill="#1a4a2a"/>
       <defs>
         {["#4ade80","#ef4444","#fbbf24","#60a5fa","#a78bfa","rgba(255,255,255,.7)"].map((col,i) => (
           <marker key={i} id={`ah${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
@@ -141,26 +143,7 @@ function PitchCanvas({ drill, playing, speed }) {
   );
 }
 
-// ─── Voice hook ─────────────────────────────────────────────────────────────
-function useVoice() {
-  const speak = useCallback((text, lang = "en-US") => {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = lang;
-    utt.rate = 0.92;
-    const voices = window.speechSynthesis.getVoices();
-    const match = voices.find(v => v.lang.startsWith(lang.split("-")[0]));
-    if (match) utt.voice = match;
-    window.speechSynthesis.speak(utt);
-  }, []);
-
-  const stop = useCallback(() => {
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-  }, []);
-
-  return { speak, stop };
-}
+// ─── Voice (ElevenLabs via SoccerMental, device fallback) ─────────────────
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 function CoachDrills() {
@@ -173,7 +156,6 @@ function CoachDrills() {
   const [parentOpen, setParentOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const { speak, stop } = useVoice();
 
   const ages = ["All", "U8", "U10", "U12", "U14+"];
 
@@ -189,17 +171,12 @@ function CoachDrills() {
 
   const handleSpeak = () => {
     if (!activeDrill) return;
-    if (speaking) { stop(); setSpeaking(false); return; }
-    const text = [
-      t(activeDrill.title, activeDrill.titleEs),
-      t(activeDrill.desc, activeDrill.descEs),
-      t(activeDrill.coaching, activeDrill.coachingEs),
-    ].join(". ");
-    const speechLang = lang === "es" ? "es-MX" : "en-US";
-    speak(text, speechLang);
+    if (speaking) { coachStop(); setSpeaking(false); return; }
+
     setSpeaking(true);
-    const est = text.length * 60;
-    setTimeout(() => setSpeaking(false), est);
+    speakDrill(activeDrill.id, lang, {
+      onEnd: () => setSpeaking(false),
+    });
   };
 
   const handleCopyParent = () => {
@@ -212,15 +189,15 @@ function CoachDrills() {
     });
   };
 
-  useEffect(() => { setSpeaking(false); stop(); }, [activeDrill, lang, stop]);
+  useEffect(() => { setSpeaking(false); coachStop(); }, [activeDrill, lang]);
 
   return (
     <DashboardLayout>
       <DashboardNavbar/>
-      <VuiBox py={3}>
+      <VuiBox py={1} sx={{height:"calc(100vh - 100px)", display:"flex", flexDirection:"column", overflow:"hidden"}}>
 
         {/* Header */}
-        <VuiBox mb={2} display="flex" justifyContent="space-between" alignItems="center">
+        <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
           <VuiBox>
             <VuiTypography variant="h4" color="white" fontWeight="bold">
               {t("Drill Library", "Ejercicios")}
@@ -246,7 +223,7 @@ function CoachDrills() {
         </VuiBox>
 
         {/* Filters */}
-        <VuiBox display="flex" gap="8px" flexWrap="wrap" mb={2}>
+        <VuiBox display="flex" gap="6px" flexWrap="wrap" mb={1}>
           {["All", ...CATS].map(cat=>(
             <button key={cat} onClick={()=>setActiveCat(cat)} style={{
               background: activeCat===cat ? (CAT_COLORS[cat]||"#4ade80") : "rgba(255,255,255,.08)",
@@ -271,12 +248,12 @@ function CoachDrills() {
         </VuiBox>
 
         {/* Main layout */}
-        <VuiBox display="flex" gap="16px" style={{minHeight:480}}>
+        <VuiBox display="flex" gap="12px" sx={{flex:1, minHeight:0, overflow:"hidden"}}>
 
           {/* Sidebar */}
           <VuiBox style={{
-            width:220, flexShrink:0, background:"rgba(255,255,255,.04)",
-            borderRadius:12, padding:12, overflowY:"auto", maxHeight:600,
+            width:200, flexShrink:0, background:"rgba(255,255,255,.04)",
+            borderRadius:10, padding:10, overflow:"hidden",
           }}>
             {CATS.map(cat=>{
               const catDrills = filtered.filter(d=>d.cat===cat);
@@ -290,7 +267,13 @@ function CoachDrills() {
                     {cat}
                   </VuiTypography>
                   {catDrills.map(d=>(
-                    <button key={d.id} onClick={()=>{setActiveDrill(d);setPlaying(true);setParentOpen(false);}} style={{
+                    <button key={d.id} onClick={()=>{
+                      setActiveDrill(d);
+                      setPlaying(true);
+                      setParentOpen(false);
+                      setSpeaking(true);
+                      speakDrill(d.id, lang, { onEnd: () => setSpeaking(false) });
+                    }} style={{
                       display:"block", width:"100%", textAlign:"left",
                       background:activeDrill?.id===d.id?"rgba(255,255,255,.12)":"transparent",
                       border:"none", borderRadius:8, padding:"7px 10px",
@@ -312,13 +295,13 @@ function CoachDrills() {
           </VuiBox>
 
           {/* Pitch + info */}
-          <VuiBox style={{flex:1}}>
-            <VuiBox mb={1.5}>
+          <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflow:"hidden"}}>
+            <VuiBox sx={{flexShrink:0}}>
               <PitchCanvas drill={activeDrill} playing={playing} speed={speed}/>
             </VuiBox>
 
             {/* Controls */}
-            <VuiBox display="flex" alignItems="center" gap="8px" mb={2} flexWrap="wrap">
+            <VuiBox display="flex" alignItems="center" gap="6px" mb={1} flexWrap="wrap" sx={{flexShrink:0}}>
               <button onClick={()=>setPlaying(p=>!p)} style={{
                 background: playing?"rgba(255,255,255,.15)":"#4ade80",
                 color: playing?"#fff":"#000",
@@ -395,11 +378,12 @@ function CoachDrills() {
 
             {/* Drill info */}
             {activeDrill && (
-              <VuiBox style={{
-                background:"rgba(255,255,255,.05)", borderRadius:12,
-                padding:16, borderLeft:`3px solid ${catColor}`,
+              <VuiBox sx={{
+                background:"rgba(255,255,255,.05)", borderRadius:"10px",
+                padding:"12px 14px", borderLeft:`3px solid ${catColor}`,
+                flex:1, minHeight:0, overflow:"hidden",
               }}>
-                <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
                   <VuiTypography variant="h6" color="white" fontWeight="bold">
                     {lang==="es" ? (activeDrill.titleEs||activeDrill.title) : activeDrill.title}
                   </VuiTypography>
@@ -416,12 +400,12 @@ function CoachDrills() {
                   </VuiBox>
                 </VuiBox>
 
-                <VuiTypography variant="body2" color="text" mb={1}>
+                <VuiTypography variant="caption" color="text" mb={0.5} sx={{lineHeight:1.5}}>
                   {lang==="es" ? (activeDrill.descEs||activeDrill.desc) : activeDrill.desc}
                 </VuiTypography>
 
                 <VuiBox style={{
-                  background:"rgba(0,0,0,.2)", borderRadius:8, padding:"10px 12px", marginBottom:8,
+                  background:"rgba(0,0,0,.2)", borderRadius:6, padding:"8px 10px", marginBottom:6,
                   borderLeft:"3px solid rgba(251,191,36,.5)",
                 }}>
                   <VuiTypography variant="caption" fontWeight="bold" style={{color:"#fbbf24",display:"block",marginBottom:2}}>
@@ -433,20 +417,20 @@ function CoachDrills() {
                 </VuiBox>
 
                 {activeDrill.equipment && (
-                  <VuiTypography variant="caption" color="text" style={{display:"block",marginBottom:8}}>
+                  <VuiTypography variant="caption" color="text" style={{display:"block",marginBottom:4,fontSize:11}}>
                     <span style={{color:"rgba(255,255,255,.4)"}}>
-                      {t("Equipment: ","Equipamiento: ")}
+                      {t("Equipment: ","Equipo: ")}
                     </span>
                     {lang==="es" ? (activeDrill.equipmentEs||activeDrill.equipment) : activeDrill.equipment}
                   </VuiTypography>
                 )}
 
                 {activeDrill.sm && (
-                  <VuiBox mt={1} style={{
-                    background:"rgba(74,222,128,.07)", borderRadius:8, padding:"8px 12px",
-                    border:"1px solid rgba(74,222,128,.2)",
+                  <VuiBox style={{
+                    background:"rgba(74,222,128,.07)", borderRadius:6, padding:"6px 10px",
+                    border:"1px solid rgba(74,222,128,.2)", marginTop:4,
                   }}>
-                    <VuiTypography variant="caption" style={{color:"#4ade80"}}>
+                    <VuiTypography variant="caption" style={{color:"#4ade80",fontSize:10}}>
                       ⚽ SoccerMental — {activeDrill.smUnit}
                     </VuiTypography>
                   </VuiBox>
@@ -456,7 +440,6 @@ function CoachDrills() {
           </VuiBox>
         </VuiBox>
       </VuiBox>
-      <Footer/>
     </DashboardLayout>
   );
 }
