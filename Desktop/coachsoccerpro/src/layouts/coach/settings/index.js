@@ -23,6 +23,105 @@ import { IoSave, IoColorPalette, IoLanguage, IoNotifications, IoDiamond } from "
 // Auth & Data
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
+import { DEV_MODE } from "devMode";
+
+// ── PIPE A: the coach's team code (lean, per depth-cap ruling) ──
+// Unambiguous alphabet — no 0/O/1/I
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function makeCode(teamName) {
+  const slug = (teamName || "TEAM").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 8) || "TEAM";
+  let tail = "";
+  for (let i = 0; i < 4; i++) tail += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
+  return `${slug}-${tail}`;
+}
+
+function TeamCodeCard({ teamName, coachData, language }) {
+  const [code, setCode] = useState(() => (DEV_MODE ? localStorage.getItem("csp_team_code") || "" : ""));
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (DEV_MODE || !coachData?.id) return;
+    supabase
+      .from("coach_codes")
+      .select("code")
+      .eq("coach_id", coachData.id)
+      .eq("active", true)
+      .maybeSingle()
+      .then(({ data }) => data && setCode(data.code));
+  }, [coachData]);
+
+  const generate = async () => {
+    if (busy) return;
+    setBusy(true);
+    const next = makeCode(teamName);
+    try {
+      if (DEV_MODE) {
+        localStorage.setItem("csp_team_code", next);
+      } else {
+        const { error } = await supabase
+          .from("coach_codes")
+          .insert([{ code: next, coach_id: coachData.id, active: true }]);
+        if (error) throw error; // old code auto-deactivated by DB trigger
+      }
+      setCode(next);
+    } catch (e) {
+      console.error("Code generation failed:", e);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const copy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <Card>
+      <VuiBox p={3}>
+        <VuiTypography variant="h6" color="white" mb={1}>
+          {language === "es" ? "Tu Código de Equipo" : "Your Team Code"}
+        </VuiTypography>
+        <VuiTypography variant="caption" color="text" sx={{ display: "block", mb: 2 }}>
+          {language === "es"
+            ? "Los padres lo usan al registrarse en SoccerMental: los conecta a tu plantilla y les da la tarifa de equipo. Cada familia activa reduce tu cuota mensual."
+            : "Parents use it when signing up for SoccerMental: it attaches them to your roster and gets them the team rate. Every active family lowers your monthly fee."}
+        </VuiTypography>
+        {code ? (
+          <VuiBox display="flex" gap="10px" alignItems="center" flexWrap="wrap">
+            <span style={{
+              background: "rgba(74,222,128,.12)", border: "1px solid rgba(74,222,128,.4)",
+              color: "#4ade80", borderRadius: 10, padding: "10px 18px",
+              fontSize: 18, fontWeight: 800, letterSpacing: ".08em", fontFamily: "Inter,monospace",
+            }}>
+              {code}
+            </span>
+            <VuiButton color="info" size="small" onClick={copy}>
+              {copied ? (language === "es" ? "✓ Copiado" : "✓ Copied") : (language === "es" ? "Copiar" : "Copy")}
+            </VuiButton>
+            <VuiButton color="secondary" size="small" onClick={generate} disabled={busy}>
+              {language === "es" ? "Regenerar" : "Regenerate"}
+            </VuiButton>
+          </VuiBox>
+        ) : (
+          <VuiButton color="success" onClick={generate} disabled={busy}>
+            {language === "es" ? "Generar mi código" : "Generate my code"}
+          </VuiButton>
+        )}
+        {code && (
+          <VuiTypography variant="caption" color="text" sx={{ display: "block", mt: 1.5, fontSize: 10.5 }}>
+            {language === "es"
+              ? "Regenerar desactiva el código anterior — las familias ya conectadas no se ven afectadas."
+              : "Regenerating deactivates the old code — families already attached are unaffected."}
+          </VuiTypography>
+        )}
+      </VuiBox>
+    </Card>
+  );
+}
 
 function CoachSettings() {
   const { t, i18n } = useTranslation(["common", "coach"]);
@@ -168,6 +267,11 @@ function CoachSettings() {
         </VuiBox>
 
         <Grid container spacing={3}>
+          {/* PIPE A — Team Code (SoccerMental attribution) */}
+          <Grid item xs={12}>
+            <TeamCodeCard teamName={teamName || teamData?.name} coachData={coachData} language={language} />
+          </Grid>
+
           {/* Team Profile */}
           <Grid item xs={12} lg={6}>
             <Card>
