@@ -87,8 +87,7 @@ export default function App() {
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("lang");
     if (p === "es" || p === "en") i18n.changeLanguage(p);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [i18n]);
 
   // Setting page scroll to 0 when changing the route
   useEffect(() => {

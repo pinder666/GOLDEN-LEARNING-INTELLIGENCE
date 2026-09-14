@@ -28,13 +28,18 @@ function nextTs() {
   return lastTs;
 }
 
+// Multi-person work uses the FULL model — far better at small/distant
+// bodies than lite. Single-person stays on lite for speed.
+const MODEL_LITE = "/models/pose_landmarker_lite.task";
+const MODEL_FULL = "/models/pose_landmarker_full.task";
+
 function getLandmarker(numPoses = 1) {
   if (!landmarkerCache[numPoses]) {
     landmarkerCache[numPoses] = (async () => {
       const fileset = await FilesetResolver.forVisionTasks("/wasm");
       return PoseLandmarker.createFromOptions(fileset, {
         baseOptions: {
-          modelAssetPath: "/models/pose_landmarker_lite.task",
+          modelAssetPath: numPoses > 1 ? MODEL_FULL : MODEL_LITE,
         },
         runningMode: "VIDEO",
         numPoses,
@@ -153,34 +158,86 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     return raw.map((lm) => lm.map((q) => ({ ...q, x: crop.x + q.x * crop.w, y: crop.y + q.y * crop.h })));
   };
 
+  // ONLINE ZOOM-TRACKER (anchors mode): each tapped player is followed
+  // frame by frame. When the wide pass misses them (small, distant,
+  // crowded), that player gets a personal crop-and-magnify detection at
+  // their last known spot — the wide detector's blind spots stop mattering.
+  const cur = anchors
+    ? anchors.map((a) => ({ x: a.x, y: a.y, lost: 0, locked: !!a.lm }))
+    : null;
+  const anchorTracksOnline = anchors ? anchors.map(() => []) : null;
+
+  const assignFrame = (poses, t) => {
+    const info = poses.map((lm) => ({
+      lm,
+      hipX: (lm[L_HIP].x + lm[R_HIP].x) / 2,
+      hipY: (lm[L_HIP].y + lm[R_HIP].y) / 2,
+    }));
+    const dist = (c, p) =>
+      c.locked ? Math.hypot(p.hipX - c.x, p.hipY - c.y) : bboxDist({ x: c.x, y: c.y }, p.lm);
+    const pairs = [];
+    cur.forEach((c, ai) => info.forEach((p, pi) => pairs.push({ ai, pi, d: dist(c, p) })));
+    pairs.sort((a, b) => a.d - b.d);
+    const assigned = new Map(); // ai -> lm
+    const used = new Set();
+    for (const { ai, pi, d } of pairs) {
+      if (assigned.has(ai) || used.has(pi)) continue;
+      const c = cur[ai];
+      const radius = c.locked ? Math.min(0.14 + c.lost * 0.06, 0.35) : 0.18;
+      if (d > radius) continue;
+      assigned.set(ai, info[pi].lm);
+      used.add(pi);
+      c.x = info[pi].hipX;
+      c.y = info[pi].hipY;
+      c.lost = 0;
+      c.locked = true;
+      anchorTracksOnline[ai].push({ t, lm: info[pi].lm });
+    }
+    return assigned;
+  };
+
   const ballPath = [];
   for (let t = 0; t < duration; t += step) {
     await seekTo(video, t);
-    const poses = detectFrame();
+    const widePoses = detectFrame();
+
+    let framePoses = widePoses;
+    if (anchors) {
+      const assigned = assignFrame(widePoses, t);
+      // Zoom rescue: any tapped player the wide pass missed
+      for (let ai = 0; ai < cur.length; ai++) {
+        if (assigned.has(ai)) continue;
+        const c = cur[ai];
+        const zoomPoses = await cropDetectAt(video, { x: c.x, y: c.y });
+        const local = nearestPose(zoomPoses, { x: c.x, y: c.y }, c.locked ? 0.16 : 0.14);
+        if (local) {
+          assigned.set(ai, local);
+          c.x = (local[L_HIP].x + local[R_HIP].x) / 2;
+          c.y = (local[L_HIP].y + local[R_HIP].y) / 2;
+          c.lost = 0;
+          c.locked = true;
+          anchorTracksOnline[ai].push({ t, lm: local });
+        } else {
+          c.lost += 1;
+        }
+      }
+      // Overlay + downstream see ONLY the tapped players, in tap order
+      framePoses = cur.map((_, ai) => assigned.get(ai)).filter(Boolean);
+    }
+
     let ball = null;
     if (ballTracker) {
       ball = ballTracker.step();
       ball.t = t;
       ballPath.push(ball);
     }
-    if (opts.onFrame) opts.onFrame(poses, t, ball);
-    rawFrames.push({ t, poses });
+    if (opts.onFrame) opts.onFrame(framePoses, t, ball);
+    rawFrames.push({ t, poses: framePoses });
     if (onProgress) onProgress(Math.min(1, (t + step) / duration));
   }
 
-  // With taps: keep ONLY the tapped players — background people vanish here.
-  let anchorTracks = null;
-  let framesForAnalysis = rawFrames;
-  if (anchors) {
-    anchorTracks = matchTracksToAnchors(rawFrames, anchors);
-    framesForAnalysis = rawFrames.map(({ t, poses: _ignored, ...rest }) => {
-      const kept = anchorTracks
-        .map((trk) => trk.find((f) => f.t === t))
-        .filter(Boolean)
-        .map((f) => f.lm);
-      return { t, poses: kept, ...rest };
-    });
-  }
+  const anchorTracks = anchorTracksOnline;
+  const framesForAnalysis = rawFrames; // anchors mode: already only tapped players
 
   let outcome;
   if (scenario === "penalty") {
@@ -336,67 +393,6 @@ function trackPeople(rawFrames, maxPeople = 4) {
   return kept;
 }
 
-/**
- * Match detected poses to the coach's TAPPED anchor points, frame by frame.
- * Each anchor becomes one track: per frame we take the nearest unclaimed
- * pose (hip center) within a radius, then follow it by continuity. Bigger
- * skeletons win ties — background bystanders are small.
- * Returns one track per anchor (same order as anchors).
- */
-function matchTracksToAnchors(rawFrames, anchors) {
-  // The tap is LAW: pure nearest-distance matching, no size preference —
-  // a big body near the camera must never steal a lock from a tapped player.
-  const cur = anchors.map((a) => ({ x: a.x, y: a.y, lost: 0, locked: false }));
-  const tracks = anchors.map(() => []);
-
-  // Distance from a point to a pose: before first lock, distance to the
-  // body's bounding box (tap inside the body = 0, beats any big neighbor);
-  // after locking, hip-center continuity.
-  const distToPose = (c, p) => {
-    if (c.locked) return Math.hypot(p.hipX - c.x, p.hipY - c.y);
-    return bboxDist({ x: c.x, y: c.y }, p.lm);
-  };
-
-  for (const { t, poses } of rawFrames) {
-    if (!poses.length) {
-      cur.forEach((c) => { c.lost += 1; });
-      continue;
-    }
-    const info = poses.map((lm) => ({
-      lm,
-      hipX: (lm[L_HIP].x + lm[R_HIP].x) / 2,
-      hipY: (lm[L_HIP].y + lm[R_HIP].y) / 2,
-    }));
-    const used = new Set();
-    // Greedy global assignment: closest (anchor, pose) pairs first, so a
-    // pose can never be claimed by a farther anchor before a nearer one.
-    const pairs = [];
-    cur.forEach((c, ai) => {
-      info.forEach((p, pi) => {
-        pairs.push({ ai, pi, d: distToPose(c, p) });
-      });
-    });
-    pairs.sort((a, b) => a.d - b.d);
-    const assigned = new Set();
-    for (const { ai, pi, d } of pairs) {
-      if (assigned.has(ai) || used.has(pi)) continue;
-      const c = cur[ai];
-      const radius = c.locked ? Math.min(0.14 + c.lost * 0.06, 0.35) : 0.18;
-      if (d > radius) continue;
-      assigned.add(ai);
-      used.add(pi);
-      tracks[ai].push({ t, lm: info[pi].lm });
-      c.x = info[pi].hipX;
-      c.y = info[pi].hipY;
-      c.lost = 0;
-      c.locked = true;
-    }
-    cur.forEach((c, ai) => {
-      if (!assigned.has(ai)) c.lost += 1;
-    });
-  }
-  return tracks;
-}
 
 /**
  * Tiny ball tracker: template patch from the tapped ball position, followed
@@ -481,7 +477,7 @@ function getImageLandmarker() {
     imageLandmarkerPromise = (async () => {
       const fileset = await FilesetResolver.forVisionTasks("/wasm");
       return PoseLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: "/models/pose_landmarker_lite.task" },
+        baseOptions: { modelAssetPath: MODEL_FULL },
         runningMode: "IMAGE",
         numPoses: 3,
         minPoseDetectionConfidence: 0.25,
@@ -490,6 +486,32 @@ function getImageLandmarker() {
     })();
   }
   return imageLandmarkerPromise;
+}
+
+// Crop-and-magnify detection around a point on the CURRENT video frame.
+// Returns poses mapped back to full-frame coordinates. This is how a
+// 40-pixel kid becomes detector-sized — used by tap-lock AND, per frame,
+// by the zoom-tracker for any locked player the wide pass loses.
+async function cropDetectAt(video, center) {
+  const landmarker = await getImageLandmarker();
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw) return [];
+  const cw = 0.38;
+  const ch = Math.min(0.7, (cw * vw) / vh);
+  const cx = Math.min(Math.max(center.x - cw / 2, 0), 1 - cw);
+  const cy = Math.min(Math.max(center.y - ch / 2, 0), 1 - ch);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 384;
+  canvas.height = Math.round(((ch * vh) / (cw * vw)) * 384);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, cx * vw, cy * vh, cw * vw, ch * vh, 0, 0, canvas.width, canvas.height);
+
+  const result = landmarker.detect(canvas);
+  return (result?.landmarks || []).map((lm) =>
+    lm.map((q) => ({ ...q, x: cx + q.x * cw, y: cy + q.y * ch }))
+  );
 }
 
 // Distance from a point to a pose's BOUNDING BOX: 0 when the tap lands
@@ -522,29 +544,9 @@ function nearestPose(poses, point, maxD) {
 }
 
 // ZOOM SCAN: crop a window around the tap, magnify it, detect on the crop.
-// A far-away player becomes detector-sized. Landmarks map back to full frame.
 async function zoomScan(video, point) {
-  const landmarker = await getImageLandmarker();
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  if (!vw) return null;
-  const cw = 0.38; // crop width as fraction of frame
-  const ch = Math.min(0.7, (cw * vw) / vh);
-  const cx = Math.min(Math.max(point.x - cw / 2, 0), 1 - cw);
-  const cy = Math.min(Math.max(point.y - ch / 2, 0), 1 - ch);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 384;
-  canvas.height = Math.round((ch * vh) / (cw * vw) * 384);
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, cx * vw, cy * vh, cw * vw, ch * vh, 0, 0, canvas.width, canvas.height);
-
-  const result = landmarker.detect(canvas);
-  const local = { x: (point.x - cx) / cw, y: (point.y - cy) / ch };
-  const best = nearestPose(result?.landmarks || [], local, 0.3);
-  if (!best) return null;
-  // map crop-space landmarks back to full-frame space
-  return best.map((q) => ({ ...q, x: cx + q.x * cw, y: cy + q.y * ch }));
+  const poses = await cropDetectAt(video, point);
+  return nearestPose(poses, point, 0.12);
 }
 
 /**
