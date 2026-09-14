@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -134,6 +134,17 @@ function MyDrills() {
   const [saved, setSaved] = useState(loadCustomDrills);
   const [savedMsg, setSavedMsg] = useState(false);
 
+  // The Assistant sent a drill request → build it on arrival
+  useEffect(() => {
+    const p = sessionStorage.getItem("csp_drill_prompt");
+    if (p) {
+      sessionStorage.removeItem("csp_drill_prompt");
+      setAiText(p);
+      setTimeout(() => buildWithAI(p), 400);
+    }
+    // eslint-disable-next-line
+  }, []);
+
   const positions = steps[curStep] || {};
 
   // ── Board interactions ──
@@ -236,12 +247,13 @@ function MyDrills() {
   }, [players, cones, arrows, steps, meta.cat]);
 
   // ── AI build ──
-  const buildWithAI = async () => {
-    if (!aiText.trim() || aiBusy) return;
+  const buildWithAI = async (promptOverride) => {
+    const prompt = (typeof promptOverride === "string" ? promptOverride : aiText).trim();
+    if (!prompt || aiBusy) return;
     setAiBusy(true);
     setAiMsg(null);
     try {
-      const d = await generateDrill(aiText.trim(), lang);
+      const d = await generateDrill(prompt, lang);
       setPlayers(d.players);
       setCones(d.cones);
       setArrows(d.arrows);

@@ -27,6 +27,9 @@ import { BsFillPeopleFill } from "react-icons/bs";
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
 
+// Assistant reminders (saved via "remind me to…")
+import { loadReminders } from "components/Assistant";
+
 const DEMO_MODE = false;
 
 const DEMO_BIRTHDAYS = [
@@ -59,6 +62,23 @@ function CoachDashboard() {
   const [pendingPayments, setPendingPayments] = useState(DEMO_MODE ? DEMO_DATA.pendingPayments : 0);
   const [loading, setLoading] = useState(DEMO_MODE ? false : true);
   const [aiInsight, setAiInsight] = useState(DEMO_MODE ? DEMO_DATA.aiInsight : "");
+  const [reminders, setReminders] = useState(loadReminders);
+
+  useEffect(() => {
+    const refresh = () => setReminders(loadReminders());
+    window.addEventListener("csp-reminders-changed", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener("csp-reminders-changed", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+
+  const toggleReminder = (id) => {
+    const next = loadReminders().map((r) => (r.id === id ? { ...r, done: !r.done } : r));
+    localStorage.setItem("csp_reminders", JSON.stringify(next));
+    setReminders(next);
+  };
 
   const language = i18n.language || "en";
 
@@ -348,6 +368,31 @@ function CoachDashboard() {
                         ? "Mensaje automático activado — se envía la mañana del cumpleaños"
                         : "Auto-message is on — sends the morning of the birthday"}
                     </VuiTypography>
+                  </VuiBox>
+                )}
+
+                {/* Reminders the coach saved through the Assistant */}
+                {reminders.filter((r) => !r.done).length > 0 && (
+                  <VuiBox mt={2} pt={2} sx={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <VuiTypography variant="button" color="white" fontWeight="bold" sx={{ display: "block", mb: 1 }}>
+                      📌 {language === "es" ? "Recordatorios" : "Reminders"}
+                    </VuiTypography>
+                    {reminders.filter((r) => !r.done).slice(0, 5).map((r) => (
+                      <VuiBox key={r.id} display="flex" alignItems="center" gap="8px" sx={{ py: 0.5 }}>
+                        <button
+                          onClick={() => toggleReminder(r.id)}
+                          title={language === "es" ? "Hecho" : "Done"}
+                          style={{
+                            width: 18, height: 18, borderRadius: 5, cursor: "pointer",
+                            background: "transparent", border: "2px solid rgba(74,222,128,.6)",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <VuiTypography variant="caption" color="white">
+                          {r.text}
+                        </VuiTypography>
+                      </VuiBox>
+                    ))}
                   </VuiBox>
                 )}
               </VuiBox>

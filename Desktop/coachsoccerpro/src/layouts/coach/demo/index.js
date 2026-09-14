@@ -5,7 +5,7 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-const DEMOS = [
+export const DEMOS = [
   {
     id: "roster",
     title: "Managing Your Roster",

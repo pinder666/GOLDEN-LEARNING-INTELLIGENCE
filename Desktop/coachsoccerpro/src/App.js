@@ -27,6 +27,10 @@ import routes, { coachRoutes, parentRoutes, childRoutes, authRoutes } from "./ro
 // Auth Context
 import { useAuth } from "context/AuthContext";
 
+// The Assistant + its learning memory
+import Assistant from "components/Assistant";
+import { recordVisit } from "services/habits";
+
 // Vision UI Dashboard PRO React contexts
 import {
   useVisionUIController,
@@ -93,6 +97,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
+    recordVisit(pathname); // the assistant learns the coach's rhythm
   }, [pathname]);
 
   // Generate routes from array
@@ -201,6 +206,7 @@ export default function App() {
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
+          <Assistant />
         </>
       )}
 
