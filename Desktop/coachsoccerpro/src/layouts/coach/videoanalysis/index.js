@@ -16,7 +16,18 @@ import {
   lockPlayerAt,
   computeAutoCrop,
   guideDetect,
+  exportWalkthroughVideo,
 } from "services/videoAnalysis";
+
+// Dev roster for tagging (production: the coach's real roster from Supabase)
+const ROSTER = [
+  { id: 1, name: "Marcus J." },
+  { id: 2, name: "Sofia G." },
+  { id: 3, name: "Liam S." },
+  { id: 4, name: "Emma W." },
+  { id: 5, name: "Noah B." },
+  { id: 6, name: "Olivia D." },
+];
 
 const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
 
@@ -220,6 +231,9 @@ function VideoAnalysis() {
   // The ritual: upload → tap players → tap ball → analyze
   const [step, setStep] = useState("idle");          // "idle" | "players" | "ball" | "ready"
   const [capturing, setCapturing] = useState(false); // in-app camera with the blinker
+  const [exporting, setExporting] = useState(0);     // 0 = idle, else progress 0..1
+  const [taggedPlayer, setTaggedPlayer] = useState("");
+  const [tagSaved, setTagSaved] = useState(false);
   // THE ARENA: analysis is blind outside this box. Auto-built around the
   // locked players; a finger-drag on the video overrides it.
   const [cropRect, setCropRect] = useState(null);
@@ -606,6 +620,54 @@ function VideoAnalysis() {
     } finally {
       setShareBusy(false);
     }
+  };
+
+  // Export the walkthrough as a real VIDEO (skeletons + voice + SM stamp)
+  const exportVideo = async () => {
+    const video = videoRef.current;
+    const outcome = outcomeRef.current;
+    if (!video || !outcome || exporting) return;
+    stopReviewIfRunning();
+    stopVoice();
+    setExporting(0.01);
+    try {
+      const { blob, ext } = await exportWalkthroughVideo(video, outcome, {
+        lang, scenario,
+        voiceKeys: outcome.voiceKeys || [],
+        onProgress: (p) => setExporting(Math.max(0.01, p)),
+      });
+      const file = new File([blob], `analysis-${Date.now()}.${ext}`, { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: t("Video Analysis", "Análisis de Video"),
+          text: t("Today's analysis of your child's play.", "El análisis de hoy del juego de tu hijo."),
+        });
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = file.name;
+        a.click();
+      }
+    } catch (err) {
+      if (err?.name !== "AbortError") console.error("Video export failed:", err);
+    } finally {
+      setExporting(0);
+    }
+  };
+
+  // Tag this analysis to a roster player → their season history + benchmarks
+  const saveTag = () => {
+    if (!taggedPlayer || !outcomeRef.current) return;
+    try {
+      const log = JSON.parse(localStorage.getItem("csp_analysis_log") || "[]");
+      if (log.length) {
+        log[log.length - 1].player = taggedPlayer;
+        localStorage.setItem("csp_analysis_log", JSON.stringify(log));
+      }
+      setTagSaved(true);
+      setTimeout(() => setTagSaved(false), 2500);
+    } catch { /* non-critical */ }
   };
 
   // ANALYST REPLAY: slow-motion playback with live skeletons; pauses at the
@@ -1006,6 +1068,19 @@ function VideoAnalysis() {
                     {reviewing ? t("⏹ Stop Review", "⏹ Parar Revisión") : t("🎬 Analyst Replay", "🎬 Repetición Analista")}
                   </button>
                 )}
+                {results && !analyzing && (
+                  <button onClick={exportVideo} disabled={!!exporting} style={{
+                    background: exporting ? "rgba(255,255,255,.1)" : "#f472b6",
+                    color: exporting ? "rgba(255,255,255,.5)" : "#000",
+                    border: "none", borderRadius: 8, padding: "10px 20px",
+                    fontSize: 13, fontWeight: 700, cursor: exporting ? "wait" : "pointer",
+                    fontFamily: "Inter,sans-serif",
+                  }}>
+                    {exporting
+                      ? `${t("Exporting", "Exportando")} ${Math.round(exporting * 100)}%`
+                      : t("🎥 Export Video", "🎥 Exportar Video")}
+                  </button>
+                )}
                 {results && (
                   <button onClick={sendToParent} disabled={shareBusy} style={{
                     background: shareBusy ? "rgba(255,255,255,.1)" : "#60a5fa",
@@ -1077,6 +1152,35 @@ function VideoAnalysis() {
                     </VuiTypography>
                   </VuiBox>
                 ))}
+
+                {/* Tag to roster: this clip becomes part of a kid's story */}
+                <VuiBox display="flex" gap="6px" alignItems="center">
+                  <select
+                    value={taggedPlayer}
+                    onChange={(e) => setTaggedPlayer(e.target.value)}
+                    style={{
+                      flex: 1, background: "rgba(255,255,255,.08)", color: "#fff",
+                      border: "1px solid rgba(255,255,255,.15)", borderRadius: 8,
+                      padding: "7px 10px", fontSize: 12, fontFamily: "Inter,sans-serif",
+                    }}
+                  >
+                    <option value="" style={{ color: "#000" }}>
+                      {t("Tag a player…", "Etiquetar jugador…")}
+                    </option>
+                    {ROSTER.map((p) => (
+                      <option key={p.id} value={p.name} style={{ color: "#000" }}>{p.name}</option>
+                    ))}
+                  </select>
+                  <button onClick={saveTag} disabled={!taggedPlayer} style={{
+                    background: tagSaved ? "#4ade80" : taggedPlayer ? "rgba(74,222,128,.25)" : "rgba(255,255,255,.08)",
+                    color: tagSaved ? "#000" : taggedPlayer ? "#4ade80" : "rgba(255,255,255,.35)",
+                    border: "none", borderRadius: 8, padding: "7px 12px",
+                    fontSize: 12, fontWeight: 700, cursor: taggedPlayer ? "pointer" : "default",
+                    fontFamily: "Inter,sans-serif", whiteSpace: "nowrap",
+                  }}>
+                    {tagSaved ? t("✓ Saved", "✓ Guardado") : t("Save", "Guardar")}
+                  </button>
+                </VuiBox>
 
                 {/* Honest tracking confidence + the filming lesson */}
                 {outcomeRef.current?.coverage && (

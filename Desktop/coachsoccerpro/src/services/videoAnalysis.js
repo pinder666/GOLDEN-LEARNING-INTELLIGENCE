@@ -1228,6 +1228,142 @@ export async function buildShareCard(video, frameT, insights, { scenario = "open
 }
 
 /**
+ * EXPORT THE WALKTHROUGH AS A VIDEO — the parent-facing artifact.
+ * Re-runs the slow-motion review onto a canvas (skeletons + ball + the
+ * SoccerMental stamp), records it in real time WITH the coach voice mixed
+ * into the track. Returns a video Blob ready to share.
+ * onProgress(0..1) is approximate (timeline position).
+ */
+export async function exportWalkthroughVideo(video, outcome, opts = {}) {
+  const { lang = "en", scenario = "open", voiceKeys = [] } = opts;
+  const frames = outcome.allFrames || [];
+  if (!frames.length) throw new Error("no-frames");
+  const ballPath = outcome.ballPath || null;
+  const momentT = outcome.strikeT ?? outcome.duration / 2;
+  const SLOW = 0.45;
+
+  const vw = Math.min(video.videoWidth || 640, 1280);
+  const vh = Math.round((video.videoHeight / video.videoWidth) * vw);
+  const BAR = Math.round(vw * 0.055);
+  const canvas = document.createElement("canvas");
+  canvas.width = vw;
+  canvas.height = vh + BAR;
+  const ctx = canvas.getContext("2d");
+
+  // canvas video + mixed voice audio → one recorded stream
+  const actx = new (window.AudioContext || window.webkitAudioContext)();
+  const dest = actx.createMediaStreamDestination();
+  const stream = new MediaStream([
+    ...canvas.captureStream(30).getVideoTracks(),
+    ...dest.stream.getAudioTracks(),
+  ]);
+  const mimes = ["video/mp4", "video/webm;codecs=vp9", "video/webm"];
+  let mime = "";
+  for (const m of mimes) {
+    try { if (MediaRecorder.isTypeSupported(m)) { mime = m; break; } } catch { /* noop */ }
+  }
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const chunks = [];
+  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  const done = new Promise((res) => { rec.onstop = () => res(); });
+  rec.start(300);
+
+  const title = scenario === "penalty"
+    ? (lang === "es" ? "ANÁLISIS DE PENAL" : "PENALTY ANALYSIS")
+    : scenario === "duel"
+      ? (lang === "es" ? "ANÁLISIS DE DUELO" : "DUEL ANALYSIS")
+      : (lang === "es" ? "ANÁLISIS DE JUEGO" : "PLAY ANALYSIS");
+  const brand = lang === "es" ? "Analizado por SoccerMental" : "Analyzed by SoccerMental";
+
+  const drawFrame = (t) => {
+    let best = frames[0];
+    for (const f of frames) if (Math.abs(f.t - t) < Math.abs(best.t - t)) best = f;
+    ctx.fillStyle = "#0a0e23";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, vw, vh);
+    best.poses.forEach((lm, i) =>
+      drawSkeleton(ctx, lm, vw, vh, ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"][i % 4])
+    );
+    if (ballPath) {
+      const b = ballPath.reduce((p, c) => (Math.abs(c.t - t) < Math.abs(p.t - t) ? c : p));
+      if (b.conf > 0.25) {
+        ctx.beginPath();
+        ctx.arc(b.x * vw, b.y * vh, Math.max(7, vw / 80), 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#fb923c";
+        ctx.stroke();
+      }
+    }
+    // title chip
+    ctx.fillStyle = "rgba(10,14,35,0.8)";
+    ctx.fillRect(0, 0, vw, Math.round(BAR * 0.85));
+    ctx.fillStyle = "#fff";
+    ctx.font = `700 ${Math.round(BAR * 0.5)}px Inter, Arial, sans-serif`;
+    ctx.fillText(title, 16, Math.round(BAR * 0.6));
+    // brand bar — the funnel, baked into every exported frame
+    ctx.fillStyle = "#0a0e23";
+    ctx.fillRect(0, vh, vw, BAR);
+    ctx.fillStyle = "#4ade80";
+    ctx.font = `800 ${Math.round(BAR * 0.5)}px Inter, Arial, sans-serif`;
+    ctx.fillText("⚽ " + brand, 16, vh + Math.round(BAR * 0.68));
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.font = `500 ${Math.round(BAR * 0.42)}px Inter, Arial, sans-serif`;
+    const wTxt = ctx.measureText("soccermental.com").width;
+    ctx.fillText("soccermental.com", vw - wTxt - 16, vh + Math.round(BAR * 0.66));
+  };
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const playVoice = (key) =>
+    new Promise((res) => {
+      const a = new Audio(`/audio/analysis/${key}-${lang === "es" ? "es" : "en"}.mp3`);
+      a.crossOrigin = "anonymous";
+      const hook = () => {
+        try {
+          const src = actx.createMediaElementSource(a);
+          src.connect(dest);
+          src.connect(actx.destination);
+        } catch { /* already hooked */ }
+      };
+      a.onerror = () => { a.onerror = null; a.src = a.src.replace(".mp3", ".wav"); hook(); a.play().catch(res); };
+      a.onended = res;
+      hook();
+      a.play().catch(() => res());
+    });
+
+  // ── The performance: slow roll → freeze at the moment + voice → roll out
+  const startT = Math.max(0, momentT - 3);
+  const endT = Math.min(outcome.duration, momentT + 3.5);
+  const stepT = 1 / 6;
+
+  video.pause();
+  video.muted = true;
+
+  for (let t = startT; t < momentT; t += stepT) {
+    await seekTo(video, t);
+    drawFrame(t);
+    if (opts.onProgress) opts.onProgress((t - startT) / (endT - startT) * 0.5);
+    await wait((stepT / SLOW) * 1000);
+  }
+  await seekTo(video, momentT);
+  drawFrame(momentT);
+  for (const key of voiceKeys) {
+    await playVoice(key);
+  }
+  for (let t = momentT; t < endT; t += stepT) {
+    await seekTo(video, t);
+    drawFrame(t);
+    if (opts.onProgress) opts.onProgress(0.5 + ((t - momentT) / (endT - momentT)) * 0.5);
+    await wait((stepT / SLOW) * 1000);
+  }
+  await wait(400);
+
+  rec.stop();
+  await done;
+  try { actx.close(); } catch { /* noop */ }
+  return { blob: new Blob(chunks, { type: mime || "video/webm" }), ext: mime.startsWith("video/mp4") ? "mp4" : "webm" };
+}
+
+/**
  * Play the pre-generated coach-voice line for one insight (or the intro).
  * Files live at /audio/analysis/<key>-<lang>.mp3 — bundled, zero API calls.
  * Returns the Audio element so callers can chain or stop playback.
