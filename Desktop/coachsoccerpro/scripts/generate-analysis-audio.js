@@ -130,6 +130,30 @@ const LINES = {
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+// ── PIPER: local, owned TTS. Third backend — no cloud, no account. ──
+// Run `node scripts/setup-piper.js` once. Set FORCE_PIPER=1 to use it
+// exclusively (e.g. after the owned voices are trained in).
+const { execSync } = require('child_process');
+const PIPER_EXE = path.join(__dirname, '..', 'tools', 'piper', 'piper', 'piper.exe');
+const PIPER_VOICES = path.join(__dirname, '..', 'tools', 'piper', 'voices');
+const FORCE_PIPER = process.env.FORCE_PIPER === '1';
+
+function piperAvailable() {
+  return fs.existsSync(PIPER_EXE);
+}
+
+function generateWithPiper(text, lang, outputPathMp3) {
+  // Piper emits WAV; we write <name>.wav next to the requested .mp3 path.
+  // The app's players fall back .mp3 → .wav automatically.
+  const outWav = outputPathMp3.replace(/\.mp3$/, '.wav');
+  const model = path.join(PIPER_VOICES, lang === 'es' ? 'es.onnx' : 'en.onnx');
+  execSync(`"${PIPER_EXE}" -m "${model}" -f "${outWav}"`, {
+    input: text,
+    stdio: ['pipe', 'ignore', 'ignore'],
+  });
+  return fs.existsSync(outWav) && fs.statSync(outWav).size > 1000;
+}
+
 // ElevenLabs key from .env (one-time generation only — runtime stays zero-API)
 function getElevenKey() {
   try {
@@ -143,10 +167,25 @@ function getElevenKey() {
 const ELEVEN_KEY = getElevenKey();
 
 async function generateAudio(text, voiceId, outputPath) {
-  if (fs.existsSync(outputPath)) {
+  const lang = /-es\.mp3$/.test(outputPath) ? 'es' : 'en';
+  if (fs.existsSync(outputPath) || fs.existsSync(outputPath.replace(/\.mp3$/, '.wav'))) {
     console.log(`  [skip] ${path.basename(outputPath)} exists`);
     return 'skipped';
   }
+
+  // Owned-pipeline mode: Piper only, no cloud at all
+  if (FORCE_PIPER && piperAvailable()) {
+    try {
+      if (generateWithPiper(text, lang, outputPath)) {
+        console.log(`  [done] ${path.basename(outputPath).replace('.mp3', '.wav')} (via Piper, local)`);
+        return 'done';
+      }
+    } catch (e) {
+      console.error(`  [fail] piper: ${e.message}`);
+      return 'failed';
+    }
+  }
+
   // Try the local game-server proxy first
   try {
     const response = await fetch(TTS_URL, {
@@ -164,7 +203,16 @@ async function generateAudio(text, voiceId, outputPath) {
 
   // Direct ElevenLabs fallback
   if (!ELEVEN_KEY) {
-    console.error(`  [fail] ${path.basename(outputPath)}: no ElevenLabs key`);
+    // Last resort: local Piper (stock voices) — never blocked by a vendor
+    if (piperAvailable()) {
+      try {
+        if (generateWithPiper(text, lang, outputPath)) {
+          console.log(`  [done] ${path.basename(outputPath).replace('.mp3', '.wav')} (via Piper, local)`);
+          return 'done';
+        }
+      } catch (e) { /* fall through */ }
+    }
+    console.error(`  [fail] ${path.basename(outputPath)}: no ElevenLabs key, no Piper`);
     return 'failed';
   }
   try {

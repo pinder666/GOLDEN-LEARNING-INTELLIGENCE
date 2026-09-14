@@ -1068,7 +1068,14 @@ export async function buildShareCard(video, frameT, insights, { scenario = "open
  * Returns the Audio element so callers can chain or stop playback.
  */
 export function playAnalysisLine(key, lang = "en") {
-  const audio = new Audio(`/audio/analysis/${key}-${lang === "es" ? "es" : "en"}.mp3`);
+  const base = `/audio/analysis/${key}-${lang === "es" ? "es" : "en"}`;
+  const audio = new Audio(`${base}.mp3`);
+  // Piper-generated lines are .wav — fall back transparently
+  audio.onerror = () => {
+    audio.onerror = null;
+    audio.src = `${base}.wav`;
+    audio.play().catch(() => {});
+  };
   audio.play().catch(() => {});
   return audio;
 }
