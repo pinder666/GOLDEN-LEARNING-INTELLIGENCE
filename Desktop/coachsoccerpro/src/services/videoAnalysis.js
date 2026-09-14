@@ -159,39 +159,71 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   };
 
   // ONLINE ZOOM-TRACKER (anchors mode): each tapped player is followed
-  // frame by frame. When the wide pass misses them (small, distant,
-  // crowded), that player gets a personal crop-and-magnify detection at
-  // their last known spot — the wide detector's blind spots stop mattering.
+  // frame by frame. The leash SCALES with the player's on-screen size (a
+  // kid sprinting toward the camera grows fast and moves far per frame),
+  // matching happens from the PREDICTED position (velocity carried
+  // forward), and a size-memory guard stops crossing players from
+  // swapping identities. Wide-pass misses get a personal, size-matched
+  // crop-and-magnify rescue.
+  const torsoOf = (lm) =>
+    Math.abs((lm[L_SHOULDER].y + lm[R_SHOULDER].y) / 2 - (lm[L_HIP].y + lm[R_HIP].y) / 2) || 0.06;
   const cur = anchors
-    ? anchors.map((a) => ({ x: a.x, y: a.y, lost: 0, locked: !!a.lm }))
+    ? anchors.map((a) => ({
+        x: a.x, y: a.y, vx: 0, vy: 0,
+        size: a.lm ? torsoOf(a.lm) : 0.1,
+        lost: 0, locked: !!a.lm,
+      }))
     : null;
   const anchorTracksOnline = anchors ? anchors.map(() => []) : null;
+
+  const leash = (c) =>
+    Math.min(0.5, Math.max(0.08, c.size * 2.4) * (1 + Math.min(c.lost, 4) * 0.5));
+
+  const acceptTrack = (c, ai, lm, hx, hy, t) => {
+    // velocity + size memory (EMA) so prediction and guard stay smooth
+    c.vx = 0.6 * (hx - c.x) + 0.4 * c.vx;
+    c.vy = 0.6 * (hy - c.y) + 0.4 * c.vy;
+    c.x = hx;
+    c.y = hy;
+    c.size = 0.65 * c.size + 0.35 * torsoOf(lm);
+    c.lost = 0;
+    c.locked = true;
+    anchorTracksOnline[ai].push({ t, lm });
+  };
 
   const assignFrame = (poses, t) => {
     const info = poses.map((lm) => ({
       lm,
       hipX: (lm[L_HIP].x + lm[R_HIP].x) / 2,
       hipY: (lm[L_HIP].y + lm[R_HIP].y) / 2,
+      size: torsoOf(lm),
     }));
-    const dist = (c, p) =>
-      c.locked ? Math.hypot(p.hipX - c.x, p.hipY - c.y) : bboxDist({ x: c.x, y: c.y }, p.lm);
+    const dist = (c, p) => {
+      if (!c.locked) return bboxDist({ x: c.x, y: c.y }, p.lm);
+      // measure from where the player was HEADING
+      const px = c.x + c.vx;
+      const py = c.y + c.vy;
+      return Math.hypot(p.hipX - px, p.hipY - py);
+    };
+    const sizeOk = (c, p) => {
+      if (!c.locked) return true;
+      const r = p.size / c.size;
+      const slack = 1 + Math.min(c.lost, 3) * 0.35; // relax when we've been blind
+      return r > 0.5 / slack && r < 2.0 * slack;
+    };
     const pairs = [];
-    cur.forEach((c, ai) => info.forEach((p, pi) => pairs.push({ ai, pi, d: dist(c, p) })));
+    cur.forEach((c, ai) => info.forEach((p, pi) => pairs.push({ ai, pi, d: dist(c, p), p })));
     pairs.sort((a, b) => a.d - b.d);
     const assigned = new Map(); // ai -> lm
     const used = new Set();
-    for (const { ai, pi, d } of pairs) {
+    for (const { ai, pi, d, p } of pairs) {
       if (assigned.has(ai) || used.has(pi)) continue;
       const c = cur[ai];
-      const radius = c.locked ? Math.min(0.14 + c.lost * 0.06, 0.35) : 0.18;
-      if (d > radius) continue;
-      assigned.set(ai, info[pi].lm);
+      if (d > (c.locked ? leash(c) : 0.18)) continue;
+      if (!sizeOk(c, p)) continue; // a body that doubled in size is someone else
+      assigned.set(ai, p.lm);
       used.add(pi);
-      c.x = info[pi].hipX;
-      c.y = info[pi].hipY;
-      c.lost = 0;
-      c.locked = true;
-      anchorTracksOnline[ai].push({ t, lm: info[pi].lm });
+      acceptTrack(c, ai, p.lm, p.hipX, p.hipY, t);
     }
     return assigned;
   };
@@ -204,19 +236,22 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     let framePoses = widePoses;
     if (anchors) {
       const assigned = assignFrame(widePoses, t);
-      // Zoom rescue: any tapped player the wide pass missed
+      // Zoom rescue: any tapped player the wide pass missed gets a
+      // personal window sized to THEIR body, aimed where they were heading
       for (let ai = 0; ai < cur.length; ai++) {
         if (assigned.has(ai)) continue;
         const c = cur[ai];
-        const zoomPoses = await cropDetectAt(video, { x: c.x, y: c.y });
-        const local = nearestPose(zoomPoses, { x: c.x, y: c.y }, c.locked ? 0.16 : 0.14);
+        const aim = { x: c.x + c.vx, y: c.y + c.vy };
+        const zoomPoses = await cropDetectAt(video, aim, c.size * 4.5);
+        const local = nearestPose(zoomPoses, aim, Math.max(0.14, leash(c) * 0.8));
         if (local) {
           assigned.set(ai, local);
-          c.x = (local[L_HIP].x + local[R_HIP].x) / 2;
-          c.y = (local[L_HIP].y + local[R_HIP].y) / 2;
-          c.lost = 0;
-          c.locked = true;
-          anchorTracksOnline[ai].push({ t, lm: local });
+          acceptTrack(
+            c, ai, local,
+            (local[L_HIP].x + local[R_HIP].x) / 2,
+            (local[L_HIP].y + local[R_HIP].y) / 2,
+            t
+          );
         } else {
           c.lost += 1;
         }
@@ -232,12 +267,17 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
       ballPath.push(ball);
     }
     if (opts.onFrame) opts.onFrame(framePoses, t, ball);
-    rawFrames.push({ t, poses: framePoses });
+    rawFrames.push({ t, poses: framePoses, wide: anchors ? widePoses : undefined });
     if (onProgress) onProgress(Math.min(1, (t + step) / duration));
   }
 
   const anchorTracks = anchorTracksOnline;
   const framesForAnalysis = rawFrames; // anchors mode: already only tapped players
+
+  // Honest confidence: what share of the clip each tapped player was held
+  const coverage = anchors
+    ? anchorTracksOnline.map((trk) => Math.round((trk.length / Math.max(1, rawFrames.length)) * 100))
+    : null;
 
   let outcome;
   if (scenario === "penalty") {
@@ -259,6 +299,7 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   if (!outcome.error) {
     outcome.allFrames = anchors ? framesForAnalysis : rawFrames; // replay shows only who matters
     if (ballPath.length) outcome.ballPath = ballPath;
+    if (coverage) outcome.coverage = coverage;
   }
   return outcome;
 }
@@ -492,12 +533,14 @@ function getImageLandmarker() {
 // Returns poses mapped back to full-frame coordinates. This is how a
 // 40-pixel kid becomes detector-sized — used by tap-lock AND, per frame,
 // by the zoom-tracker for any locked player the wide pass loses.
-async function cropDetectAt(video, center) {
+async function cropDetectAt(video, center, cwOverride) {
   const landmarker = await getImageLandmarker();
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw) return [];
-  const cw = 0.38;
+  // Window sizes itself to the player: a near-camera body needs a BIG
+  // window (default fixed crop showed torso-only and found nothing).
+  const cw = Math.min(0.9, Math.max(0.22, cwOverride || 0.38));
   const ch = Math.min(0.7, (cw * vw) / vh);
   const cx = Math.min(Math.max(center.x - cw / 2, 0), 1 - cw);
   const cy = Math.min(Math.max(center.y - ch / 2, 0), 1 - ch);
@@ -800,9 +843,15 @@ function analyzePenalty(rawFrames, duration, ballPath = null) {
  */
 function analyzeDuel(rawFrames, duration, targetIndex = 0) {
   const tracks = trackPeople(rawFrames, 4);
-  if (tracks.length < 2) return { error: "no-player" };
+  if (!tracks.length) return { error: "no-player" };
 
   const target = tracks[Math.min(targetIndex, tracks.length - 1)];
+
+  // SINGLE-LOCK DUEL: only one player tapped — read the opponent
+  // opportunistically from the untapped bodies the wide pass saw.
+  if (tracks.length < 2) {
+    return analyzeDuelSingle(rawFrames, duration, target);
+  }
   const hipC = (f) => ({
     x: (f.lm[L_HIP].x + f.lm[R_HIP].x) / 2,
     y: (f.lm[L_HIP].y + f.lm[R_HIP].y) / 2,
@@ -870,6 +919,75 @@ function analyzeDuel(rawFrames, duration, targetIndex = 0) {
   };
 }
 
+/** One tapped player: contact = closest approach of ANY other body (from
+ *  the wide pass); opponent read only if visible enough around contact. */
+function analyzeDuelSingle(rawFrames, duration, target) {
+  const hip = (lm) => ({ x: (lm[L_HIP].x + lm[R_HIP].x) / 2, y: (lm[L_HIP].y + lm[R_HIP].y) / 2 });
+  const nearestAt = (trk, t) => {
+    let best = trk[0];
+    for (const f of trk) if (Math.abs(f.t - t) < Math.abs(best.t - t)) best = f;
+    return best;
+  };
+
+  // Closest untapped body to the target across the clip = the contact
+  let contactT = target[Math.floor(target.length / 2)].t;
+  let minD = Infinity;
+  const oppCandidates = [];
+  for (const f of target) {
+    const frame = rawFrames.find((r) => r.t === f.t);
+    const wide = frame?.wide || frame?.poses || [];
+    const th = hip(f.lm);
+    for (const lm of wide) {
+      const oh = hip(lm);
+      const d = Math.hypot(oh.x - th.x, oh.y - th.y);
+      if (d < 0.02 || d > 0.5) continue; // self / irrelevant
+      oppCandidates.push({ t: f.t, lm, d });
+      if (d < minD) {
+        minD = d;
+        contactT = f.t;
+      }
+    }
+  }
+
+  const evalOne = (trk) => {
+    const at = nearestAt(trk, contactT).lm;
+    const torso = Math.abs((at[L_SHOULDER].y + at[R_SHOULDER].y) / 2 - (at[L_HIP].y + at[R_HIP].y) / 2) || 0.0001;
+    const baseHipY = avg(trk.map((f) => hip(f.lm).y));
+    const drop = ((at[L_HIP].y + at[R_HIP].y) / 2 - baseHipY) / torso;
+    const heightScore = clamp(Math.round(50 + drop * 220));
+    const post = trk.filter((f) => f.t > contactT && f.t <= contactT + 1.0);
+    let balanceScore = 50;
+    if (post.length >= 3) {
+      const torsos = post.map(
+        (f) => Math.abs((f.lm[L_SHOULDER].y + f.lm[R_SHOULDER].y) / 2 - (f.lm[L_HIP].y + f.lm[R_HIP].y) / 2)
+      );
+      const kept = avg(torsos) / torso;
+      const ys = post.map((f) => hip(f.lm).y);
+      const sway = Math.max(...ys) - Math.min(...ys);
+      balanceScore = clamp(Math.round(kept * 80 - Math.min(sway / 0.25, 1) * 25 + 20));
+    }
+    return { heightScore, balanceScore, total: heightScore + balanceScore };
+  };
+
+  const p1 = evalOne(target);
+
+  // Opponent only if a body stayed near through the contact window
+  const oppTrk = oppCandidates
+    .filter((c) => Math.abs(c.t - contactT) <= 1.5)
+    .map((c) => ({ t: c.t, lm: c.lm }));
+  const p2 = oppTrk.length >= 4 ? evalOne(oppTrk) : null;
+
+  return {
+    scenario: "duel",
+    strikeT: contactT,
+    duration,
+    framesAnalyzed: target.length,
+    metrics: p2
+      ? { p1, p2, winner: p1.total >= p2.total ? 1 : 2 }
+      : { p1, p2: null, winner: 1 },
+  };
+}
+
 /** Build duel insights (EN/ES): both players reviewed, winner named. */
 export function buildDuelInsights(m) {
   const playerCards = (p, n) => [
@@ -902,6 +1020,17 @@ export function buildDuelInsights(m) {
           : "Perdió la forma tras el contacto — trabajo de equilibrio lo mantendrá en la jugada.",
     },
   ];
+
+  // Single-lock: only the tapped player readable — their cards, no verdict-vs
+  if (!m.p2) {
+    const cards = playerCards(m.p1, 1);
+    const duelNote = {
+      audioKey: "duel-winner",
+      text: "Opponent wasn't visible enough for a two-sided read — your player's contact and balance are above. Film with both players in frame for the full duel verdict.",
+      textEs: "El oponente no fue suficientemente visible para una lectura de ambos — arriba están el contacto y equilibrio de tu jugador. Graba con ambos en cuadro para el veredicto completo.",
+    };
+    return { cards, duelNote };
+  }
 
   const cards = [...playerCards(m.p1, 1), ...playerCards(m.p2, 2)];
   const w = m.winner;

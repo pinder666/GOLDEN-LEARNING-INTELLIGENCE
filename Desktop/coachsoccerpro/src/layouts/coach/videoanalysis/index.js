@@ -351,16 +351,22 @@ function VideoAnalysis() {
         setKeeperNote(kn);
         const keys = ["intro-penalty", ...cards.map((c) => c.audioKey)];
         if (kn) keys.push(kn.audioKey);
-        speakKeys(keys, lang);
+        outcome.voiceKeys = keys;
       } else if (scenario === "duel") {
         const { cards, duelNote } = buildDuelInsights(outcome.metrics);
         setResults(cards);
         setKeeperNote(duelNote);
-        speakKeys(["intro-duel", ...cards.map((c) => c.audioKey), duelNote.audioKey], lang);
+        outcome.voiceKeys = ["intro-duel", ...cards.map((c) => c.audioKey), duelNote.audioKey];
       } else {
         const insights = buildInsights(outcome.metrics);
         setResults(insights);
-        speakKeys(["intro", ...insights.map((i) => i.audioKey)], lang);
+        outcome.voiceKeys = ["intro", ...insights.map((i) => i.audioKey)];
+      }
+
+      // The result IS the walkthrough: slow motion, skeletons live, the
+      // coach voice delivering verdicts at the moment they apply.
+      if (!outcome.error) {
+        setTimeout(() => startReview(), 350);
       }
 
       // Benchmark seed: every analysis logged locally (future: Supabase + age group)
@@ -448,8 +454,8 @@ function VideoAnalysis() {
         video.pause();
         drawAt(momentT);
         // Speak the verdicts over the frozen key moment, then resume
-        const keys = (results || []).map((c) => c.audioKey);
-        if (keeperNote) keys.push(keeperNote.audioKey);
+        const keys = outcome.voiceKeys
+          || [...(results || []).map((c) => c.audioKey), ...(keeperNote ? [keeperNote.audioKey] : [])];
         let idx = 0;
         const next = () => {
           if (!state.active) return;
@@ -687,19 +693,19 @@ function VideoAnalysis() {
                     ? anchors.length
                       ? t(`🔒 ${anchors.length} locked — skeleton confirms each lock. Tap a mark to remove.`, `🔒 ${anchors.length} fijados — el esqueleto confirma cada uno. Toca una marca para quitarla.`)
                       : scenario === "duel"
-                        ? t("Lock both players in the duel — you'll see their skeleton when locked", "Fija a ambos jugadores del duelo — verás su esqueleto al fijarse")
+                        ? t("Lock YOUR player — lock the opponent too for the full duel verdict", "Fija a TU jugador — fija también al oponente para el veredicto completo")
                         : scenario === "penalty"
-                          ? t("Lock the kicker and the keeper", "Fija al lanzador y al portero")
+                          ? t("Lock the kicker — lock the keeper too for the keeper read", "Fija al lanzador — fija también al portero para su lectura")
                           : t("Lock 1-4 players — or drag a box to set the arena first", "Fija 1-4 jugadores — o arrastra un recuadro para definir el área primero")
                     : t("The orange ring will follow it", "El anillo naranja lo seguirá")}
                 </VuiTypography>
                 {step === "players" && (
                   <button
                     onClick={() => setStep("ball")}
-                    disabled={anchors.length < (scenario === "duel" || scenario === "penalty" ? 2 : 1)}
+                    disabled={anchors.length < 1}
                     style={{
-                      background: anchors.length >= (scenario === "duel" || scenario === "penalty" ? 2 : 1) ? "#4ade80" : "rgba(255,255,255,.1)",
-                      color: anchors.length >= (scenario === "duel" || scenario === "penalty" ? 2 : 1) ? "#000" : "rgba(255,255,255,.4)",
+                      background: anchors.length >= 1 ? "#4ade80" : "rgba(255,255,255,.1)",
+                      color: anchors.length >= 1 ? "#000" : "rgba(255,255,255,.4)",
                       border: "none", borderRadius: 8, padding: "8px 18px",
                       fontSize: 12, fontWeight: 800, cursor: "pointer", fontFamily: "Inter,sans-serif",
                     }}
@@ -863,6 +869,27 @@ function VideoAnalysis() {
                     </VuiTypography>
                   </VuiBox>
                 ))}
+
+                {/* Honest tracking confidence + the filming lesson */}
+                {outcomeRef.current?.coverage && (
+                  <VuiBox sx={{
+                    background: "rgba(255,255,255,.05)", borderRadius: "8px", padding: "8px 12px",
+                  }}>
+                    <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.65)", fontSize: 10.5, lineHeight: 1.5 }}>
+                      🎯 {outcomeRef.current.coverage.map((c, i) =>
+                        `${t("Player", "Jugador")} ${i + 1}: ${c}%`).join(" · ")}
+                      {" "}{t("of the clip tracked", "del clip rastreado")}
+                      {Math.min(...outcomeRef.current.coverage) < 70 && (
+                        <span style={{ color: "#fbbf24", display: "block", marginTop: 2 }}>
+                          {t(
+                            "For a stronger read: film closer, keep players in frame, steady phone.",
+                            "Para una mejor lectura: graba más cerca, mantén a los jugadores en cuadro, teléfono firme."
+                          )}
+                        </span>
+                      )}
+                    </VuiTypography>
+                  </VuiBox>
+                )}
 
                 {keeperNote && (
                   <VuiBox sx={{
