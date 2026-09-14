@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useLang } from "useLang";
 
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -160,7 +161,7 @@ function CoachDrills() {
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [ageFilter, setAgeFilter] = useState("All");
-  const [lang, setLang] = useState("en"); // "en" | "es"
+  const [lang, setLang] = useLang();
   const [parentOpen, setParentOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);

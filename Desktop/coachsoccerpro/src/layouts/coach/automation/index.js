@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -85,7 +86,7 @@ const AUTOMATIONS = [
 ];
 
 function Automation() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useLang();
   const [automations, setAutomations] = useState(AUTOMATIONS);
 
   const t = (en, es) => lang === "es" ? es : en;

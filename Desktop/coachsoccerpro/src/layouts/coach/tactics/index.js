@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useLang } from "useLang";
 
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -61,7 +62,7 @@ function arrowMarker(col) {
 function TacticsBoard() {
   const [mode, setMode] = useState("coach"); // "coach" | "custom"
   const [selectedPlay, setSelectedPlay] = useState((COACH_PLAYS && COACH_PLAYS.length) ? COACH_PLAYS[0] : null);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useLang();
 
   // Custom play state
   const [customPlayers, setCustomPlayers] = useState([

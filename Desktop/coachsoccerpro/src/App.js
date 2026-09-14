@@ -83,6 +83,13 @@ export default function App() {
     document.body.setAttribute("dir", direction);
   }, [direction]);
 
+  // ?lang=es / ?lang=en flips the whole app (and persists via localStorage)
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("lang");
+    if (p === "es" || p === "en") i18n.changeLanguage(p);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -19,7 +20,7 @@ import {
 const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
 
 function VideoAnalysis() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useLang();
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);

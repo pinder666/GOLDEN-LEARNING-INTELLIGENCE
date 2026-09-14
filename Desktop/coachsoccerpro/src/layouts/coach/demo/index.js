@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -122,7 +123,7 @@ const DEMOS = [
 ];
 
 function Demo() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useLang();
   const [activeDemo, setActiveDemo] = useState(null);
 
   const t = (en, es) => lang === "es" ? es : en;

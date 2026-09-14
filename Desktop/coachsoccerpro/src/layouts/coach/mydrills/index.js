@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useCallback } from "react";
+import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -95,7 +96,7 @@ function EditorPitch({ players, cones, arrows, positions, tool, tempArrow, onPit
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 function MyDrills() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useLang();
   const t = (en, es) => (lang === "es" ? es : en);
 
   // Board state
