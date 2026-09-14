@@ -179,18 +179,21 @@ function TacticsBoard() {
       <DashboardNavbar/>
       <VuiBox py={1} sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 100px)", overflow: "hidden" }}>
 
-        {/* Header */}
-        <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
-          <VuiBox>
-            <VuiTypography variant="h5" color="white" fontWeight="bold">
-              {lang==="es" ? "Tablero Táctico" : "Tactics Board"}
-            </VuiTypography>
-            <VuiTypography variant="caption" color="text">
-              {lang==="es"
-                ? "Juegos de los mejores entrenadores. Construye los tuyos."
-                : "Great coach plays. Build your own."}
-            </VuiTypography>
-          </VuiBox>
+        {/* Header — single row so the pitch gets the vertical space */}
+        <VuiBox mb={1} display="flex" alignItems="center" gap="14px" flexWrap="wrap" sx={{ flexShrink: 0 }}>
+          <VuiTypography variant="h5" color="white" fontWeight="bold">
+            {lang==="es" ? "Tablero Táctico" : "Tactics Board"}
+          </VuiTypography>
+          {[["coach", lang==="es"?"🏆 Juegos de Élite":"🏆 Elite Plays"],
+            ["custom", lang==="es"?"✏️ Mi Juego":"✏️ My Play"]].map(([m,lbl])=>(
+            <button key={m} onClick={()=>setMode(m)} style={{
+              background:mode===m?"#4ade80":"rgba(255,255,255,.08)",
+              color:mode===m?"#000":"#fff",
+              border:"none",borderRadius:20,padding:"6px 18px",
+              fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"Inter,sans-serif",
+            }}>{lbl}</button>
+          ))}
+          <div style={{flex:1}}/>
           <div style={{display:"flex",gap:4,background:"rgba(255,255,255,.08)",borderRadius:20,padding:3}}>
             {["en","es"].map(l=>(
               <button key={l} onClick={()=>setLang(l)} style={{
@@ -201,19 +204,6 @@ function TacticsBoard() {
               }}>{l.toUpperCase()}</button>
             ))}
           </div>
-        </VuiBox>
-
-        {/* Mode toggle */}
-        <VuiBox display="flex" gap="8px" mb={1} sx={{ flexShrink: 0 }}>
-          {[["coach", lang==="es"?"🏆 Juegos de Élite":"🏆 Elite Plays"],
-            ["custom", lang==="es"?"✏️ Mi Juego":"✏️ My Play"]].map(([m,lbl])=>(
-            <button key={m} onClick={()=>setMode(m)} style={{
-              background:mode===m?"#4ade80":"rgba(255,255,255,.08)",
-              color:mode===m?"#000":"#fff",
-              border:"none",borderRadius:20,padding:"7px 20px",
-              fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"Inter,sans-serif",
-            }}>{lbl}</button>
-          ))}
         </VuiBox>
 
         <VuiBox display="flex" gap="16px" sx={{ flex: 1, minHeight: 0 }}>
@@ -355,7 +345,7 @@ function TacticsBoard() {
 
           {/* ── Pitch ── */}
           <VuiBox sx={{flex:1, minWidth:0, minHeight:0, display:"flex", flexDirection:"column"}}>
-            <div style={{position:"relative",marginBottom:8, flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+            <div style={{position:"relative",marginBottom:8, flex:1, minHeight:0, display:"flex", alignItems:"flex-start", justifyContent:"center"}}>
               <svg
                 ref={svgRef}
                 viewBox={`0 0 ${W} ${H}`}

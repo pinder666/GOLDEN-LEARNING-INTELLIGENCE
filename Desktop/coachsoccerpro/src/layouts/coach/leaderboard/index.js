@@ -15,7 +15,7 @@ import VuiAvatar from "components/VuiAvatar";
 // Vision UI Dashboard examples
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
+
 
 // Auth & Data
 import { useAuth } from "context/AuthContext";
@@ -126,41 +126,39 @@ function CoachLeaderboard() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
-        {/* Header */}
-        <VuiBox mb={3}>
-          <VuiTypography variant="h4" color="white" fontWeight="bold">
-            {language === "es" ? "Tabla de Líderes" : "Leaderboard"}
-          </VuiTypography>
-          <VuiTypography variant="body2" color="text">
-            {language === "es"
-              ? "Todos los jugadores del equipo • Nadie queda fuera"
-              : "Every player on the team • No one left out"}
-          </VuiTypography>
-        </VuiBox>
-
-        {/* Type Tabs */}
-        <Card sx={{ mb: 3 }}>
-          <VuiBox px={2}>
-            <Tabs
-              value={activeType}
-              onChange={(e, val) => setActiveType(val)}
-              sx={{
-                "& .MuiTab-root": { color: "rgba(255,255,255,0.7)" },
-                "& .Mui-selected": { color: "#0075FF" },
-                "& .MuiTabs-indicator": { backgroundColor: "#0075FF" },
-              }}
-            >
-              {LEADERBOARD_TYPES.map((type) => (
-                <Tab
-                  key={type.key}
-                  value={type.key}
-                  label={language === "es" ? type.labelEs : type.labelEn}
-                />
-              ))}
-            </Tabs>
+      <VuiBox py={1} sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 100px)", overflow: "hidden" }}>
+        {/* Header — one row so the board owns the screen */}
+        <VuiBox mb={1} display="flex" alignItems="center" gap="16px" flexWrap="wrap" sx={{ flexShrink: 0 }}>
+          <VuiBox>
+            <VuiTypography variant="h5" color="white" fontWeight="bold">
+              {language === "es" ? "Tabla de Líderes" : "Leaderboard"}
+            </VuiTypography>
+            <VuiTypography variant="caption" color="text">
+              {language === "es"
+                ? "Todos los jugadores del equipo • Nadie queda fuera"
+                : "Every player on the team • No one left out"}
+            </VuiTypography>
           </VuiBox>
-        </Card>
+          <VuiBox sx={{ flex: 1 }} />
+          <Tabs
+            value={activeType}
+            onChange={(e, val) => setActiveType(val)}
+            sx={{
+              minHeight: 36,
+              "& .MuiTab-root": { color: "rgba(255,255,255,0.7)", minHeight: 36, py: 0.5 },
+              "& .Mui-selected": { color: "#0075FF" },
+              "& .MuiTabs-indicator": { backgroundColor: "#0075FF" },
+            }}
+          >
+            {LEADERBOARD_TYPES.map((type) => (
+              <Tab
+                key={type.key}
+                value={type.key}
+                label={language === "es" ? type.labelEs : type.labelEn}
+              />
+            ))}
+          </Tabs>
+        </VuiBox>
 
         {loading ? (
           <VuiTypography color="text">{t("common:status.loading")}</VuiTypography>
@@ -176,12 +174,12 @@ function CoachLeaderboard() {
             </VuiBox>
           </Card>
         ) : (
-          <Grid container spacing={3}>
-            {/* Top 3 Podium */}
-            <Grid item xs={12}>
-              <Card>
-                <VuiBox p={3}>
-                  <VuiBox display="flex" justifyContent="center" alignItems="flex-end" gap={3} py={2}>
+          <VuiBox sx={{ flex: 1, minHeight: 0, display: "flex", gap: "14px", alignItems: "stretch" }}>
+            {/* Top 3 Podium — side column */}
+            <VuiBox sx={{ width: { xs: "100%", md: 400 }, flexShrink: 0, display: "flex" }}>
+              <Card sx={{ width: "100%" }}>
+                <VuiBox p={2} sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <VuiBox display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
                     {/* 2nd Place */}
                     {sortedPlayers[1] && (
                       <VuiBox textAlign="center" sx={{ order: 1 }}>
@@ -338,19 +336,25 @@ function CoachLeaderboard() {
                   </VuiBox>
                 </VuiBox>
               </Card>
-            </Grid>
+            </VuiBox>
 
             {/* Full Ranking List - EVERY PLAYER APPEARS */}
-            <Grid item xs={12}>
-              <Card>
-                <VuiBox p={3}>
-                  <VuiTypography variant="h6" color="white" mb={2}>
+            <VuiBox sx={{ flex: 1, minWidth: 0, display: "flex" }}>
+              <Card sx={{ width: "100%", overflow: "hidden" }}>
+                <VuiBox p={2} sx={{
+                  height: "100%", display: "flex", flexDirection: "column", minHeight: 0,
+                }}>
+                  <VuiTypography variant="h6" color="white" mb={1} sx={{ flexShrink: 0 }}>
                     {language === "es" ? "Clasificación Completa" : "Full Ranking"}
                     <VuiTypography component="span" variant="caption" color="text" ml={1}>
                       ({sortedPlayers.length} {language === "es" ? "jugadores" : "players"})
                     </VuiTypography>
                   </VuiTypography>
 
+                  <VuiBox sx={{
+                    flex: 1, minHeight: 0, overflowY: "auto",
+                    scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
+                  }}>
                   {sortedPlayers.map((player, index) => {
                     const rank = index + 1;
                     const rankDisplay = getRankDisplay(rank);
@@ -433,15 +437,12 @@ function CoachLeaderboard() {
                       </VuiBox>
                     );
                   })}
+                  </VuiBox>
                 </VuiBox>
               </Card>
-            </Grid>
-          </Grid>
+            </VuiBox>
+          </VuiBox>
         )}
-
-        <VuiBox mt="auto" pt={3}>
-          <Footer />
-        </VuiBox>
       </VuiBox>
     </DashboardLayout>
   );
