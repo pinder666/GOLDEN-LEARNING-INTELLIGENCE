@@ -326,7 +326,9 @@ function CoachDashboard() {
                   </VuiTypography>
                 </VuiBox>
                 <VuiTypography variant="body2" color="text">
-                  {aiInsight}
+                  {DEMO_MODE || aiInsight === DEMO_DATA.aiInsight || !aiInsight
+                    ? (language === "es" ? "¡Todos los jugadores están al día!" : "All players are up to date!")
+                    : aiInsight}
                 </VuiTypography>
                 <VuiButton
                   color="info"
@@ -412,7 +414,7 @@ function CoachDashboard() {
                     { icon: "💬", label: language === "es" ? "Mensaje" : "Message", route: "/coach/messages", color: "#0075FF" },
                     { icon: "📋", label: language === "es" ? "Asistencia" : "Attendance", route: "/coach/calendar", color: "#2dce89" },
                     { icon: "🏅", label: language === "es" ? "Insignias" : "Badges", route: "/coach/badges", color: "#fb6340" },
-                    { icon: "👥", label: language === "es" ? "Roster" : "Roster", route: "/coach/roster", color: "#7928CA" },
+                    { icon: "👥", label: language === "es" ? "Plantilla" : "Roster", route: "/coach/roster", color: "#7928CA" },
                     { icon: "📅", label: language === "es" ? "Calendario" : "Calendar", route: "/coach/calendar", color: "#f5365c" },
                     { icon: "💳", label: language === "es" ? "Pagos" : "Payments", route: "/coach/payments", color: "#11cdef" },
                   ].map((action, i) => (

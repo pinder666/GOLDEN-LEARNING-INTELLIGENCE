@@ -55,7 +55,10 @@ const HOWTO_KEYS = {
   payments: ["payment", "pago", "stripe", "dues", "cuota", "charge", "cobrar"],
   messages: ["message", "mensaje", "parent", "padre", "voice note", "nota de voz"],
   tactics: ["tactic", "táctic", "formation", "formación"],
-  automation: ["automation", "automatiz", "reminder", "birthday", "cumpleaños"],
+  automation: ["automation", "automatiz", "birthday", "cumpleaños"],
+  videoanalysis: ["video", "film", "analy", "análisis", "analisis", "graba", "penalty", "penal", "duel", "duelo", "blinker"],
+  mydrills: ["my drill", "board", "pizarra", "build", "crea", "draw", "dibuj"],
+  assistant: ["assistant", "asistente", "predict", "chip"],
 };
 
 function detectIntent(raw, lang) {
