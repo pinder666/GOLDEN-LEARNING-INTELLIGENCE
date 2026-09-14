@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLang } from "useLang";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -15,9 +15,193 @@ import {
   drawSkeleton,
   lockPlayerAt,
   computeAutoCrop,
+  guideDetect,
 } from "services/videoAnalysis";
 
 const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
+
+// ─── LIVE CAPTURE — film through the app, the blinker coaches the filmer ───
+function LiveCapture({ scenario, lang, onDone, onCancel }) {
+  const camRef = useRef(null);
+  const streamRef = useRef(null);
+  const recRef = useRef(null);
+  const chunksRef = useRef([]);
+  const busyRef = useRef(false);
+  const [ready, setReady] = useState(false);
+  const [rec, setRec] = useState(false);
+  const [secs, setSecs] = useState(0);
+  const [hint, setHint] = useState({ text: "", color: "#4ade80", good: true });
+
+  const t = (en, es) => (lang === "es" ? es : en);
+  const cap = scenario === "open" ? 90 : 30;
+
+  useEffect(() => {
+    let guideTimer = null;
+    let secTimer = null;
+    let alive = true;
+
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        });
+        if (!alive) { stream.getTracks().forEach((tr) => tr.stop()); return; }
+        streamRef.current = stream;
+        const v = camRef.current;
+        v.srcObject = stream;
+        await v.play();
+        setReady(true);
+
+        // The blinker: live pose reads coach the FILMER
+        guideTimer = setInterval(async () => {
+          if (busyRef.current || !v.videoWidth) return;
+          busyRef.current = true;
+          try {
+            const people = await guideDetect(v);
+            if (!alive) return;
+            const maxTorso = people.length ? Math.max(...people.map((p) => p.torso)) : 0;
+            const nearEdge = people.some(
+              (p) => p.hipX < 0.07 || p.hipX > 0.93 || p.hipY > 0.96
+            );
+            if (!people.length) {
+              setHint({ text: t("POINT AT THE ACTION", "APUNTA A LA ACCIÓN"), color: "#ef4444", good: false });
+            } else if (maxTorso < 0.11) {
+              setHint({ text: t("MOVE CLOSER", "ACÉRCATE"), color: "#fbbf24", good: false });
+            } else if (nearEdge) {
+              setHint({ text: t("KEEP PLAYERS IN FRAME", "MANTÉN A LOS JUGADORES EN CUADRO"), color: "#fbbf24", good: false });
+            } else if (scenario !== "open" && people.length < 2) {
+              setHint({ text: t("GET BOTH PLAYERS IN", "INCLUYE A AMBOS JUGADORES"), color: "#60a5fa", good: false });
+            } else {
+              setHint({ text: t("✓ GOOD — FILM THE MOMENT", "✓ BIEN — GRABA EL MOMENTO"), color: "#4ade80", good: true });
+            }
+          } catch { /* guidance is best-effort */ } finally {
+            busyRef.current = false;
+          }
+        }, 160);
+
+        secTimer = setInterval(() => {
+          setSecs((s) => {
+            if (recRef.current?.state === "recording") {
+              if (s + 1 >= cap) stopRec();
+              return s + 1;
+            }
+            return s;
+          });
+        }, 1000);
+      } catch {
+        onCancel("nocam"); // no camera permission → parent falls back
+      }
+    })();
+
+    return () => {
+      alive = false;
+      if (guideTimer) clearInterval(guideTimer);
+      if (secTimer) clearInterval(secTimer);
+      try { recRef.current?.state === "recording" && recRef.current.stop(); } catch { /* noop */ }
+      streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  const pickMime = () => {
+    const opts = ["video/mp4", "video/webm;codecs=vp9", "video/webm"];
+    for (const m of opts) {
+      try { if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; } catch { /* noop */ }
+    }
+    return "";
+  };
+
+  const startRec = () => {
+    const mime = pickMime();
+    const mr = new MediaRecorder(streamRef.current, mime ? { mimeType: mime } : undefined);
+    chunksRef.current = [];
+    mr.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
+    mr.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: mime || "video/webm" });
+      onDone(blob);
+    };
+    recRef.current = mr;
+    mr.start(250);
+    setSecs(0);
+    setRec(true);
+  };
+
+  const stopRec = () => {
+    try { recRef.current?.state === "recording" && recRef.current.stop(); } catch { /* noop */ }
+    setRec(false);
+  };
+
+  return (
+    <VuiBox sx={{ position: "fixed", inset: 0, zIndex: 2000, background: "#000", display: "flex", flexDirection: "column" }}>
+      <style>{`@keyframes blinker { 50% { opacity: .35; } }`}</style>
+
+      {/* Blinker — the filming coach */}
+      {ready && (
+        <VuiBox sx={{
+          position: "absolute", top: 18, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 3,
+        }}>
+          <span style={{
+            background: hint.color, color: "#000", borderRadius: 24,
+            padding: "10px 22px", fontSize: 15, fontWeight: 900, letterSpacing: ".04em",
+            fontFamily: "Inter,sans-serif",
+            animation: hint.good ? "none" : "blinker 0.9s linear infinite",
+            boxShadow: `0 0 24px ${hint.color}80`,
+          }}>
+            {hint.text}
+          </span>
+        </VuiBox>
+      )}
+
+      <video
+        ref={camRef}
+        playsInline
+        muted
+        style={{ flex: 1, minHeight: 0, width: "100%", objectFit: "contain", background: "#000" }}
+      />
+
+      {/* Controls */}
+      <VuiBox sx={{
+        position: "absolute", bottom: 0, left: 0, right: 0, padding: "18px 20px 26px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        background: "linear-gradient(transparent, rgba(0,0,0,.75))", zIndex: 3,
+      }}>
+        <button onClick={() => { stopRec(); onCancel("user"); }} style={{
+          background: "rgba(255,255,255,.15)", color: "#fff", border: "none",
+          borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700,
+          cursor: "pointer", fontFamily: "Inter,sans-serif",
+        }}>
+          {t("Cancel", "Cancelar")}
+        </button>
+
+        <button
+          onClick={rec ? stopRec : startRec}
+          disabled={!ready}
+          style={{
+            width: 74, height: 74, borderRadius: "50%",
+            border: rec ? "4px solid #ef4444" : "4px solid rgba(255,255,255,.85)",
+            background: "transparent", cursor: "pointer", padding: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <span style={{
+            width: rec ? 30 : 56, height: rec ? 30 : 56,
+            borderRadius: rec ? 8 : "50%", background: "#ef4444",
+            transition: "all .2s",
+            animation: rec ? "blinker 1.2s linear infinite" : "none",
+          }} />
+        </button>
+
+        <span style={{
+          color: rec ? "#ef4444" : "rgba(255,255,255,.7)", fontSize: 15, fontWeight: 800,
+          fontFamily: "Inter,sans-serif", minWidth: 74, textAlign: "right",
+        }}>
+          {rec ? `● ${secs}s / ${cap}s` : `${t("max", "máx")} ${cap}s`}
+        </span>
+      </VuiBox>
+    </VuiBox>
+  );
+}
 
 function VideoAnalysis() {
   const [lang, setLang] = useLang();
@@ -35,6 +219,7 @@ function VideoAnalysis() {
   const [ballAnchor, setBallAnchor] = useState(null);
   // The ritual: upload → tap players → tap ball → analyze
   const [step, setStep] = useState("idle");          // "idle" | "players" | "ball" | "ready"
+  const [capturing, setCapturing] = useState(false); // in-app camera with the blinker
   // THE ARENA: analysis is blind outside this box. Auto-built around the
   // locked players; a finger-drag on the video overrides it.
   const [cropRect, setCropRect] = useState(null);
@@ -109,19 +294,23 @@ function VideoAnalysis() {
     if (canvas) canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  const loadVideo = (fileOrBlob) => {
+    setVideoFile(fileOrBlob);
+    setVideoUrl(URL.createObjectURL(fileOrBlob));
+    setResults(null);
+    setKeeperNote(null);
+    setAnalysisError(null);
+    setTargetIndex(0);
+    setAnchors([]);
+    setBallAnchor(null);
+    setCropRect(null);
+    manualCropRef.current = false;
+    setStep("players"); // the ritual begins
+  };
+
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("video/")) {
-      setVideoFile(file);
-      setVideoUrl(URL.createObjectURL(file));
-      setResults(null);
-      setKeeperNote(null);
-      setAnalysisError(null);
-      setTargetIndex(0);
-      setAnchors([]);
-      setBallAnchor(null);
-      setStep("players"); // the ritual begins
-    }
+    if (file && file.type.startsWith("video/")) loadVideo(file);
   };
 
   // BODY-SCAN LOCK: each tap scans that spot on the frozen frame, finds the
@@ -528,6 +717,24 @@ function VideoAnalysis() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
+
+      {/* In-app camera: the blinker coaches the filmer live */}
+      {capturing && (
+        <LiveCapture
+          scenario={scenario}
+          lang={lang}
+          onDone={(blob) => {
+            setCapturing(false);
+            loadVideo(blob);
+          }}
+          onCancel={(reason) => {
+            setCapturing(false);
+            // No camera permission → native capture input as fallback
+            if (reason === "nocam") cameraInputRef.current?.click();
+          }}
+        />
+      )}
+
       <VuiBox py={1} sx={{
         height: { xs: "auto", md: "calc(100vh - 100px)" },
         minHeight: { xs: "calc(100vh - 100px)", md: "auto" },
@@ -634,9 +841,10 @@ function VideoAnalysis() {
                     {t("MP4, MOV, or WEBM • Max 100MB", "MP4, MOV o WEBM • Máx 100MB")}
                   </VuiTypography>
 
-                  {/* Film straight from the phone camera */}
+                  {/* Film straight from the phone camera — in-app, with the
+                      live blinker coaching the shot */}
                   <button
-                    onClick={() => cameraInputRef.current?.click()}
+                    onClick={() => setCapturing(true)}
                     style={{
                       position: "relative", zIndex: 2, marginTop: 18,
                       background: "#4ade80", color: "#000", border: "none",

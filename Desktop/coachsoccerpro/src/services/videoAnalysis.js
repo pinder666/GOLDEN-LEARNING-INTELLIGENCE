@@ -54,6 +54,40 @@ function getLandmarker(numPoses = 1) {
   return landmarkerCache[numPoses];
 }
 
+// ── LIVE FILMING GUIDE ──────────────────────────────────────────────────
+// Lightweight detector for the in-app camera: tells the FILMER what to fix
+// while they film (closer / keep in frame / steady) so the footage is
+// analysis-grade at capture time. Lite model — must run live on a phone.
+let guidePromise = null;
+function getGuideLandmarker() {
+  if (!guidePromise) {
+    guidePromise = (async () => {
+      const fileset = await FilesetResolver.forVisionTasks("/wasm");
+      return PoseLandmarker.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: "/models/pose_landmarker_lite.task" },
+        runningMode: "VIDEO",
+        numPoses: 3,
+        minPoseDetectionConfidence: 0.3,
+        minPosePresenceConfidence: 0.3,
+        minTrackingConfidence: 0.3,
+      });
+    })();
+  }
+  return guidePromise;
+}
+
+/** One live-guidance read of the camera stream: people found, their sizes
+ *  and positions. Cheap enough for ~8 calls/second on a phone. */
+export async function guideDetect(video) {
+  const landmarker = await getGuideLandmarker();
+  const result = landmarker.detectForVideo(video, nextTs());
+  return (result?.landmarks || []).map((lm) => ({
+    torso: Math.abs((lm[11].y + lm[12].y) / 2 - (lm[23].y + lm[24].y) / 2),
+    hipX: (lm[23].x + lm[24].x) / 2,
+    hipY: (lm[23].y + lm[24].y) / 2,
+  }));
+}
+
 // Minimal skeleton for overlay drawing (landmark index pairs)
 export const SKELETON = [
   [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], // arms + shoulder line
