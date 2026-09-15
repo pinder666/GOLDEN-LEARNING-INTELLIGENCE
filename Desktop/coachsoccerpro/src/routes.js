@@ -26,6 +26,7 @@ import Automation from "layouts/coach/automation";
 import Demo from "layouts/coach/demo";
 import MyDrills from "layouts/coach/mydrills";
 import VideoAnalysis from "layouts/coach/videoanalysis";
+import Seats from "layouts/coach/seats";
 
 // Auth Layouts
 import CoachSignIn from "layouts/authentication/sign-in/coach";
@@ -165,6 +166,16 @@ const coachRoutes = [
     icon: <IoCard size="15px" color="inherit" />,
     route: "/coach/payments",
     component: <CoachPayments />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Seats",
+    nameEs: "Asientos",
+    key: "coach-seats",
+    icon: <IoTrophy size="15px" color="inherit" />,
+    route: "/coach/seats",
+    component: <Seats />,
     noCollapse: true,
   },
   {

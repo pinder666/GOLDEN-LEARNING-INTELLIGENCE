@@ -168,6 +168,38 @@ function CoachDrills() {
   const [customs, setCustoms] = useState(loadCustomDrills);
   const customAudioRef = useRef(null);
 
+  // PIPE C — assign a vetted library drill to players' FROM YOUR COACH shelf
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [assignSel, setAssignSel] = useState(new Set());
+  const [assignMsg, setAssignMsg] = useState(null);
+  const SEAT_PLAYERS = [ // dev roster; production reads sm_roster_cache seats
+    { ref: "PLR-8347", name: "Marcus J." },
+    { ref: "PLR-2210", name: "Sofia G." },
+    { ref: "PLR-9921", name: "Liam S." },
+    { ref: "PLR-4470", name: "Emma W." },
+  ];
+
+  const sendAssignment = async (players) => {
+    const payload = { drill_id: activeDrill.id, players };
+    try {
+      if (process.env.NODE_ENV === "development") {
+        const log = JSON.parse(localStorage.getItem("csp_assignments") || "[]");
+        log.push({ ...payload, ts: new Date().toISOString() });
+        localStorage.setItem("csp_assignments", JSON.stringify(log));
+      } else {
+        const { error } = await (await import("services/supabase")).supabase
+          .functions.invoke("pipe-c", { body: payload });
+        if (error) throw error;
+      }
+      setAssignMsg(t("✓ Sent to their FROM YOUR COACH shelf", "✓ Enviado a su estante DE TU ENTRENADOR"));
+    } catch {
+      setAssignMsg(t("Couldn't send — try again", "No se pudo enviar — intenta de nuevo"));
+    }
+    setAssignOpen(false);
+    setAssignSel(new Set());
+    setTimeout(() => setAssignMsg(null), 3000);
+  };
+
   // Coach's own drills refresh when returning from My Drills
   useEffect(() => {
     const refresh = () => setCustoms(loadCustomDrills());
@@ -371,6 +403,24 @@ function CoachDrills() {
                 {speaking ? t("🔊 Stop","🔊 Parar") : t("🔊 Read","🔊 Leer")}
               </button>
 
+              {/* Assign to players (Pipe C) — vetted library drills only */}
+              {activeDrill && !activeDrill.custom && (
+                <button onClick={()=>setAssignOpen(o=>!o)} style={{
+                  background: assignOpen ? "rgba(74,222,128,.15)" : "rgba(255,255,255,.06)",
+                  color: assignOpen ? "#4ade80" : "rgba(255,255,255,.6)",
+                  border:`1px solid ${assignOpen?"rgba(74,222,128,.35)":"rgba(255,255,255,.12)"}`,
+                  borderRadius:8, padding:"7px 14px",
+                  fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"Inter,sans-serif",
+                }}>
+                  {t("📤 Assign to Players","📤 Asignar a Jugadores")}
+                </button>
+              )}
+              {assignMsg && (
+                <span style={{color:"#4ade80",fontSize:11,fontWeight:700,fontFamily:"Inter,sans-serif"}}>
+                  {assignMsg}
+                </span>
+              )}
+
               {/* Parent message button */}
               {activeDrill?.parentMsg && (
                 <button onClick={()=>setParentOpen(o=>!o)} style={{
@@ -384,6 +434,54 @@ function CoachDrills() {
                 </button>
               )}
             </VuiBox>
+
+            {/* Assign panel — ALL or a selected set (ruled payload) */}
+            {assignOpen && activeDrill && !activeDrill.custom && (
+              <VuiBox mb={1} style={{
+                background:"rgba(74,222,128,.07)", border:"1px solid rgba(74,222,128,.25)",
+                borderRadius:12, padding:"12px 16px",
+              }}>
+                <VuiBox display="flex" alignItems="center" gap="8px" flexWrap="wrap">
+                  <button onClick={()=>sendAssignment("all")} style={{
+                    background:"#4ade80", color:"#000", border:"none", borderRadius:8,
+                    padding:"7px 16px", fontSize:12, fontWeight:800, cursor:"pointer",
+                    fontFamily:"Inter,sans-serif",
+                  }}>
+                    {t("Send to ALL players","Enviar a TODOS")}
+                  </button>
+                  <span style={{color:"rgba(255,255,255,.4)",fontSize:11}}>{t("or pick:","o elige:")}</span>
+                  {SEAT_PLAYERS.map(p=>(
+                    <button key={p.ref} onClick={()=>setAssignSel(s=>{
+                      const n = new Set(s); n.has(p.ref)?n.delete(p.ref):n.add(p.ref); return n;
+                    })} style={{
+                      background: assignSel.has(p.ref)?"rgba(74,222,128,.25)":"rgba(255,255,255,.06)",
+                      color: assignSel.has(p.ref)?"#4ade80":"rgba(255,255,255,.7)",
+                      border:`1px solid ${assignSel.has(p.ref)?"rgba(74,222,128,.5)":"rgba(255,255,255,.15)"}`,
+                      borderRadius:16, padding:"5px 12px", fontSize:11, fontWeight:600,
+                      cursor:"pointer", fontFamily:"Inter,sans-serif",
+                    }}>
+                      {p.name}
+                    </button>
+                  ))}
+                  {assignSel.size>0 && (
+                    <button onClick={()=>sendAssignment([...assignSel])} style={{
+                      background:"rgba(74,222,128,.2)", color:"#4ade80",
+                      border:"1px solid rgba(74,222,128,.5)", borderRadius:8,
+                      padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer",
+                      fontFamily:"Inter,sans-serif",
+                    }}>
+                      {t(`Send to ${assignSel.size}`,`Enviar a ${assignSel.size}`)}
+                    </button>
+                  )}
+                </VuiBox>
+                <VuiTypography variant="caption" color="text" sx={{display:"block",mt:1,fontSize:10}}>
+                  {t(
+                    "Lands on their FROM YOUR COACH shelf in SoccerMental — optional for them, no pressure.",
+                    "Llega a su estante DE TU ENTRENADOR en SoccerMental — opcional para ellos, sin presión."
+                  )}
+                </VuiTypography>
+              </VuiBox>
+            )}
 
             {/* Parent message panel */}
             {parentOpen && activeDrill?.parentMsg && (
