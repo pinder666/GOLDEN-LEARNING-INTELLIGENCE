@@ -75,7 +75,7 @@ export function PitchCanvas({ drill, playing, speed }) {
 
   return (
     <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
-      style={{ width:"100%", height:"100%", maxHeight:"100%", display:"block", background:"#1a4a2a", borderRadius:10 }}>
+      style={{ width:"100%", height:"100%", display:"block", background:"#1a4a2a", borderRadius:10 }}>
       {/* Green background with equal padding around pitch */}
       <rect x={0} y={0} width={W} height={H} fill="#1a4a2a"/>
       <defs>
@@ -268,7 +268,7 @@ function CoachDrills() {
   return (
     <DashboardLayout>
       <DashboardNavbar/>
-      <VuiBox py={1} sx={{height:"calc(100vh - 100px)", display:"flex", flexDirection:"column", overflow:"hidden"}}>
+      <VuiBox py={1} sx={{height:"calc(100vh - 130px)", display:"flex", flexDirection:"column", overflow:"hidden"}}>
 
         {/* Header */}
         <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
@@ -371,8 +371,8 @@ function CoachDrills() {
 
           {/* Pitch + info */}
           <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflow:"hidden"}}>
-            {/* pitch takes the space it can and fits by HEIGHT — no page scroll */}
-            <VuiBox sx={{flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+            {/* pitch fills available height, letterboxed so green never clips */}
+            <VuiBox sx={{flex:1, minHeight:180, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden"}}>
               <PitchCanvas drill={activeDrill} playing={playing} speed={speed}/>
             </VuiBox>
 
