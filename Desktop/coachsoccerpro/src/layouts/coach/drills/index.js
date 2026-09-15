@@ -59,7 +59,9 @@ export function PitchCanvas({ drill, playing, speed }) {
   useEffect(() => { pausedAtRef.current = 0; startRef.current = Date.now(); }, [drill]);
 
   if (!drill) return null;
-  const W = 720, H = 480;
+  // Canvas cropped to equal 30px green on ALL sides of the pitch
+  // (pitch rect is x30–650, y30–410). Players/cones/frames unchanged.
+  const W = 680, H = 440;
 
   const markerFill = (col) => {
     if (!col) return "#4ade80";
