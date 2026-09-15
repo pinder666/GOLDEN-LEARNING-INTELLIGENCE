@@ -243,7 +243,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 									src={logo}
 									alt="CoachSoccerPro"
 									sx={{
-										width: miniSidenav ? '40px' : '180px',
+										width: miniSidenav ? '48px' : '210px',
 										transition: 'width 0.3s ease',
 									}}
 								/>
