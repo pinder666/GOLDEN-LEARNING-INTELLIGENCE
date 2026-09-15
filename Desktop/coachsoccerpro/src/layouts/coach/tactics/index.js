@@ -7,7 +7,12 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-import { COACH_PLAYS } from "data/drills";
+import { COACH_PLAYS as BASE_PLAYS } from "data/drills";
+import { MANAGER_PLAYS } from "data/managers";
+
+// The 8 signature plays + the 17 manager doctrines from the SoccerMental
+// classroom (reskinned for CoachSoccerPro) = the full elite library.
+const COACH_PLAYS = [...BASE_PLAYS, ...MANAGER_PLAYS];
 
 const W = 680, H = 440;
 

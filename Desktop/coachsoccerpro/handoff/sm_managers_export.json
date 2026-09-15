@@ -1,0 +1,648 @@
+{
+  "meta": {
+    "source": "SoccerMental — THE CLASSROOM, managers wing",
+    "exported": "2026-09-15",
+    "license_note": "SoccerMental original content. Shared for CoachSoccerPro rendering only.",
+    "pitch_coords": "x 0-100 left-to-right (attacking right), y 0-100 top-to-bottom, as used by the source drawings",
+    "count": 17
+  },
+  "managers": [
+    {
+      "id": "chapman",
+      "name": "Herbert Chapman",
+      "title": "HERBERT CHAPMAN — The First Modern Manager",
+      "sub": "Invented the W-M in 1925 · first manager to design a formation as a weapon",
+      "team": "Arsenal 1925-1938",
+      "system": "W-M (3-2-2-3)",
+      "doctrine": "When the 1925 offside law change freed centre-forwards, Chapman redesigned the formation from scratch instead of patching what he had: the centre-half pulled back between the full-backs to make a third defender, two inside-forwards withdrawn behind the centre-forward. Every position in the W-M had a defensive and attacking purpose at once — no passenger roles. The system was so fully instilled that Arsenal kept winning titles after Chapman died mid-season in 1934: a properly designed structure outlasts its builder.",
+      "key_principle": "Every position defends AND attacks — understand why your shape works.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "LB", "side": "team"},
+        {"x": 15, "y": 45, "label": "CB", "side": "team"},
+        {"x": 15, "y": 68, "label": "RB", "side": "team"},
+        {"x": 32, "y": 32, "label": "LHB", "side": "team"},
+        {"x": 32, "y": 58, "label": "RHB", "side": "team"},
+        {"x": 52, "y": 32, "label": "LIF", "side": "team"},
+        {"x": 52, "y": 58, "label": "RIF", "side": "team"},
+        {"x": 70, "y": 22, "label": "OL", "side": "team"},
+        {"x": 75, "y": 45, "label": "CF", "side": "team"},
+        {"x": 70, "y": 68, "label": "OR", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, the W-M itself)",
+      "arrows": [
+        {"x1": 15, "y1": 45, "x2": 32, "y2": 35, "meaning": "withdrawn centre-half starts the attack forward to the half-back line"},
+        {"x1": 32, "y1": 35, "x2": 52, "y2": 35, "meaning": "half-back links into the withdrawn inside-forward"},
+        {"x1": 52, "y1": 35, "x2": 70, "y2": 45, "meaning": "inside-forward releases the centre-forward — each position doing both jobs (defend AND attack)"}
+      ],
+      "honours": ["First Division 1931, 1933, 1934, 1935, 1938", "FA Cup 1930, 1936"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/chapman",
+      "beats_digest": [
+        {"head": "WHY CHAPMAN CHANGED EVERYTHING", "summary": "The 1925 offside law change freed centre-forwards across England; Chapman was the first to solve the problem, redesigning the formation from scratch into the W-M that defined English football for thirty years."},
+        {"head": "THE W-M — WHAT CHAPMAN BUILT", "summary": "Centre-half pulled back as a third defender and inside-forwards withdrawn produced the W-M shape (3 CB, 2 DM, 2 IF, 2 wide, 1 CF) on which Arsenal won five First Divisions and two FA Cups."},
+        {"head": "STRUCTURE AS A WEAPON", "summary": "Every structural decision had a defensive and attacking purpose simultaneously — the idea that structure itself both attacks and defends underpins every modern system."},
+        {"head": "ARSENAL 1930-1938 — THE PROOF", "summary": "Chapman died mid-season in January 1934 and the team won the title anyway — the system outlasting the man is the true measure of a built (not borrowed) team."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM CHAPMAN", "summary": "Chapman arrived at mid-table Arsenal with a structural idea, not a superclub squad — question your shape and ask why your team defends the way it does, because most players never do."},
+        {"head": "THE HABIT TO BUILD TODAY", "summary": "Draw your formation before the next match and answer two questions for your position — what do I defend, what do I attack — converting reaction into anticipation."}
+      ]
+    },
+    {
+      "id": "herrera",
+      "name": "Helenio Herrera",
+      "title": "HELENIO HERRERA — The Sorcerer",
+      "sub": "Grande Inter 1960s · psychological preparation · catenaccio with pace",
+      "team": "Inter Milan 1960s (Grande Inter)",
+      "system": "Catenaccio (libero + man-marking) + fast transition",
+      "doctrine": "Herrera did not invent catenaccio — he took the existing defensive framework and added relentless pressing fitness, transition speed, and an engineered psychological environment. He recruited specifically for pace in transition roles so the defensive structure created counter-attack launch positions, not just protection. Before matches he ran ritiro isolation retreats and tailored mental preparation to each of eleven individuals, converting anxiety into collective belief.",
+      "key_principle": "Nervous energy is a resource, not a problem — build a routine that directs it into readiness.",
+      "positions": [
+        {"x": 10, "y": 45, "label": "GK", "side": "team"},
+        {"x": 20, "y": 30, "label": "LIB", "side": "team"},
+        {"x": 20, "y": 45, "label": "SWP", "side": "team"},
+        {"x": 20, "y": 60, "label": "CB", "side": "team"},
+        {"x": 35, "y": 20, "label": "", "side": "team"},
+        {"x": 35, "y": 38, "label": "", "side": "team"},
+        {"x": 35, "y": 52, "label": "", "side": "team"},
+        {"x": 35, "y": 70, "label": "", "side": "team"},
+        {"x": 58, "y": 30, "label": "", "side": "team"},
+        {"x": 60, "y": 52, "label": "", "side": "team"},
+        {"x": 72, "y": 42, "label": "CF", "side": "team"}
+      ],
+      "arrows": [
+        {"x1": 38, "y1": 20, "x2": 85, "y2": 15, "meaning": "counter-attack outlet to recruited pace on the left flank the moment the ball is won"},
+        {"x1": 38, "y1": 70, "x2": 88, "y2": 72, "meaning": "counter-attack outlet to pace on the right flank — defensive structure serving transition speed"}
+      ],
+      "honours": ["Serie A 1963, 1965, 1966", "European Cup 1964", "European Cup 1965"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/herrera",
+      "beats_digest": [
+        {"head": "WHY HERRERA MATTERED", "summary": "Most Italian clubs used catenaccio to avoid losing; Herrera used the same framework to win by adding pressing, fitness and a controlled psychological environment — five trophies in five years."},
+        {"head": "THE PSYCHOLOGICAL PREPARATION", "summary": "Ritiro isolation retreats, collective rituals and individually tailored conversations made pre-match preparation an engineered mental architecture for eleven specific people."},
+        {"head": "THE SCIENCE — DEFENSIVE STRUCTURE + TRANSITION SPEED", "summary": "Grande Inter defended like any Italian side but transitioned faster than anything Europe had seen, with Herrera recruiting pace (Mazzola, Jair) specifically for the transition roles."},
+        {"head": "EUROPEAN CUP 1964 AND 1965", "summary": "Inter beat Real Madrid (1964) and Benfica (1965) in successive finals, becoming the standard of Italian defensive organization combined with attacking transition."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM HERRERA", "summary": "Nervousness, properly managed, is a resource — the ritiro converted individual anxiety into collective energy, and a personal pre-match routine is your version of it."},
+        {"head": "BUILD YOUR PRE-MATCH ROUTINE TODAY", "summary": "Five minutes of deliberate pre-match routine — signal, focus, directed intensity — done before every game becomes automatic at ten games and identity at fifty."}
+      ]
+    },
+    {
+      "id": "michels",
+      "name": "Rinus Michels",
+      "title": "RINUS MICHELS — Total Football",
+      "sub": "Ajax 1971-73 · any player can play any position · football as fluid shape",
+      "team": "Ajax 1971-73 (and Netherlands 1974)",
+      "system": "Total Football — fluid positions, space as the system",
+      "doctrine": "Michels built a team where any outfield player could play any position: when the left back attacked, a midfielder covered; the formation was a set of spatial principles, not a fixed shape. Space was the resource managed collectively — spread wide and deep with the ball, compress and press immediately without it, the same players switching roles between states. The idea preceded the player: even Cruyff's movement worked because teammates collectively filled the space he vacated.",
+      "key_principle": "When a teammate moves, ask what space they just left — and fill it before anyone tells you.",
+      "positions": [
+        {"x": 15, "y": 45, "label": "CB", "side": "team"},
+        {"x": 32, "y": 25, "label": "LB", "side": "team"},
+        {"x": 32, "y": 65, "label": "RB", "side": "team"},
+        {"x": 50, "y": 35, "label": "CM", "side": "team"},
+        {"x": 50, "y": 55, "label": "CM", "side": "team"},
+        {"x": 65, "y": 20, "label": "OL", "side": "team"},
+        {"x": 68, "y": 45, "label": "CRUYFF", "side": "team"},
+        {"x": 65, "y": 70, "label": "OR", "side": "team"}
+      ],
+      "positions_note": "8 players drawn — the source draws a schematic fluid shape, not a full XI (source beat 2)",
+      "arrows": [
+        {"x1": 32, "y1": 25, "x2": 70, "y2": 20, "meaning": "left back attacks up the wing — any player into any position"},
+        {"x1": 50, "y1": 35, "x2": 32, "y2": 25, "meaning": "central midfielder drops to cover the space the left back left — space never empty"}
+      ],
+      "honours": ["European Cup 1971", "European Cup 1972", "European Cup 1973", "1974 World Cup final (Netherlands, lost 2-1 to West Germany)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008 · Winner \"Brilliant Orange\" 2000", "Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/michels",
+      "beats_digest": [
+        {"head": "WHY TOTAL FOOTBALL CHANGED THE SPORT", "summary": "Against the era's fixed positions, Michels' Ajax let any outfield player play any position, with space as the constant and the formation a set of principles rather than a shape."},
+        {"head": "AJAX 1971-1972-1973", "summary": "Ajax won three consecutive European Cups on the system Michels built; Cruyff was central but the collective movement principle, not the player, was the system."},
+        {"head": "THE SCIENCE — SPACE IS THE SYSTEM", "summary": "Width in attack and compactness in defence, executed by the same players switching states — all eleven collectively managing space."},
+        {"head": "NETHERLANDS 1974 — THE WORLD SAW IT", "summary": "The Dutch led the World Cup final via a Cruyff-won penalty before West Germany touched the ball, and though they lost 2-1, Total Football became the attacking blueprint for the next fifty years."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM MICHELS", "summary": "Total Football demands trained spatial awareness of the whole pitch — restoring the team's balance by covering the space a teammate leaves."},
+        {"head": "THE TOTAL FOOTBALL HABIT TODAY", "summary": "Every time a teammate runs forward in training, ask what space they left and move to fill it first, until the question becomes automatic."}
+      ]
+    },
+    {
+      "id": "lobanovsky",
+      "name": "Valeri Lobanovsky",
+      "title": "VALERI LOBANOVSKY — The Football Scientist",
+      "sub": "Dynamo Kyiv · mathematical football · pressing as a calculated system",
+      "team": "Dynamo Kyiv (Soviet era; USSR at Euro 1988)",
+      "system": "Calculated zonal pressing — scientifically conditioned 4-4-2 blocks",
+      "doctrine": "A trained engineer, Lobanovsky treated football as a measurable system: every player's workload tracked every session, training designed from calculated physiological outputs, one of the first coaches to use pulse monitoring. He divided the pitch into zones and structured the press as a collective mechanism — specific players pressing specific zones while others held shape. Fitness was not separate from tactics but their foundation: tactic and conditioning were designed together.",
+      "key_principle": "Physical preparation is a tactical decision — the press only works if the fitness can sustain it for ninety minutes.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "", "side": "team"},
+        {"x": 15, "y": 38, "label": "", "side": "team"},
+        {"x": 15, "y": 54, "label": "", "side": "team"},
+        {"x": 15, "y": 70, "label": "", "side": "team"},
+        {"x": 35, "y": 22, "label": "", "side": "team"},
+        {"x": 35, "y": 38, "label": "", "side": "team"},
+        {"x": 35, "y": 54, "label": "", "side": "team"},
+        {"x": 35, "y": 70, "label": "", "side": "team"},
+        {"x": 55, "y": 36, "label": "", "side": "team"},
+        {"x": 55, "y": 54, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 1, the measured unit)",
+      "arrows": [
+        {"x1": 42, "y1": 45, "x2": 80, "y2": 30, "meaning": "high-intensity pressing sprint to close down the ball carrier — the trained, measured effort that keeps the system holding late in matches"}
+      ],
+      "honours": ["European Cup Winners' Cup 1975 (defeated Ferencvaros)", "European Cup Winners' Cup 1986", "Euro 1988 final reached with USSR"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/lobanovsky",
+      "beats_digest": [
+        {"head": "WHY LOBANOVSKY SAW FOOTBALL DIFFERENTLY", "summary": "An engineer by training, he built models instead of talking about desire — measuring every player's workload and designing sessions from calculated physiological outputs."},
+        {"head": "DYNAMO KYIV — THE PRESSING LABORATORY", "summary": "He divided the pitch into zones and designed the press as a structured collective mechanism — specific players pressing specific zones, others holding shape to trap the ball."},
+        {"head": "THE SCIENCE — FITNESS AS TACTICAL WEAPON", "summary": "Fitness is the foundation of tactics: he calculated the physical requirements of his systems and built the conditioning to produce exactly those levels, monitoring pulse rates in training."},
+        {"head": "EUROPEAN CUP WINNERS' CUP 1975 AND 1986", "summary": "The same methodology produced the Cup Winners' Cup in 1975 and 1986 and a Euro 1988 final with the USSR — results across three decades."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM LOBANOVSKY", "summary": "When a press breaks down in the last twenty minutes the failure is fitness, not the system — every sprint avoided in training is a press that collapses in the match."},
+        {"head": "THE CONDITIONING HABIT TODAY", "summary": "Track how many hard closing-down sprints you make when tired; work hardest in the most uncomfortable moments because those produce the late-game fitness that makes the system hold."}
+      ]
+    },
+    {
+      "id": "clough",
+      "name": "Brian Clough",
+      "title": "BRIAN CLOUGH — The Psychology of Simplicity",
+      "sub": "Nottingham Forest · two European Cups · man-management above all else",
+      "team": "Nottingham Forest 1975-1980",
+      "system": "Simple 4-4-2 — pass to the open man",
+      "doctrine": "Clough took second-division Nottingham Forest to a First Division title and consecutive European Cups with an uncomplicated 4-4-2 and two principles: pass to the open man, and if you lose the ball win it back. The sophistication was in player selection and the environment, not the system. His man-management — public belief, private criticism, knowing each player individually — made players unable to let him down; most football mistakes come from choosing the difficult option to show ability rather than the simple option to win.",
+      "key_principle": "The simple option executed well beats the difficult option attempted — pass to the open man.",
+      "positions": [
+        {"x": 15, "y": 20, "label": "LB", "side": "team"},
+        {"x": 15, "y": 37, "label": "CB", "side": "team"},
+        {"x": 15, "y": 53, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 38, "y": 20, "label": "LM", "side": "team"},
+        {"x": 38, "y": 37, "label": "CM", "side": "team"},
+        {"x": 38, "y": 53, "label": "CM", "side": "team"},
+        {"x": 38, "y": 70, "label": "RM", "side": "team"},
+        {"x": 60, "y": 35, "label": "ST", "side": "team"},
+        {"x": 60, "y": 55, "label": "ST", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, the 4-4-2)",
+      "arrows": [
+        {"x1": 60, "y1": 55, "x2": 45, "y2": 30, "meaning": "the pass to the open man — the simple correct option chosen over the risky one"}
+      ],
+      "honours": ["First Division 1978 (first season back in top flight)", "European Cup 1979 (beat Malmo)", "European Cup 1980 (beat Hamburg)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/clough",
+      "beats_digest": [
+        {"head": "WHY CLOUGH IS DIFFERENT FROM EVERYONE ELSE", "summary": "From second division in 1975 to First Division champions 1978 and consecutive European Cups 1979-80 — a rise no club has matched, built on man-management rather than a tactical system."},
+        {"head": "THE SIMPLICITY PRINCIPLE", "summary": "A straightforward 4-4-2 with the ball going to the simplest available option; the sophistication lived in player selection and the environment, not the system."},
+        {"head": "THE SCIENCE — MAN-MANAGEMENT", "summary": "Public praise, private criticism, and individually tailored belief made players feel unable to let Clough down — one of the most powerful motivators in human performance."},
+        {"head": "EUROPEAN CUP 1979 AND 1980", "summary": "Trevor Francis won the 1979 final and John Robertson — a winger Clough transformed through belief — scored the only goal in 1980."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM CLOUGH", "summary": "Under pressure the simple thing done well beats the complex thing done badly; the difficult option shows ability, the simple option wins matches."},
+        {"head": "THE CLOUGH HABIT TODAY", "summary": "For three matches, count every time you chose the difficult option when the simple one was on — more than three per game means your decisions are costing possession."}
+      ]
+    },
+    {
+      "id": "happel",
+      "name": "Ernst Happel",
+      "title": "ERNST HAPPEL — The Quiet Revolutionary",
+      "sub": "Feyenoord · Hamburg · European Cup winner with two different clubs",
+      "team": "Feyenoord 1970 and Hamburg 1983",
+      "system": "Adaptive — compact block, deny the centre, attack wide; system fitted to the players",
+      "doctrine": "Happel was a problem-solver, not a theorist: given a squad, he found the structural shape that maximized what those specific players could do. He observed before prescribing, so the system served the players rather than the players adapting to the system. That is why he could win the European Cup with two very different clubs and two different structures — compact denial of space against Celtic in 1970, an opponent-specific plan to nullify Platini's Juventus in 1983.",
+      "key_principle": "Adapt the system to the players — observe what they can actually do, then build the shape around the reality, not the ideal.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "LB", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 35, "y": 22, "label": "LM", "side": "team"},
+        {"x": 35, "y": 38, "label": "CM", "side": "team"},
+        {"x": 35, "y": 54, "label": "CM", "side": "team"},
+        {"x": 35, "y": 70, "label": "RM", "side": "team"},
+        {"x": 55, "y": 35, "label": "", "side": "team"},
+        {"x": 55, "y": 55, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, Feyenoord 1970 shape)",
+      "arrows": [
+        {"x1": 55, "y1": 35, "x2": 90, "y2": 20, "meaning": "attack wide with pace on transition after defending compact and denying the centre"}
+      ],
+      "honours": ["European Cup 1970 (Feyenoord 2-1 Celtic AET — first Dutch club to win it)", "European Cup 1983 (Hamburg 1-0 Juventus)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/happel",
+      "beats_digest": [
+        {"head": "WHY HAPPEL IS UNDERRATED", "summary": "One of only three managers to win the European Cup with two different clubs, Happel adapted his coaching to his players instead of demanding the reverse."},
+        {"head": "FEYENOORD 1970 — THE FIRST DUTCH EUROPEAN CUP", "summary": "A compact, disciplined Feyenoord denied Jock Stein's Celtic space centrally and attacked wide with pace to beat the former holders 2-1 in extra time."},
+        {"head": "THE SCIENCE — ADAPTING TO YOUR PLAYERS", "summary": "A system nobody can execute is only an untested idea — Happel observed what his actual players could do and built the shape around their strengths."},
+        {"head": "HAMBURG 1983 — THE SECOND EUROPEAN CUP", "summary": "Hamburg beat a star-laden Juventus 1-0 through Magath's eighth-minute goal and preparation designed specifically for that opponent, not generic tactics."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM HAPPEL", "summary": "Know what your teammates actually do well and struggle with — that knowledge is how formations become real instead of theoretical."},
+        {"head": "THE HAPPEL HABIT TODAY", "summary": "Watch one teammate for three sessions until you know their movement patterns, then position yourself relative to where they will be, not where they should be."}
+      ]
+    },
+    {
+      "id": "sacchi",
+      "name": "Arrigo Sacchi",
+      "title": "ARRIGO SACCHI — The High Line Revolution",
+      "sub": "AC Milan 1987-91 · pressing as a team · you cannot defend with the ball",
+      "team": "AC Milan 1987-1991",
+      "system": "4-4-2 zonal press — high defensive line + compactness",
+      "doctrine": "Sacchi, who never played professionally, brought a complete attacking philosophy into defensive-minded Italian football: a high line, aggressive collective pressing, and collective movement at every phase. His radical idea was that a press is collective or it is nothing — one player pressing alone is wasted running — and that high line plus compactness makes collective pressing physically possible. He drilled what to do without the ball for hours, so the transition was already organized when possession was won.",
+      "key_principle": "Your shape without the ball matters more than your shape with it — accelerate into defensive shape the moment the ball is lost.",
+      "positions": [
+        {"x": 65, "y": 22, "label": "BARESI", "side": "team"},
+        {"x": 65, "y": 38, "label": "CB", "side": "team"},
+        {"x": 65, "y": 53, "label": "CB", "side": "team"},
+        {"x": 65, "y": 68, "label": "RB", "side": "team"},
+        {"x": 55, "y": 30, "label": "RIJKAARD", "side": "team"},
+        {"x": 55, "y": 45, "label": "CM", "side": "team"},
+        {"x": 55, "y": 60, "label": "CM", "side": "team"},
+        {"x": 80, "y": 22, "label": "GULLIT", "side": "team"},
+        {"x": 85, "y": 45, "label": "VAN BASTEN", "side": "team"},
+        {"x": 80, "y": 68, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown; the back line sits at x=65 to depict the pushed-up high line (source beat 2)",
+      "arrows": [
+        {"x1": 55, "y1": 45, "x2": 80, "y2": 45, "meaning": "immediate collective counter-press converging on the ball the moment it is lost"},
+        {"x1": 65, "y1": 30, "x2": 80, "y2": 40, "meaning": "second presser closing on the ball simultaneously — the press is collective or it does not exist"},
+        {"x1": 65, "y1": 60, "x2": 80, "y2": 50, "meaning": "third presser closing the far side — every player presses their immediate area together"}
+      ],
+      "honours": ["Serie A 1988 (lost only one match)", "European Cup 1989 (4-0 vs Steaua Bucharest)", "European Cup 1990 (1-0 vs Benfica)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · Sacchi documented interviews", "Wilson \"Inverting the Pyramid\" 2008 · Sacchi documented", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/sacchi",
+      "beats_digest": [
+        {"head": "WHY SACCHI SHOCKED ITALIAN FOOTBALL", "summary": "A manager with no professional playing career brought a high line and aggressive pressing to defensive Italy — 'you don't need to have been a horse to be a jockey' — and won Serie A and two European Cups."},
+        {"head": "AC MILAN 1988-1990 — THE INVINCIBLES", "summary": "Milan lost one league match in 1987-88 and won consecutive European Cups; Sacchi's collective system made world-class individuals (Van Basten, Gullit, Rijkaard, Baresi) exponentially more effective."},
+        {"head": "THE SCIENCE — COLLECTIVE PRESSING", "summary": "The press only exists when every player presses simultaneously; the high line shrinks escape space and compactness shortens pressing distances, making it physically possible."},
+        {"head": "SACCHI'S MOST FAMOUS STATEMENT", "summary": "'I worked on what to do without the ball' — the defensive shape, press triggers and recovery runs were drilled for hours so transitions were organized before the ball was won."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM SACCHI", "summary": "Do not relax when the team loses the ball — accelerate into defensive shape, because faster shape means shorter pressing distances and a press that succeeds."},
+        {"head": "THE SACCHI HABIT TODAY", "summary": "Count the seconds from losing the ball to reaching your defensive position — Sacchi's Milan did it in under two, and moving the moment the ball is lost is the habit to build."}
+      ]
+    },
+    {
+      "id": "robson",
+      "name": "Bobby Robson",
+      "title": "BOBBY ROBSON — The Builder",
+      "sub": "Ipswich · England · Barcelona · PSV · Porto · player development above all",
+      "team": "Ipswich Town 1969-1982, England (1990 World Cup), PSV, Porto, Barcelona",
+      "system": "Player development within clear, simple structure — the builder's method (tell, show, trust)",
+      "doctrine": "Robson was not a tactical revolutionary but a builder: at nine clubs and a national team across five decades he made the players he inherited better than they were. His method was to find the gap between a player's current performance and their capability and systematically close it through honest feedback, clear instruction, repetition, and trust. Twelve years of that building took modest Ipswich to the FA Cup and UEFA Cup; the same method carried England to a World Cup semi-final.",
+      "key_principle": "Close the gap between current performance and potential — honest feedback, specific work, and trust, in that order.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "LB", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 38, "y": 25, "label": "LM", "side": "team"},
+        {"x": 38, "y": 38, "label": "GAZZA", "side": "team"},
+        {"x": 38, "y": 52, "label": "CM", "side": "team"},
+        {"x": 38, "y": 66, "label": "RM", "side": "team"},
+        {"x": 60, "y": 35, "label": "LINEKER", "side": "team"},
+        {"x": 60, "y": 55, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 4, England 1990)",
+      "arrows": [],
+      "honours": ["FA Cup 1978 (Ipswich)", "UEFA Cup 1981 (Ipswich, beat AZ Alkmaar)", "World Cup semi-final 1990 (England)", "Dutch title 1991, 1992 (PSV)", "Portuguese title (Porto)", "Champions League semi-final (Barcelona)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/robson",
+      "beats_digest": [
+        {"head": "WHY ROBSON BUILT WHEREVER HE WENT", "summary": "Across nine clubs and a national team in five decades — Ipswich, England, PSV, Porto, Barcelona — Robson consistently improved players individually and teams collectively."},
+        {"head": "IPSWICH 1981 — BUILDING FROM NOTHING", "summary": "Twelve years of squad-building at a modest east-of-England club produced the 1978 FA Cup and the 1981 UEFA Cup against all expectation."},
+        {"head": "THE SCIENCE — DEVELOPING PLAYERS", "summary": "Robson found the gap between what a player did and what they were capable of, and closed it with clear instruction, repetition and trust."},
+        {"head": "ENGLAND 1990 — THE EMOTION OF IT", "summary": "England's best World Cup since 1966 ended on penalties against West Germany in Turin, with Gascoigne's tears the documented emblem of a team built to compete with the world's best."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM ROBSON", "summary": "Trust is built by telling players what they need to improve — not what they want to hear — then giving them the work and the time to do it."},
+        {"head": "THE ROBSON HABIT TODAY", "summary": "After each match, name one specific thing to improve, write it down, and practice that exact situation deliberately — diagnose your own errors instead of waiting for a coach."}
+      ]
+    },
+    {
+      "id": "cruyff",
+      "name": "Johan Cruyff",
+      "title": "JOHAN CRUYFF — The Philosophy",
+      "sub": "Barcelona Dream Team · positional play · football as an idea",
+      "team": "Barcelona 1988-1996 (Dream Team)",
+      "system": "4-3-3 positional play",
+      "doctrine": "As Barcelona manager, Cruyff built the Dream Team and — more durably — the philosophical foundation the club still runs on: the 4-3-3 positional system and the La Masia academy method. His positional play rests on one principle: the ball must always have a free passing option, achieved by players constantly adjusting position relative to the ball and the whole structure. When the structure is correct, any pass opens another pass, and players are selected for positional intelligence as much as quality.",
+      "key_principle": "Scan before receiving — know where the free man is before the ball arrives, so the decision is already made.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "LB", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 38, "y": 28, "label": "DM", "side": "team"},
+        {"x": 38, "y": 45, "label": "CM", "side": "team"},
+        {"x": 38, "y": 62, "label": "CM", "side": "team"},
+        {"x": 62, "y": 18, "label": "LW", "side": "team"},
+        {"x": 70, "y": 45, "label": "CF", "side": "team"},
+        {"x": 62, "y": 72, "label": "RW", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 1, the 4-3-3)",
+      "arrows": [
+        {"x1": 35, "y1": 25, "x2": 55, "y2": 35, "meaning": "ball circulates to the next free option inside the structure"},
+        {"x1": 55, "y1": 35, "x2": 72, "y2": 22, "meaning": "the pass opens another pass — the free man is always available by design"}
+      ],
+      "honours": ["La Liga 1991, 1992, 1993, 1994", "European Cup 1992 (1-0 vs Sampdoria at Wembley — Barcelona's first)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/cruyff",
+      "beats_digest": [
+        {"head": "WHY CRUYFF AS MANAGER MATTERED MORE THAN CRUYFF AS PLAYER", "summary": "From the touchline he built the Dream Team, created La Masia's method, and designed the 4-3-3 positional system that has defined Spanish football for thirty years."},
+        {"head": "THE DREAM TEAM 1991-1994", "summary": "Four consecutive La Liga titles with players selected for positional intelligence — and in coaching Guardiola, Cruyff trained his own successor."},
+        {"head": "THE SCIENCE — POSITIONAL PLAY", "summary": "The ball must always have a free passing option; when every player adjusts relative to ball and structure, any pass opens another and the ball never stops circulating."},
+        {"head": "EUROPEAN CUP 1992 — WEMBLEY", "summary": "Koeman's extra-time free kick beat Sampdoria for Barcelona's first European Cup — the proof of four years of building that every later Barcelona success stands on."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM CRUYFF", "summary": "Scan constantly so you know where the free man is before the ball arrives — receiving without knowing costs a half-second every pass."},
+        {"head": "THE CRUYFF HABIT TODAY", "summary": "Make one rule: know your next pass before the ball touches your foot — scan while it travels, commit mentally, then receive and play with no pause."}
+      ]
+    },
+    {
+      "id": "vangaal",
+      "name": "Louis van Gaal",
+      "title": "LOUIS VAN GAAL — The Structure Master",
+      "sub": "Ajax 1994-95 treble · positional discipline · the system above the individual",
+      "team": "Ajax 1994-95",
+      "system": "4-3-3 positional discipline — system first, players found to fit it",
+      "doctrine": "Where Cruyff was the philosopher, Van Gaal was the engineer who turned the philosophy into a precise, repeatable structure: he built the correct system first and then found players who could execute it. Each player had a defined zone and role, and correct collective positioning created the passing options automatically — no improvisation required. He chose the system over superstars (selling Romario) and won the Champions League with a team of disciplined teenagers who beat squads of individually superior players.",
+      "key_principle": "Stay in your position and trust the structure — your presence in the right place without the ball keeps all eleven correct.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "DE SAR", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 38, "y": 28, "label": "DAVIDS", "side": "team"},
+        {"x": 38, "y": 45, "label": "SEEDORF", "side": "team"},
+        {"x": 38, "y": 62, "label": "", "side": "team"},
+        {"x": 62, "y": 18, "label": "OVERMARS", "side": "team"},
+        {"x": 70, "y": 45, "label": "KLUIVERT", "side": "team"},
+        {"x": 62, "y": 72, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn (source beat 2, Ajax 1995 — 'DE SAR' label appears in the back line as drawn in source)",
+      "arrows": [],
+      "honours": ["Eredivisie 1994-95", "Dutch Cup 1994-95", "Champions League 1995 (Ajax 1-0 AC Milan — Kluivert, aged 18)"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/vangaal",
+      "beats_digest": [
+        {"head": "WHY VAN GAAL MATTERED", "summary": "The last Dutch Champions League winner built correct systems first and found players to execute them — the engineer who made Cruyff's philosophy precise, respected rather than loved."},
+        {"head": "AJAX 1994-95 — THE TREBLE", "summary": "League, cup and Champions League in one season, beating Sacchi's Milan 1-0 through 18-year-old Kluivert with a squad full of teenagers Van Gaal developed."},
+        {"head": "THE SCIENCE — POSITIONAL DISCIPLINE", "summary": "Every player had a defined space and role; correct collective positioning created passing options automatically, drilled so precisely that matches replicated training."},
+        {"head": "THE DEMAND AND THE RESULT", "summary": "Van Gaal sold even Romario when he would not conform — and Ajax 1995 proved collective structural discipline can beat individually superior squads."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM VAN GAAL", "summary": "Resist the urge to chase the ball out of position — your presence in the right place without the ball maintains the structure for everyone else."},
+        {"head": "THE VAN GAAL HABIT TODAY", "summary": "As the ball moves, ask whether you are in the correct position for your role — not merely near the ball — until structural correctness becomes a feeling."}
+      ]
+    },
+    {
+      "id": "ferguson",
+      "name": "Alex Ferguson",
+      "title": "ALEX FERGUSON — The 27-Year Standard",
+      "sub": "Manchester United 1986-2013 · winning culture · the transition builder",
+      "team": "Manchester United 1986-2013",
+      "system": "Winning culture as the system — standards enforced across three rebuilt squads (4-4-2 era sides)",
+      "doctrine": "Across twenty-seven years Ferguson built three different trophy-winning squads, rebuilding an ageing team twice without the standard ever dropping. His engine was culture: the expectations a group holds without being told — maximum effort every session, enforced through incentive and sanction, with players dropped or sold regardless of ability if they fell below it. He controlled every environmental variable so external criticism became motivation rather than anxiety inside the club.",
+      "key_principle": "A standard is what you refuse to go below on a bad day — raise the floor, not the ceiling.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "", "side": "team"},
+        {"x": 15, "y": 38, "label": "", "side": "team"},
+        {"x": 15, "y": 54, "label": "", "side": "team"},
+        {"x": 15, "y": 70, "label": "", "side": "team"},
+        {"x": 38, "y": 25, "label": "", "side": "team"},
+        {"x": 38, "y": 40, "label": "", "side": "team"},
+        {"x": 38, "y": 55, "label": "", "side": "team"},
+        {"x": 38, "y": 70, "label": "", "side": "team"},
+        {"x": 62, "y": 35, "label": "SHERINGHAM", "side": "team"},
+        {"x": 62, "y": 55, "label": "SOLSKJAER", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, the 1999 treble side)",
+      "arrows": [],
+      "honours": ["13 Premier League titles", "5 FA Cups", "4 League Cups", "2 Champions Leagues (1999, 2008)", "1999 treble — Premier League, FA Cup, Champions League", "38 trophies in 27 years"],
+      "src": ["Wilson \"Inverting the Pyramid\" 2008 · documented tenure 1986-2013", "Documented 1999 Champions League final", "Wilson \"Inverting the Pyramid\" 2008 · documented Ferguson management", "Wilson \"Inverting the Pyramid\" 2008 · coaching principles"],
+      "sm_unit": "classroom/ferguson",
+      "beats_digest": [
+        {"head": "WHY FERGUSON IS THE BENCHMARK", "summary": "Twenty-seven years, thirty-eight trophies and three different winning squads built in succession — no English manager has matched the length or level of the standard."},
+        {"head": "THE 1999 TREBLE — THE PEAK", "summary": "United won the Premier League, FA Cup and Champions League in one season, turning the European final with Sheringham (90+1) and Solskjaer (90+3) against Bayern Munich."},
+        {"head": "THE SCIENCE — BUILDING WINNING CULTURE", "summary": "Culture is the standard a group holds without being told; Ferguson enforced it with incentive and sanction and rebuilt the human environment with each new generation."},
+        {"head": "CONTROLLING THE ENVIRONMENT", "summary": "Ferguson controlled every variable around his players — press, travel, schedules — insulating the squad so external criticism became motivation instead of anxiety."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM FERGUSON", "summary": "The Ferguson question is your standard on a bad day — the floor, not the ceiling, determines whether you improve over time."},
+        {"head": "THE FERGUSON HABIT TODAY", "summary": "Set one non-negotiable minimum for ten straight sessions — after ten it stops being a decision and becomes a standard, which is how winners are built."}
+      ]
+    },
+    {
+      "id": "bielsa",
+      "name": "Marcelo Bielsa",
+      "title": "MARCELO BIELSA — The Obsessive",
+      "sub": "Total pressing · man-marking · football as philosophy and demand",
+      "team": "Leeds United (2019 era) and clubs across his career — the module teaches his method",
+      "system": "All-pitch man-marking + total pressing",
+      "doctrine": "Bielsa has won fewer trophies than almost anyone else in the classroom but influenced more coaches — Guardiola, Klopp and Pochettino all cite him. His system assigns every opposition player a specific marker for ninety minutes with immediate pressing everywhere: no safe zones. The physical demand is not the cost of the system, it is the system — fitness is built first each pre-season because without it the man-marking collapses — and his opponent preparation (revealed publicly in the 2019 Spygate dossier) is among the deepest ever documented.",
+      "key_principle": "In pressing football, intelligence and fitness are the same thing — you cannot press for ninety minutes without the physical base to do it.",
+      "positions": [
+        {"x": 15, "y": 15, "label": "", "side": "team"},
+        {"x": 15, "y": 30, "label": "", "side": "team"},
+        {"x": 15, "y": 45, "label": "", "side": "team"},
+        {"x": 15, "y": 60, "label": "", "side": "team"},
+        {"x": 15, "y": 75, "label": "", "side": "team"},
+        {"x": 32, "y": 15, "label": "", "side": "team"},
+        {"x": 32, "y": 30, "label": "", "side": "team"},
+        {"x": 32, "y": 45, "label": "", "side": "team"},
+        {"x": 32, "y": 60, "label": "", "side": "team"},
+        {"x": 32, "y": 75, "label": "", "side": "team"},
+        {"x": 50, "y": 35, "label": "", "side": "team"},
+        {"x": 50, "y": 55, "label": "", "side": "team"}
+      ],
+      "positions_note": "12 dots drawn in source — a pressing-intensity illustration ('all eleven, all the time'), not a literal XI (source beat 1)",
+      "arrows": [
+        {"x1": 22, "y1": 14, "x2": 30, "y2": 14, "meaning": "man-marking assignment — marker M1 locked to his designated opponent P1"},
+        {"x1": 22, "y1": 30, "x2": 30, "y2": 30, "meaning": "man-marking assignment M2 to P2 — every opposition player has a specific marker"},
+        {"x1": 22, "y1": 46, "x2": 30, "y2": 46, "meaning": "man-marking assignment M3 to P3 — no safe zones anywhere on the pitch"},
+        {"x1": 22, "y1": 62, "x2": 30, "y2": 62, "meaning": "man-marking assignment M4 to P4 — immediate pressure wherever the opponent is"}
+      ],
+      "honours": [],
+      "src": ["Documented — Guardiola on Bielsa · coaching record documented", "Documented Bielsa coaching record", "Documented Leeds United 2019 — Spygate", "Documented Bielsa coaching record · coaching principles"],
+      "sm_unit": "classroom/bielsa",
+      "beats_digest": [
+        {"head": "WHY BIELSA IS DIFFERENT", "summary": "Fewer trophies, more influence: Guardiola called him the best manager in the world, Klopp cites him, Pochettino played for him, and his players leave permanently transformed."},
+        {"head": "THE SYSTEM — MAN-MARKING AND PRESSING EVERYWHERE", "summary": "Every opposition player gets a designated marker for the full match with immediate pressure everywhere — physically brutal and sustained by documented extreme training volumes."},
+        {"head": "THE SCIENCE — TRANSITION AND PRESS INTENSITY", "summary": "His teams run documented high distances because the physical demand IS the system — pre-season builds the fitness foundation before the tactics are introduced."},
+        {"head": "THE SPYING INCIDENT — DATA AND PREPARATION", "summary": "Spygate 2019 revealed Bielsa held detailed dossiers on every Championship club — the depth of preparation he considers standard for every match."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM BIELSA", "summary": "Tactical intelligence without the physical ability to execute is an idea, not a system — build the physical base before the pressing trigger."},
+        {"head": "THE BIELSA HABIT TODAY", "summary": "Watch your opponent for five minutes before kick-off, find one consistent tendency, and use it in the match — the beginning of tactical preparation."}
+      ]
+    },
+    {
+      "id": "ancelotti",
+      "name": "Carlo Ancelotti",
+      "title": "CARLO ANCELOTTI — The Adaptor",
+      "sub": "AC Milan · Real Madrid · UCL with three clubs · management through trust",
+      "team": "AC Milan 2003-2007 and Real Madrid 2014",
+      "system": "Adaptive — e.g. the 4-3-2-1 'Christmas Tree' at Milan; the formation built around each specific squad",
+      "doctrine": "Ancelotti is the most geographically diverse trophy-winning manager in European history — league titles in five countries and the Champions League with three clubs — because he never imposes one system: he identifies what each squad does best and builds the shape around it, from Milan's Christmas Tree to Madrid's counter-attacking stars. He manages superstars through trust — responsibility, clear expectations, then stepping back. And he studies specific failures in detail: after losing the 2005 final to Liverpool, he adapted and beat the same opponent in the 2007 final.",
+      "key_principle": "Do not forget a bad performance — understand it specifically, then build the next preparation around correcting it.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "LB", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 35, "y": 25, "label": "CM", "side": "team"},
+        {"x": 35, "y": 45, "label": "CM", "side": "team"},
+        {"x": 35, "y": 65, "label": "CM", "side": "team"},
+        {"x": 55, "y": 34, "label": "KAKA", "side": "team"},
+        {"x": 55, "y": 56, "label": "RUI COSTA", "side": "team"},
+        {"x": 75, "y": 45, "label": "SHEVA", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, the 4-3-2-1 Christmas Tree)",
+      "arrows": [
+        {"x1": 78, "y1": 45, "x2": 128, "y2": 42, "meaning": "Inzaghi's strike at goal in the 2007 final (source draws the goal beyond x=100) — the corrected rematch won"}
+      ],
+      "honours": ["Champions League 2003 (AC Milan, beat Juventus on penalties)", "Champions League 2007 (AC Milan 2-1 Liverpool)", "Champions League 2014 (Real Madrid, beat Atletico Madrid)", "League titles in Italy, England, Germany, France and Spain"],
+      "src": ["Documented Ancelotti career record", "Documented Ancelotti AC Milan period", "Documented Ancelotti management style", "Documented Champions League 2005 and 2007", "Documented Champions League 2005-2007 · coaching principles", "Coaching principles"],
+      "sm_unit": "classroom/ancelotti",
+      "beats_digest": [
+        {"head": "WHY ANCELOTTI SUCCEEDED WITH EVERY SQUAD", "summary": "Champions Leagues with three clubs and league titles in five countries — won through adaptability, building each system around what each specific squad could do best."},
+        {"head": "THE XMAS TREE — ADAPTING THE FORMATION", "summary": "Milan's 4-3-2-1 with Kaka and Rui Costa behind Shevchenko was designed around the players he had — and he redesigned again at Chelsea and at Real Madrid."},
+        {"head": "THE SCIENCE — MANAGING SUPERSTARS", "summary": "His method with world-class egos was trust: give responsibility, state expectations, step back — elite players thrive when not constrained."},
+        {"head": "2007 UCL FINAL — REVERSING ISTANBUL", "summary": "After the 2005 collapse against Liverpool, Ancelotti studied the failure, adapted the structure, and beat the same opponent 2-1 in the 2007 final through an Inzaghi double."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM ANCELOTTI", "summary": "Do not forget bad matches — understand them: what specifically went wrong, what the opponent did, what you allowed — answered specifically, not generally."},
+        {"head": "THE ANCELOTTI HABIT TODAY", "summary": "After a bad match, write down the specific event (minute, situation, error) rather than the feeling — the specific version is actionable and can be drilled."}
+      ]
+    },
+    {
+      "id": "mourinho",
+      "name": "Jose Mourinho",
+      "title": "JOSE MOURINHO — The Special One",
+      "sub": "Porto UCL 2004 · Chelsea · Inter treble 2010 · defensive mastery",
+      "team": "Porto 2004 and Inter Milan 2010",
+      "system": "Compact defensive block (two banks of four) + fast direct counter",
+      "doctrine": "Mourinho turned unfancied Porto into champions of Europe through tactical discipline, collective organisation, and a belief environment that convinced players they could beat anyone. His signature is the compact defensive block — narrow spacing, compressed lines, every player holding a pre-decided position with a pre-decided pressing trigger — combined with counters of two or three passes from defence to attack. Nothing is improvised: every defensive decision is made in training before the match, which is why the block functions under pressure.",
+      "key_principle": "Know your exact defensive position, your exact space, and the exact trigger to press — not roughly, exactly.",
+      "positions": [
+        {"x": 15, "y": 20, "label": "LB", "side": "team"},
+        {"x": 15, "y": 36, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 35, "y": 22, "label": "DM", "side": "team"},
+        {"x": 35, "y": 45, "label": "DM", "side": "team"},
+        {"x": 35, "y": 68, "label": "DM", "side": "team"},
+        {"x": 55, "y": 30, "label": "", "side": "team"},
+        {"x": 55, "y": 60, "label": "", "side": "team"},
+        {"x": 75, "y": 45, "label": "CF", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 1, the Porto 2004 shape)",
+      "arrows": [
+        {"x1": 55, "y1": 35, "x2": 90, "y2": 20, "meaning": "fast direct counter released the moment possession is won — two or three passes from defence to attack"}
+      ],
+      "honours": ["Champions League 2004 (Porto — first Portuguese club to win it; final 3-0 vs Monaco)", "Serie A 2010, Coppa Italia 2010, Champions League 2010 (Inter Milan treble — final 2-0 vs Bayern Munich)"],
+      "src": ["Documented Mourinho Porto 2004 · documented press conference", "Documented Porto Champions League 2004", "Wilson \"Inverting the Pyramid\" 2008 · documented Mourinho statistical record", "Documented Inter Milan 2010 treble", "Documented Mourinho coaching approach · coaching principles", "Coaching principles"],
+      "sm_unit": "classroom/mourinho",
+      "beats_digest": [
+        {"head": "WHY MOURINHO IS SPECIAL", "summary": "He announced himself at Chelsea in 2004 — 'I am a special one' — after taking unwealthy Porto to the Champions League through discipline, organisation and engineered belief."},
+        {"head": "PORTO 2004 — THE IMPOSSIBLE WIN", "summary": "Porto eliminated Manchester United at Old Trafford (Costinha, two minutes left, Mourinho's touchline run) and beat Monaco 3-0 in the final."},
+        {"head": "THE SCIENCE — DEFENSIVE ORGANISATION", "summary": "Two compact banks of four with compressed lines, every player holding a known position, then a fast two-or-three-pass counter when possession is won."},
+        {"head": "INTER MILAN 2010 — THE TREBLE", "summary": "Inter won the Italian treble, frustrating holders Barcelona with a deep block at Camp Nou in the semi-final before beating Bayern 2-0 in Madrid."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM MOURINHO", "summary": "In a Mourinho block no one improvises — every player knows their exact position, exact space and exact pressing trigger, all decided in training."},
+        {"head": "THE MOURINHO HABIT TODAY", "summary": "Pick two reference points on the pitch that confirm your exact defensive position and check them continuously — the player who knows exactly where they defend earns trust and playing time."}
+      ]
+    },
+    {
+      "id": "guardiola",
+      "name": "Pep Guardiola",
+      "title": "PEP GUARDIOLA — The Positional Architect",
+      "sub": "Barcelona sextuple 2009 · Man City · the highest expression of positional play",
+      "team": "Barcelona 2008-2012, Bayern Munich, Manchester City",
+      "system": "Positional play — numerical superiority in the build-up areas",
+      "doctrine": "Cruyff's player became Cruyff's greatest student: Guardiola's positional system engineers numerical superiority in the specific areas where the ball can best progress — full-backs advancing, the striker dropping, midfielders spreading — so the player on the ball always has two or three options by design. When one option is covered the structure adjusts collectively to open another; players do not need to improvise because the structure creates the opportunities, including the freedom Messi enjoyed. The same principles won in Spain, Germany and England.",
+      "key_principle": "Before receiving, be in a position that opens two passing options — if only one is open, your position was wrong.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "ALVES", "side": "team"},
+        {"x": 15, "y": 38, "label": "PIQUE", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "ALVES", "side": "team"},
+        {"x": 35, "y": 45, "label": "BUSQUETS", "side": "team"},
+        {"x": 52, "y": 28, "label": "XAVI", "side": "team"},
+        {"x": 52, "y": 62, "label": "INIESTA", "side": "team"},
+        {"x": 68, "y": 22, "label": "", "side": "team"},
+        {"x": 72, "y": 45, "label": "MESSI", "side": "team"},
+        {"x": 68, "y": 68, "label": "", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown; source labels 'ALVES' on both full-back dots as drawn (source beat 2, Barcelona 2009-2011)",
+      "arrows": [
+        {"x1": 55, "y1": 45, "x2": 35, "y2": 28, "meaning": "first passing option open after receiving — the receiving position must open two directions"},
+        {"x1": 55, "y1": 45, "x2": 35, "y2": 62, "meaning": "second passing option open simultaneously — one covered option always leaves another by structural design"}
+      ],
+      "honours": ["2009 sextuple with Barcelona (La Liga, Copa del Rey, Champions League, Spanish Supercup, UEFA Supercup, Club World Cup)", "14 trophies in 4 years at Barcelona", "Bundesliga titles (Bayern Munich)", "Premier League titles and domestic treble 2019 (Manchester City, 98 points; 100 points in 2018)"],
+      "src": ["Documented Guardiola career record · Perarnau \"Pep Guardiola: The Evolution\" documented", "Documented Guardiola Barcelona period · Perarnau documented", "Perarnau \"Pep Guardiola: The Evolution\" documented · coaching analysis", "Documented Manchester City 2018-19 season", "Perarnau documented · coaching principles", "Coaching principles"],
+      "sm_unit": "classroom/guardiola",
+      "beats_digest": [
+        {"head": "WHY GUARDIOLA IS THE STANDARD OF MODERN FOOTBALL", "summary": "Six trophies with Barcelona in 2009 — a first in football — then league titles in Germany and England: the clearest expression of Cruyff's positional philosophy at the highest level."},
+        {"head": "BARCELONA 2009-2011 — THE PEAK", "summary": "Xavi, Iniesta and Busquets organized possession while the structure created Messi's freedom — the players did not need to improvise because the system made the opportunities."},
+        {"head": "THE SCIENCE — POSITIONAL SUPERIORITY", "summary": "Numerical superiority is engineered in the key build-up areas, so the player on the ball always has two or three options and the structure adjusts collectively when one closes."},
+        {"head": "MAN CITY 2019 — THE DOMESTIC TREBLE", "summary": "The first English domestic treble, on 98 points after a 100-point season, proved the positional principles transfer across leagues and countries."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM GUARDIOLA", "summary": "Every receiving position must open at least two options after the ball arrives — one option means the position before receiving was wrong."},
+        {"head": "THE GUARDIOLA HABIT TODAY", "summary": "For three sessions, check for two options before every reception and adjust with a half-second step if only one is open — the beginning of seeing why his teams keep the ball."}
+      ]
+    },
+    {
+      "id": "klopp",
+      "name": "Jurgen Klopp",
+      "title": "JURGEN KLOPP — Gegenpressing at Scale",
+      "sub": "Dortmund · Liverpool UCL 2019 · PL 2020 · collective intensity",
+      "team": "Borussia Dortmund 2008-2013 and Liverpool",
+      "system": "Gegenpressing — collective counter-press in the six seconds after losing the ball",
+      "doctrine": "Klopp's philosophy rests on one idea: the best moment to win the ball back is the six seconds immediately after losing it, while the opponent is disorganized and looking for a safe option — press immediately and collectively in that window. Uniquely, he manages emotion as a tactical resource: crowd energy and collective feeling fuel pressing intensity, which he treats as the same thing. Every player at Dortmund and Liverpool was selected for fit within the press — the ability to press, recover, and press again at maximum intensity.",
+      "key_principle": "Press collectively in the first six seconds after losing the ball — or recover into shape, but always try the six seconds first.",
+      "positions": [
+        {"x": 15, "y": 20, "label": "ALISSON", "side": "team"},
+        {"x": 15, "y": 36, "label": "VAN DIJK", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "ARNOLD", "side": "team"},
+        {"x": 38, "y": 25, "label": "", "side": "team"},
+        {"x": 38, "y": 45, "label": "HENDERSON", "side": "team"},
+        {"x": 38, "y": 65, "label": "", "side": "team"},
+        {"x": 62, "y": 22, "label": "MANE", "side": "team"},
+        {"x": 65, "y": 45, "label": "FIRMINO", "side": "team"},
+        {"x": 62, "y": 68, "label": "SALAH", "side": "team"}
+      ],
+      "positions_note": "10 players drawn including the goalkeeper (Alisson) — 9 outfield (source beat 4, Liverpool 2019-20)",
+      "arrows": [
+        {"x1": 40, "y1": 30, "x2": 55, "y2": 35, "meaning": "first presser converging on the lost ball inside the six-second window"},
+        {"x1": 40, "y1": 45, "x2": 55, "y2": 35, "meaning": "second presser converging simultaneously — the counter-press is collective, never solo"},
+        {"x1": 40, "y1": 55, "x2": 55, "y2": 35, "meaning": "third presser closing the escape route — win it back before it reaches safety"}
+      ],
+      "honours": ["Bundesliga 2011, 2012 (Borussia Dortmund)", "Champions League 2019 (Liverpool 2-0 Tottenham — first since 1984)", "Premier League 2020 (Liverpool, 99 points — first league title in thirty years)"],
+      "src": ["Documented Klopp coaching philosophy", "Documented Dortmund period 2008-2013", "Documented Klopp interviews · coaching analysis", "Documented Liverpool 2019 UCL · Documented PL 2019-20", "Documented Klopp coaching philosophy · coaching principles"],
+      "sm_unit": "classroom/klopp",
+      "beats_digest": [
+        {"head": "WHY KLOPP'S FOOTBALL IS DIFFERENT", "summary": "The gegenpresse: the six seconds after losing the ball are the best moment to win it back, while the opponent is disorganized — press immediately and collectively."},
+        {"head": "DORTMUND — THE FIRST GENERATION", "summary": "From seventh in 2008 to back-to-back Bundesliga titles with Lewandowski, Gotze, Kagawa and Reus, pressing at an intensity documented among the highest measured in Europe."},
+        {"head": "THE SCIENCE — EMOTIONAL INTENSITY AS FUEL", "summary": "Klopp manages emotion deliberately as a tactical resource — a loud Anfield 'worth a goal start' — treating collective emotional intensity and pressing intensity as the same thing."},
+        {"head": "LIVERPOOL UCL 2019 AND PL 2020", "summary": "The 2019 Champions League and a 99-point 2020 Premier League — Liverpool's first in thirty years — with every player selected for fit within the press."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM KLOPP", "summary": "Retreating on losing the ball is the most expensive instinct in football — press now, aggressively, with every available player, and only reset if the six-second window is missed."},
+        {"head": "THE KLOPP HABIT TODAY", "summary": "Count how often you press in the first three seconds of losing the ball — fewer than five per half means the habit isn't built; raise the number every week."}
+      ]
+    },
+    {
+      "id": "ranieri",
+      "name": "Claudio Ranieri",
+      "title": "CLAUDIO RANIERI — The 5000-1",
+      "sub": "Leicester City 2015-16 · the most improbable Premier League title ever",
+      "team": "Leicester City 2015-16",
+      "system": "Compact 4-4-2 block + the league's fastest transition (Kante wins it, Vardy runs behind)",
+      "doctrine": "Leicester started the 2015-16 season at 5000-1 — a squad of players the market undervalued (Vardy from non-league, Mahrez for around 400k, Kante for under 6m) organized into a compact 4-4-2 block with the Premier League's fastest transition: Kante breaking up play and distributing instantly while Vardy was already running behind the line. Ranieri's contribution was psychological — trust, calm and joy (pizza after clean sheets) while England waited for the collapse that never came. No moment of invention decided the season; a simple thing executed without error forty-six times did.",
+      "key_principle": "Simplicity executed perfectly beats complexity executed imperfectly — do the simple things without error, every match.",
+      "positions": [
+        {"x": 15, "y": 22, "label": "MORGAN", "side": "team"},
+        {"x": 15, "y": 38, "label": "CB", "side": "team"},
+        {"x": 15, "y": 54, "label": "CB", "side": "team"},
+        {"x": 15, "y": 70, "label": "RB", "side": "team"},
+        {"x": 38, "y": 22, "label": "", "side": "team"},
+        {"x": 38, "y": 38, "label": "KANTE", "side": "team"},
+        {"x": 38, "y": 54, "label": "", "side": "team"},
+        {"x": 38, "y": 70, "label": "", "side": "team"},
+        {"x": 62, "y": 28, "label": "MAHREZ", "side": "team"},
+        {"x": 65, "y": 62, "label": "VARDY", "side": "team"}
+      ],
+      "positions_note": "10 players drawn — goalkeeper not shown (source beat 2, the title-winning squad)",
+      "arrows": [
+        {"x1": 38, "y1": 38, "x2": 65, "y2": 45, "meaning": "Kante wins the ball and distributes immediately to the forwards"},
+        {"x1": 65, "y1": 45, "x2": 115, "y2": 28, "meaning": "Vardy already running behind the last defender — the fastest transition in the league (source draws the run beyond x=100 toward goal)"}
+      ],
+      "honours": ["Premier League 2015-16 (champions by ten points, from 5000-1 odds)"],
+      "src": ["Documented Leicester City 2015-16 Premier League", "Documented Leicester City squad assembly 2014-16", "Documented Leicester City 2015-16 tactical analysis", "Documented Leicester City 2015-16 · player accounts", "Documented Leicester City 2015-16", "Documented Leicester City 2015-16 · coaching principles"],
+      "sm_unit": "classroom/ranieri",
+      "beats_digest": [
+        {"head": "WHY LEICESTER 2016 IS IMPORTANT", "summary": "The longest odds ever offered on a Premier League winner — 5000-1, a 14th-place squad, a manager who had never won a league — and Leicester won the title by ten points."},
+        {"head": "THE SQUAD — HOW IT WAS BUILT", "summary": "Every key player was undervalued or dismissed by bigger clubs — Vardy from non-league, Mahrez for around 400k, Kante for under 6m — identified by scouts and organized by Ranieri."},
+        {"head": "THE SCIENCE — STRUCTURE, KANTE, AND VARDY", "summary": "A compact 4-4-2 block, Kante's statistically exceptional work rate breaking up attacks, and Vardy's runs behind the line made the fastest transition in the Premier League."},
+        {"head": "THE RANIERI FACTOR — TRUST AND JOY", "summary": "Ranieri kept the environment enjoyable and calm — pizza after clean sheets, public praise, trust in the players — while external pressure to collapse built and was ignored."},
+        {"head": "WHAT A YOUNG PLAYER LEARNS FROM RANIERI", "summary": "Leicester won on collective repetition of a simple thing executed without error forty-six times — simplicity done perfectly beats complexity done imperfectly."},
+        {"head": "THE LEICESTER HABIT TODAY", "summary": "Identify the one or two things your team does that need only organisation and effort, and do them without error every match — that is how you become irreplaceable."}
+      ]
+    }
+  ]
+}
