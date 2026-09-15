@@ -269,8 +269,8 @@ function Assistant() {
                       style={{
                         ...S.chip,
                         ...(c.predicted && {
-                          border: "1px solid rgba(74,222,128,.45)",
-                          color: "#4ade80",
+                          border: "1px solid rgba(249,115,22,.45)",
+                          color: "#f97316",
                         }),
                       }}
                       onClick={() => handle(lang === "es" ? c.es : c.en)}

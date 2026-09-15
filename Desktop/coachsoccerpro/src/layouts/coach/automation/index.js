@@ -24,7 +24,7 @@ const AUTOMATIONS = [
     desc: "Auto-send reminders to parents with unpaid dues. Triggers 3 days before due date, on due date, and 3 days after.",
     descEs: "Envía recordatorios automáticos a padres con pagos pendientes. Se activa 3 días antes, el día del vencimiento, y 3 días después.",
     icon: "💳",
-    color: "#4ade80",
+    color: "#f97316",
     enabled: true,
     schedule: "3 days before, on due, 3 days after",
   },
@@ -119,7 +119,7 @@ function Automation() {
           <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
             {["en", "es"].map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
-                background: lang === l ? "#4ade80" : "transparent",
+                background: lang === l ? "#f97316" : "transparent",
                 color: lang === l ? "#000" : "rgba(255,255,255,.6)",
                 border: "none", borderRadius: 18, padding: "4px 14px",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
@@ -197,12 +197,12 @@ function Automation() {
 
         {/* Bottom info */}
         <VuiBox mt={1} sx={{
-          background: "rgba(74,222,128,.06)",
-          border: "1px solid rgba(74,222,128,.15)",
+          background: "rgba(249,115,22,.06)",
+          border: "1px solid rgba(249,115,22,.15)",
           borderRadius: "10px",
           padding: "10px 14px",
         }}>
-          <VuiTypography variant="caption" sx={{ color: "#4ade80", fontSize: 11 }}>
+          <VuiTypography variant="caption" sx={{ color: "#f97316", fontSize: 11 }}>
             {t(
               "Automations run in the background. You'll be notified when actions are taken. All messages are sent from your coach profile.",
               "Las automatizaciones se ejecutan en segundo plano. Serás notificado cuando se tomen acciones. Todos los mensajes se envían desde tu perfil de entrenador."

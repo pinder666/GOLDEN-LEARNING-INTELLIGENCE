@@ -93,8 +93,8 @@ function TeamCodeCard({ teamName, coachData, language }) {
         {code ? (
           <VuiBox display="flex" gap="10px" alignItems="center" flexWrap="wrap">
             <span style={{
-              background: "rgba(74,222,128,.12)", border: "1px solid rgba(74,222,128,.4)",
-              color: "#4ade80", borderRadius: 10, padding: "10px 18px",
+              background: "rgba(249,115,22,.12)", border: "1px solid rgba(249,115,22,.4)",
+              color: "#f97316", borderRadius: 10, padding: "10px 18px",
               fontSize: 18, fontWeight: 800, letterSpacing: ".08em", fontFamily: "Inter,monospace",
             }}>
               {code}
@@ -234,7 +234,7 @@ function CoachSettings() {
 
   const colorPresets = [
     { name: "Blue", primary: "#0075FF", secondary: "#00D4FF" },
-    { name: "Green", primary: "#4CAF50", secondary: "#8BC34A" },
+    { name: "Green", primary: "#f97316", secondary: "#8BC34A" },
     { name: "Purple", primary: "#9C27B0", secondary: "#E040FB" },
     { name: "Orange", primary: "#FF9800", secondary: "#FFEB3B" },
     { name: "Red", primary: "#f44336", secondary: "#FF5722" },

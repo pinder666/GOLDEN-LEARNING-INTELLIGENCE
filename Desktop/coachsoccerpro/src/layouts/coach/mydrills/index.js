@@ -12,7 +12,7 @@ import { CAT_COLORS } from "data/drills";
 // ─── Editor constants ───────────────────────────────────────────────────────
 const W = 720, H = 480;
 const PLAYER_COLS = [
-  { col: "#4ade80", name: "Attacker", nameEs: "Atacante" },
+  { col: "#f97316", name: "Attacker", nameEs: "Atacante" },
   { col: "#ef4444", name: "Defender", nameEs: "Defensor" },
   { col: "#fbbf24", name: "Coach", nameEs: "Entrenador" },
 ];
@@ -66,15 +66,15 @@ function EditorPitch({ players, cones, arrows, positions, tool, tempArrow, onPit
       ))}
       {arrows.map((a, i) => (
         <line key={`a${i}`} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-          stroke={a.col || "#4ade80"} strokeWidth={1.8} strokeOpacity={0.7} markerEnd="url(#edAh)" />
+          stroke={a.col || "#f97316"} strokeWidth={1.8} strokeOpacity={0.7} markerEnd="url(#edAh)" />
       ))}
       {tempArrow && (
         <line x1={tempArrow.x1} y1={tempArrow.y1} x2={tempArrow.x2} y2={tempArrow.y2}
-          stroke="#4ade80" strokeWidth={1.8} strokeOpacity={0.5} strokeDasharray="5,3" />
+          stroke="#f97316" strokeWidth={1.8} strokeOpacity={0.5} strokeDasharray="5,3" />
       )}
       <defs>
         <marker id="edAh" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 Z" fill="#4ade80" />
+          <path d="M0,0 L6,3 L0,6 Z" fill="#f97316" />
         </marker>
       </defs>
 
@@ -214,7 +214,7 @@ function MyDrills() {
       if (d?.type === "arrow") {
         setTempArrow(null);
         if (Math.hypot(pt.x - d.x1, pt.y - d.y1) > 15) {
-          setArrows((prev) => [...prev, { x1: d.x1, y1: d.y1, x2: pt.x, y2: pt.y, col: "#4ade80" }]);
+          setArrows((prev) => [...prev, { x1: d.x1, y1: d.y1, x2: pt.x, y2: pt.y, col: "#f97316" }]);
         }
       }
     }
@@ -399,7 +399,7 @@ function MyDrills() {
           <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
             {["en", "es"].map((l) => (
               <button key={l} onClick={() => setLang(l)} style={{
-                background: lang === l ? "#4ade80" : "transparent",
+                background: lang === l ? "#f97316" : "transparent",
                 color: lang === l ? "#000" : "rgba(255,255,255,.6)",
                 border: "none", borderRadius: 18, padding: "4px 14px",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
@@ -432,7 +432,7 @@ function MyDrills() {
             {aiBusy ? t("Building...", "Creando...") : t("✨ Build with AI", "✨ Crear con IA")}
           </button>
           {aiMsg && (
-            <VuiTypography variant="caption" sx={{ color: aiMsg.ok ? "#4ade80" : "#fbbf24", fontSize: 11, fontWeight: 700 }}>
+            <VuiTypography variant="caption" sx={{ color: aiMsg.ok ? "#f97316" : "#fbbf24", fontSize: 11, fontWeight: 700 }}>
               {aiMsg.text}
             </VuiTypography>
           )}
@@ -466,7 +466,7 @@ function MyDrills() {
               {steps.map((_, i) => (
                 <button key={i} onClick={() => { setCurStep(i); setPreview(false); }} style={{
                   width: 30, height: 30, borderRadius: 8,
-                  background: curStep === i && !preview ? "#4ade80" : "rgba(255,255,255,.08)",
+                  background: curStep === i && !preview ? "#f97316" : "rgba(255,255,255,.08)",
                   color: curStep === i && !preview ? "#000" : "#fff",
                   border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: "Inter,sans-serif",
                 }}>
@@ -490,7 +490,7 @@ function MyDrills() {
               )}
               <div style={{ flex: 1 }} />
               <button onClick={() => setPreview((p) => !p)} disabled={!players.length} style={{
-                background: preview ? "#fbbf24" : players.length ? "#4ade80" : "rgba(255,255,255,.08)",
+                background: preview ? "#fbbf24" : players.length ? "#f97316" : "rgba(255,255,255,.08)",
                 color: preview || players.length ? "#000" : "rgba(255,255,255,.4)",
                 border: "none", borderRadius: 8, padding: "8px 18px",
                 fontSize: 13, fontWeight: 800, cursor: players.length ? "pointer" : "not-allowed", fontFamily: "Inter,sans-serif",
@@ -512,7 +512,7 @@ function MyDrills() {
             ].map((tb) => (
               <button key={tb.key} onClick={() => setTool(tb.key)} title={lang === "es" ? tb.es : tb.en} style={{
                 width: 40, height: 40, borderRadius: 10,
-                background: tool === tb.key ? "#4ade80" : "rgba(255,255,255,.08)",
+                background: tool === tb.key ? "#f97316" : "rgba(255,255,255,.08)",
                 border: "none", fontSize: 17, cursor: "pointer",
               }}>
                 {tb.icon}
@@ -604,7 +604,7 @@ function MyDrills() {
             </VuiBox>
 
             <button onClick={saveDrill} disabled={!meta.title.trim() || !players.length} style={{
-              background: meta.title.trim() && players.length ? "#4ade80" : "rgba(255,255,255,.1)",
+              background: meta.title.trim() && players.length ? "#f97316" : "rgba(255,255,255,.1)",
               color: meta.title.trim() && players.length ? "#000" : "rgba(255,255,255,.4)",
               border: "none", borderRadius: 8, padding: "12px", fontSize: 14, fontWeight: 800,
               cursor: meta.title.trim() && players.length ? "pointer" : "not-allowed", fontFamily: "Inter,sans-serif",
@@ -620,7 +620,7 @@ function MyDrills() {
                 </VuiTypography>
                 {saved.map((d) => (
                   <VuiBox key={d.id} display="flex" alignItems="center" gap="8px" sx={{ py: 0.5 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: CAT_COLORS[d.cat] || "#4ade80", flexShrink: 0 }} />
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: CAT_COLORS[d.cat] || "#f97316", flexShrink: 0 }} />
                     <VuiTypography
                       variant="caption" color="white"
                       sx={{ flex: 1, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}

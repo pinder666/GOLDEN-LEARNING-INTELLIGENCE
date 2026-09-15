@@ -98,7 +98,7 @@ Respond ONLY with valid JSON in this exact shape:
   };
 
   const catColors = {
-    "Scanning": "#4ade80", "Decision Making": "#60a5fa",
+    "Scanning": "#f97316", "Decision Making": "#60a5fa",
     "Positioning": "#a78bfa", "Awareness": "#fbbf24",
     "Technical": "#f97316", "Tactical": "#f43f5e",
   };
@@ -177,7 +177,7 @@ Respond ONLY with valid JSON in this exact shape:
 
             {/* Theme + insight */}
             <VuiBox mb={2} style={{
-              background: "rgba(74,222,128,.07)", border: "1px solid rgba(74,222,128,.2)",
+              background: "rgba(249,115,22,.07)", border: "1px solid rgba(249,115,22,.2)",
               borderRadius: 12, padding: 16,
             }}>
               <VuiTypography variant="h6" color="white" fontWeight="bold" mb={0.5}>
@@ -191,7 +191,7 @@ Respond ONLY with valid JSON in this exact shape:
             {/* Drills */}
             {session.drills.map((item, idx) => {
               const d = item.drill;
-              const col = d ? (catColors[d.cat] || "#4ade80") : "#4ade80";
+              const col = d ? (catColors[d.cat] || "#f97316") : "#f97316";
               return (
                 <VuiBox
                   key={idx}
@@ -269,10 +269,10 @@ Respond ONLY with valid JSON in this exact shape:
 
             {/* SoccerMental link */}
             <VuiBox mt={2} style={{
-              background: "rgba(74,222,128,.06)", border: "1px solid rgba(74,222,128,.15)",
+              background: "rgba(249,115,22,.06)", border: "1px solid rgba(249,115,22,.15)",
               borderRadius: 12, padding: "12px 16px",
             }}>
-              <VuiTypography variant="caption" style={{ color: "#4ade80" }}>
+              <VuiTypography variant="caption" style={{ color: "#f97316" }}>
                 ⚽ Want your players to train these concepts at home? Send them to{" "}
                 <strong>SoccerMental</strong> — 20 minutes a day, 294 training units.
               </VuiTypography>

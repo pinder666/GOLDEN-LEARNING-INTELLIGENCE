@@ -64,8 +64,8 @@ export function PitchCanvas({ drill, playing, speed }) {
   const W = 680, H = 440;
 
   const markerFill = (col) => {
-    if (!col) return "#4ade80";
-    if (col.includes("4ade80")) return "#4ade80";
+    if (!col) return "#f97316";
+    if (col.includes("4ade80")) return "#f97316";
     if (col.includes("ef4444")) return "#ef4444";
     if (col.includes("fbbf24")) return "#fbbf24";
     if (col.includes("60a5fa")) return "#60a5fa";
@@ -79,7 +79,7 @@ export function PitchCanvas({ drill, playing, speed }) {
       {/* Green background with equal padding around pitch */}
       <rect x={0} y={0} width={W} height={H} fill="#1a4a2a"/>
       <defs>
-        {["#4ade80","#ef4444","#fbbf24","#60a5fa","#a78bfa","rgba(255,255,255,.7)"].map((col,i) => (
+        {["#f97316","#ef4444","#fbbf24","#60a5fa","#a78bfa","rgba(255,255,255,.7)"].map((col,i) => (
           <marker key={i} id={`ah${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
             <path d="M0,0 L6,3 L0,6 Z" fill={col} />
           </marker>
@@ -125,9 +125,9 @@ export function PitchCanvas({ drill, playing, speed }) {
           fill={c.col} stroke="rgba(0,0,0,.3)" strokeWidth={.5}/>
       ))}
       {drill.arrows && drill.arrows.map((a,i)=>{
-        const col = a.col||"#4ade80";
+        const col = a.col||"#f97316";
         const mFill = markerFill(col);
-        const mId = ["#4ade80","#ef4444","#fbbf24","#60a5fa","#a78bfa","rgba(255,255,255,.7)"].indexOf(mFill);
+        const mId = ["#f97316","#ef4444","#fbbf24","#60a5fa","#a78bfa","rgba(255,255,255,.7)"].indexOf(mFill);
         return (
           <line key={i} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
             stroke={col} strokeWidth={1.8} strokeOpacity={0.7}
@@ -221,7 +221,7 @@ function CoachDrills() {
     return catOk && ageOk;
   });
 
-  const catColor = CAT_COLORS[activeDrill?.cat] || "#4ade80";
+  const catColor = CAT_COLORS[activeDrill?.cat] || "#f97316";
 
   const t = (en, es) => lang === "es" ? (es || en) : en;
 
@@ -285,7 +285,7 @@ function CoachDrills() {
           <div style={{ display:"flex", gap:4, background:"rgba(255,255,255,.08)", borderRadius:20, padding:3 }}>
             {["en","es"].map(l=>(
               <button key={l} onClick={()=>setLang(l)} style={{
-                background: lang===l ? "#4ade80" : "transparent",
+                background: lang===l ? "#f97316" : "transparent",
                 color: lang===l ? "#000" : "rgba(255,255,255,.6)",
                 border:"none", borderRadius:18, padding:"4px 14px",
                 fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"Inter,sans-serif",
@@ -300,7 +300,7 @@ function CoachDrills() {
         <VuiBox display="flex" gap="6px" flexWrap="wrap" mb={1}>
           {["All", ...(customs.length ? ["Mine"] : []), ...CATS].map(cat=>(
             <button key={cat} onClick={()=>setActiveCat(cat)} style={{
-              background: activeCat===cat ? (cat==="Mine" ? "#22d3ee" : (CAT_COLORS[cat]||"#4ade80")) : "rgba(255,255,255,.08)",
+              background: activeCat===cat ? (cat==="Mine" ? "#22d3ee" : (CAT_COLORS[cat]||"#f97316")) : "rgba(255,255,255,.08)",
               color: activeCat===cat ? "#000" : "#fff",
               border:"none", borderRadius:20, padding:"5px 14px",
               fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"Inter,sans-serif",
@@ -336,7 +336,7 @@ function CoachDrills() {
               return (
                 <VuiBox key={cat} mb={1.5}>
                   <VuiTypography variant="caption" fontWeight="bold" style={{
-                    color:CAT_COLORS[cat]||"#4ade80", textTransform:"uppercase",
+                    color:CAT_COLORS[cat]||"#f97316", textTransform:"uppercase",
                     letterSpacing:".06em", fontSize:10, display:"block", marginBottom:4,
                   }}>
                     {cat}
@@ -354,7 +354,7 @@ function CoachDrills() {
                       border:"none", borderRadius:8, padding:"7px 10px",
                       color:"#fff", fontSize:12, fontWeight:activeDrill?.id===d.id?700:400,
                       cursor:"pointer", fontFamily:"Inter,sans-serif", marginBottom:2,
-                      borderLeft:activeDrill?.id===d.id?`3px solid ${CAT_COLORS[d.cat]||"#4ade80"}`:"3px solid transparent",
+                      borderLeft:activeDrill?.id===d.id?`3px solid ${CAT_COLORS[d.cat]||"#f97316"}`:"3px solid transparent",
                     }}>
                       {lang==="es" ? (d.titleEs||d.title) : d.title}
                     </button>
@@ -379,7 +379,7 @@ function CoachDrills() {
             {/* Controls */}
             <VuiBox display="flex" alignItems="center" gap="6px" mb={1} flexWrap="wrap" sx={{flexShrink:0}}>
               <button onClick={()=>setPlaying(p=>!p)} style={{
-                background: playing?"rgba(255,255,255,.15)":"#4ade80",
+                background: playing?"rgba(255,255,255,.15)":"#f97316",
                 color: playing?"#fff":"#000",
                 border:"none", borderRadius:8, padding:"7px 18px",
                 fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"Inter,sans-serif", minWidth:80,
@@ -411,9 +411,9 @@ function CoachDrills() {
               {/* Assign to players (Pipe C) — vetted library drills only */}
               {activeDrill && !activeDrill.custom && (
                 <button onClick={()=>setAssignOpen(o=>!o)} style={{
-                  background: assignOpen ? "rgba(74,222,128,.15)" : "rgba(255,255,255,.06)",
-                  color: assignOpen ? "#4ade80" : "rgba(255,255,255,.6)",
-                  border:`1px solid ${assignOpen?"rgba(74,222,128,.35)":"rgba(255,255,255,.12)"}`,
+                  background: assignOpen ? "rgba(249,115,22,.15)" : "rgba(255,255,255,.06)",
+                  color: assignOpen ? "#f97316" : "rgba(255,255,255,.6)",
+                  border:`1px solid ${assignOpen?"rgba(249,115,22,.35)":"rgba(255,255,255,.12)"}`,
                   borderRadius:8, padding:"7px 14px",
                   fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"Inter,sans-serif",
                 }}>
@@ -421,7 +421,7 @@ function CoachDrills() {
                 </button>
               )}
               {assignMsg && (
-                <span style={{color:"#4ade80",fontSize:11,fontWeight:700,fontFamily:"Inter,sans-serif"}}>
+                <span style={{color:"#f97316",fontSize:11,fontWeight:700,fontFamily:"Inter,sans-serif"}}>
                   {assignMsg}
                 </span>
               )}
@@ -443,12 +443,12 @@ function CoachDrills() {
             {/* Assign panel — ALL or a selected set (ruled payload) */}
             {assignOpen && activeDrill && !activeDrill.custom && (
               <VuiBox mb={1} style={{
-                background:"rgba(74,222,128,.07)", border:"1px solid rgba(74,222,128,.25)",
+                background:"rgba(249,115,22,.07)", border:"1px solid rgba(249,115,22,.25)",
                 borderRadius:12, padding:"12px 16px",
               }}>
                 <VuiBox display="flex" alignItems="center" gap="8px" flexWrap="wrap">
                   <button onClick={()=>sendAssignment("all")} style={{
-                    background:"#4ade80", color:"#000", border:"none", borderRadius:8,
+                    background:"#f97316", color:"#000", border:"none", borderRadius:8,
                     padding:"7px 16px", fontSize:12, fontWeight:800, cursor:"pointer",
                     fontFamily:"Inter,sans-serif",
                   }}>
@@ -459,9 +459,9 @@ function CoachDrills() {
                     <button key={p.ref} onClick={()=>setAssignSel(s=>{
                       const n = new Set(s); n.has(p.ref)?n.delete(p.ref):n.add(p.ref); return n;
                     })} style={{
-                      background: assignSel.has(p.ref)?"rgba(74,222,128,.25)":"rgba(255,255,255,.06)",
-                      color: assignSel.has(p.ref)?"#4ade80":"rgba(255,255,255,.7)",
-                      border:`1px solid ${assignSel.has(p.ref)?"rgba(74,222,128,.5)":"rgba(255,255,255,.15)"}`,
+                      background: assignSel.has(p.ref)?"rgba(249,115,22,.25)":"rgba(255,255,255,.06)",
+                      color: assignSel.has(p.ref)?"#f97316":"rgba(255,255,255,.7)",
+                      border:`1px solid ${assignSel.has(p.ref)?"rgba(249,115,22,.5)":"rgba(255,255,255,.15)"}`,
                       borderRadius:16, padding:"5px 12px", fontSize:11, fontWeight:600,
                       cursor:"pointer", fontFamily:"Inter,sans-serif",
                     }}>
@@ -470,8 +470,8 @@ function CoachDrills() {
                   ))}
                   {assignSel.size>0 && (
                     <button onClick={()=>sendAssignment([...assignSel])} style={{
-                      background:"rgba(74,222,128,.2)", color:"#4ade80",
-                      border:"1px solid rgba(74,222,128,.5)", borderRadius:8,
+                      background:"rgba(249,115,22,.2)", color:"#f97316",
+                      border:"1px solid rgba(249,115,22,.5)", borderRadius:8,
                       padding:"7px 14px", fontSize:12, fontWeight:800, cursor:"pointer",
                       fontFamily:"Inter,sans-serif",
                     }}>
@@ -499,7 +499,7 @@ function CoachDrills() {
                     {t("SEND TO PARENTS AFTER SESSION","ENVIAR A PADRES DESPUÉS DE LA SESIÓN")}
                   </VuiTypography>
                   <button onClick={handleCopyParent} style={{
-                    background: copied ? "#4ade80" : "rgba(96,165,250,.2)",
+                    background: copied ? "#f97316" : "rgba(96,165,250,.2)",
                     color: copied ? "#000" : "#60a5fa",
                     border:"none", borderRadius:6, padding:"4px 12px",
                     fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"Inter,sans-serif",
@@ -596,10 +596,10 @@ function CoachDrills() {
 
                 {activeDrill.sm && (
                   <VuiBox style={{
-                    background:"rgba(74,222,128,.07)", borderRadius:6, padding:"6px 10px",
-                    border:"1px solid rgba(74,222,128,.2)", marginTop:4,
+                    background:"rgba(249,115,22,.07)", borderRadius:6, padding:"6px 10px",
+                    border:"1px solid rgba(249,115,22,.2)", marginTop:4,
                   }}>
-                    <VuiTypography variant="caption" style={{color:"#4ade80",fontSize:10}}>
+                    <VuiTypography variant="caption" style={{color:"#f97316",fontSize:10}}>
                       ⚽ SoccerMental — {activeDrill.smUnit}
                     </VuiTypography>
                   </VuiBox>

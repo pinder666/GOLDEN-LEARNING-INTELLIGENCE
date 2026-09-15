@@ -39,7 +39,7 @@ function PitchBg() {
 function Defs() {
   return (
     <defs>
-      {["#4ade80","#ef4444","#fbbf24","#60a5fa","#ffffff"].map((col,i)=>(
+      {["#f97316","#ef4444","#fbbf24","#60a5fa","#ffffff"].map((col,i)=>(
         <marker key={i} id={`tm${i}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
           <path d="M0,0 L6,3 L0,6 Z" fill={col}/>
         </marker>
@@ -53,7 +53,7 @@ function Defs() {
 }
 
 function arrowMarker(col) {
-  const cols = ["#4ade80","#ef4444","#fbbf24","#60a5fa","#ffffff"];
+  const cols = ["#f97316","#ef4444","#fbbf24","#60a5fa","#ffffff"];
   const i = cols.indexOf(col);
   return `url(#tm${i<0?4:i})`;
 }
@@ -66,12 +66,12 @@ function TacticsBoard() {
 
   // Custom play state
   const [customPlayers, setCustomPlayers] = useState([
-    {id:"cp1",x:100,y:220,col:"#4ade80",lbl:"1",role:"Player 1"},
-    {id:"cp2",x:200,y:180,col:"#4ade80",lbl:"2",role:"Player 2"},
-    {id:"cp3",x:200,y:260,col:"#4ade80",lbl:"3",role:"Player 3"},
-    {id:"cp4",x:300,y:220,col:"#4ade80",lbl:"4",role:"Player 4"},
-    {id:"cp5",x:400,y:200,col:"#4ade80",lbl:"5",role:"Player 5"},
-    {id:"cp6",x:400,y:240,col:"#4ade80",lbl:"6",role:"Player 6"},
+    {id:"cp1",x:100,y:220,col:"#f97316",lbl:"1",role:"Player 1"},
+    {id:"cp2",x:200,y:180,col:"#f97316",lbl:"2",role:"Player 2"},
+    {id:"cp3",x:200,y:260,col:"#f97316",lbl:"3",role:"Player 3"},
+    {id:"cp4",x:300,y:220,col:"#f97316",lbl:"4",role:"Player 4"},
+    {id:"cp5",x:400,y:200,col:"#f97316",lbl:"5",role:"Player 5"},
+    {id:"cp6",x:400,y:240,col:"#f97316",lbl:"6",role:"Player 6"},
     {id:"cd1",x:450,y:180,col:"#ef4444",lbl:"D",role:"Defender 1"},
     {id:"cd2",x:450,y:260,col:"#ef4444",lbl:"D",role:"Defender 2"},
     {id:"cgk",x:615,y:220,col:"#f59e0b",lbl:"GK",role:"Goalkeeper"},
@@ -79,7 +79,7 @@ function TacticsBoard() {
   const [customArrows, setCustomArrows] = useState([]);
   const [drawMode, setDrawMode] = useState(false);
   const [drawStart, setDrawStart] = useState(null);
-  const [arrowColor, setArrowColor] = useState("#4ade80");
+  const [arrowColor, setArrowColor] = useState("#f97316");
   const [savedPlays, setSavedPlays] = useState(() => {
     try { return JSON.parse(localStorage.getItem("csp_custom_plays") || "[]"); } catch { return []; }
   });
@@ -188,7 +188,7 @@ function TacticsBoard() {
           {[["coach", lang==="es"?"🏆 Juegos de Élite":"🏆 Elite Plays"],
             ["custom", lang==="es"?"✏️ Mi Juego":"✏️ My Play"]].map(([m,lbl])=>(
             <button key={m} onClick={()=>setMode(m)} style={{
-              background:mode===m?"#4ade80":"rgba(255,255,255,.08)",
+              background:mode===m?"#f97316":"rgba(255,255,255,.08)",
               color:mode===m?"#000":"#fff",
               border:"none",borderRadius:20,padding:"6px 18px",
               fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"Inter,sans-serif",
@@ -198,7 +198,7 @@ function TacticsBoard() {
           <div style={{display:"flex",gap:4,background:"rgba(255,255,255,.08)",borderRadius:20,padding:3}}>
             {["en","es"].map(l=>(
               <button key={l} onClick={()=>setLang(l)} style={{
-                background:lang===l?"#4ade80":"transparent",
+                background:lang===l?"#f97316":"transparent",
                 color:lang===l?"#000":"rgba(255,255,255,.6)",
                 border:"none",borderRadius:18,padding:"4px 14px",
                 fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"Inter,sans-serif",
@@ -257,7 +257,7 @@ function TacticsBoard() {
                     {lang==="es"?"Color de Flecha":"Arrow Color"}
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    {["#4ade80","#ef4444","#fbbf24","#60a5fa","#ffffff"].map(col=>(
+                    {["#f97316","#ef4444","#fbbf24","#60a5fa","#ffffff"].map(col=>(
                       <button key={col} onClick={()=>setArrowColor(col)} style={{
                         width:22,height:22,borderRadius:"50%",background:col,
                         border:arrowColor===col?"3px solid #fff":"2px solid rgba(255,255,255,.2)",
@@ -305,7 +305,7 @@ function TacticsBoard() {
                   }}
                 />
                 <button onClick={savePlay} style={{
-                  width:"100%",background:"#4ade80",color:"#000",
+                  width:"100%",background:"#f97316",color:"#000",
                   border:"none",borderRadius:8,padding:"7px",
                   fontSize:12,fontWeight:700,cursor:"pointer",
                   fontFamily:"Inter,sans-serif",marginBottom:12,
@@ -365,9 +365,9 @@ function TacticsBoard() {
                 {/* Arrows */}
                 {displayArrows && displayArrows.map((a,i)=>(
                   <line key={i} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
-                    stroke={a.col||"#4ade80"} strokeWidth={2} strokeOpacity={0.75}
+                    stroke={a.col||"#f97316"} strokeWidth={2} strokeOpacity={0.75}
                     strokeDasharray={a.dash?"6,3":"none"}
-                    markerEnd={arrowMarker(a.col||"#4ade80")}/>
+                    markerEnd={arrowMarker(a.col||"#f97316")}/>
                 ))}
 
                 {/* Draw preview */}
@@ -454,10 +454,10 @@ function TacticsBoard() {
 
                 {selectedPlay.smUnits && selectedPlay.smUnits.length > 0 && (
                   <VuiBox style={{
-                    background:"rgba(74,222,128,.07)",borderRadius:8,padding:"10px 12px",
-                    border:"1px solid rgba(74,222,128,.2)",
+                    background:"rgba(249,115,22,.07)",borderRadius:8,padding:"10px 12px",
+                    border:"1px solid rgba(249,115,22,.2)",
                   }}>
-                    <div style={{color:"#4ade80",fontSize:10,fontWeight:700,fontFamily:"Inter,sans-serif",marginBottom:6,textTransform:"uppercase",letterSpacing:".04em"}}>
+                    <div style={{color:"#f97316",fontSize:10,fontWeight:700,fontFamily:"Inter,sans-serif",marginBottom:6,textTransform:"uppercase",letterSpacing:".04em"}}>
                       ⚽ {lang==="es"?"Unidades SoccerMental relacionadas":"SoccerMental Units"}
                     </div>
                     {selectedPlay.smUnits.map((u,i)=>(

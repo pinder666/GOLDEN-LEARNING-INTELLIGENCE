@@ -29,7 +29,7 @@ const ROSTER = [
   { id: 6, name: "Olivia D." },
 ];
 
-const LOCK_COLORS = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"];
+const LOCK_COLORS = ["#f97316", "#60a5fa", "#f472b6", "#fbbf24"];
 
 // ─── LIVE CAPTURE — film through the app, the blinker coaches the filmer ───
 function LiveCapture({ scenario, lang, onDone, onCancel }) {
@@ -41,7 +41,7 @@ function LiveCapture({ scenario, lang, onDone, onCancel }) {
   const [ready, setReady] = useState(false);
   const [rec, setRec] = useState(false);
   const [secs, setSecs] = useState(0);
-  const [hint, setHint] = useState({ text: "", color: "#4ade80", good: true });
+  const [hint, setHint] = useState({ text: "", color: "#f97316", good: true });
 
   const t = (en, es) => (lang === "es" ? es : en);
   const cap = scenario === "open" ? 90 : 30;
@@ -84,7 +84,7 @@ function LiveCapture({ scenario, lang, onDone, onCancel }) {
             } else if (scenario !== "open" && people.length < 2) {
               setHint({ text: t("GET BOTH PLAYERS IN", "INCLUYE A AMBOS JUGADORES"), color: "#60a5fa", good: false });
             } else {
-              setHint({ text: t("✓ GOOD — FILM THE MOMENT", "✓ BIEN — GRABA EL MOMENTO"), color: "#4ade80", good: true });
+              setHint({ text: t("✓ GOOD — FILM THE MOMENT", "✓ BIEN — GRABA EL MOMENTO"), color: "#f97316", good: true });
             }
           } catch { /* guidance is best-effort */ } finally {
             busyRef.current = false;
@@ -771,7 +771,7 @@ function VideoAnalysis() {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return "#4ade80";
+    if (score >= 80) return "#f97316";
     if (score >= 60) return "#fbbf24";
     return "#ef4444";
   };
@@ -837,7 +837,7 @@ function VideoAnalysis() {
             <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
               {["en", "es"].map(l => (
                 <button key={l} onClick={() => setLang(l)} style={{
-                  background: lang === l ? "#4ade80" : "transparent",
+                  background: lang === l ? "#f97316" : "transparent",
                   color: lang === l ? "#000" : "rgba(255,255,255,.6)",
                   border: "none", borderRadius: 18, padding: "4px 14px",
                   fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
@@ -909,7 +909,7 @@ function VideoAnalysis() {
                     onClick={() => setCapturing(true)}
                     style={{
                       position: "relative", zIndex: 2, marginTop: 18,
-                      background: "#4ade80", color: "#000", border: "none",
+                      background: "#f97316", color: "#000", border: "none",
                       borderRadius: 10, padding: "12px 26px", fontSize: 14,
                       fontWeight: 800, cursor: "pointer", fontFamily: "Inter,sans-serif",
                     }}
@@ -941,12 +941,12 @@ function VideoAnalysis() {
             {/* THE RITUAL — step prompts, no toggles, no memory needed */}
             {videoUrl && !analyzing && !results && (step === "players" || step === "ball") && (
               <VuiBox sx={{
-                background: step === "players" ? "rgba(74,222,128,.10)" : "rgba(251,146,60,.10)",
-                border: `1px solid ${step === "players" ? "rgba(74,222,128,.35)" : "rgba(251,146,60,.35)"}`,
+                background: step === "players" ? "rgba(249,115,22,.10)" : "rgba(251,146,60,.10)",
+                border: `1px solid ${step === "players" ? "rgba(249,115,22,.35)" : "rgba(251,146,60,.35)"}`,
                 borderRadius: "10px", padding: "12px 16px",
                 display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap",
               }}>
-                <VuiTypography variant="button" sx={{ color: step === "players" ? "#4ade80" : "#fb923c", fontWeight: 800 }}>
+                <VuiTypography variant="button" sx={{ color: step === "players" ? "#f97316" : "#fb923c", fontWeight: 800 }}>
                   {step === "players"
                     ? `1/3 — ${t("Tap a player to lock on", "Toca un jugador para fijarlo")}`
                     : `2/3 — ${t("Now tap the ball", "Ahora toca el balón")}`}
@@ -974,7 +974,7 @@ function VideoAnalysis() {
                     onClick={() => setStep("ball")}
                     disabled={anchors.length < 1}
                     style={{
-                      background: anchors.length >= 1 ? "#4ade80" : "rgba(255,255,255,.1)",
+                      background: anchors.length >= 1 ? "#f97316" : "rgba(255,255,255,.1)",
                       color: anchors.length >= 1 ? "#000" : "rgba(255,255,255,.4)",
                       border: "none", borderRadius: 8, padding: "8px 18px",
                       fontSize: 12, fontWeight: 800, cursor: "pointer", fontFamily: "Inter,sans-serif",
@@ -1018,7 +1018,7 @@ function VideoAnalysis() {
                     disabled={analyzing}
                     style={{
                       width: 30, height: 30, borderRadius: "50%",
-                      background: targetIndex === i ? "#4ade80" : "rgba(255,255,255,.1)",
+                      background: targetIndex === i ? "#f97316" : "rgba(255,255,255,.1)",
                       color: targetIndex === i ? "#000" : "#fff",
                       border: targetIndex === i ? "none" : "1px solid rgba(255,255,255,.25)",
                       fontSize: 14, fontWeight: 800, cursor: "pointer",
@@ -1035,7 +1035,7 @@ function VideoAnalysis() {
             {videoUrl && (step === "ready" || results || analyzing) && (
               <VuiBox display="flex" gap="10px" flexWrap="wrap">
                 <button onClick={analyzeVideo} disabled={analyzing} style={{
-                  background: analyzing ? "rgba(255,255,255,.1)" : "#4ade80",
+                  background: analyzing ? "rgba(255,255,255,.1)" : "#f97316",
                   color: analyzing ? "rgba(255,255,255,.5)" : "#000",
                   border: "none", borderRadius: 8, padding: "10px 24px",
                   fontSize: 13, fontWeight: 700, cursor: analyzing ? "not-allowed" : "pointer",
@@ -1172,8 +1172,8 @@ function VideoAnalysis() {
                     ))}
                   </select>
                   <button onClick={saveTag} disabled={!taggedPlayer} style={{
-                    background: tagSaved ? "#4ade80" : taggedPlayer ? "rgba(74,222,128,.25)" : "rgba(255,255,255,.08)",
-                    color: tagSaved ? "#000" : taggedPlayer ? "#4ade80" : "rgba(255,255,255,.35)",
+                    background: tagSaved ? "#f97316" : taggedPlayer ? "rgba(249,115,22,.25)" : "rgba(255,255,255,.08)",
+                    color: tagSaved ? "#000" : taggedPlayer ? "#f97316" : "rgba(255,255,255,.35)",
                     border: "none", borderRadius: 8, padding: "7px 12px",
                     fontSize: 12, fontWeight: 700, cursor: taggedPlayer ? "pointer" : "default",
                     fontFamily: "Inter,sans-serif", whiteSpace: "nowrap",
@@ -1225,10 +1225,10 @@ function VideoAnalysis() {
                 )}
 
                 <VuiBox mt="auto" sx={{
-                  background: "rgba(74,222,128,.08)", border: "1px solid rgba(74,222,128,.2)",
+                  background: "rgba(249,115,22,.08)", border: "1px solid rgba(249,115,22,.2)",
                   borderRadius: "8px", padding: "10px 12px",
                 }}>
-                  <VuiTypography variant="caption" sx={{ color: "#4ade80", fontSize: 11 }}>
+                  <VuiTypography variant="caption" sx={{ color: "#f97316", fontSize: 11 }}>
                     {scenario === "penalty"
                       ? t(
                           "💡 Film penalties from behind or beside the taker, with the keeper in frame.",
@@ -1246,7 +1246,7 @@ function VideoAnalysis() {
                 <div style={{ display: "flex", gap: 6 }}>
                   {[0, 1, 2].map(i => (
                     <span key={i} style={{
-                      width: 10, height: 10, borderRadius: "50%", background: "#4ade80",
+                      width: 10, height: 10, borderRadius: "50%", background: "#f97316",
                       animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
                     }} />
                   ))}

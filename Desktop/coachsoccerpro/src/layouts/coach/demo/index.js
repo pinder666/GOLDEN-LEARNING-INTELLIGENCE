@@ -12,7 +12,7 @@ export const DEMOS = [
     titleEs: "Gestionar Tu Plantilla",
     duration: "2 min",
     icon: "👥",
-    color: "#4ade80",
+    color: "#f97316",
     steps: [
       { en: "Go to Roster tab", es: "Ve a la pestaña Plantilla" },
       { en: "Click 'Add Player' to add a new player", es: "Haz clic en 'Agregar Jugador'" },
@@ -142,7 +142,7 @@ export const DEMOS = [
     titleEs: "El Asistente",
     duration: "1 min",
     icon: "⚡",
-    color: "#4ade80",
+    color: "#f97316",
     steps: [
       { en: "Tap the ⚡ bolt in the corner of any page", es: "Toca el rayo ⚡ en la esquina de cualquier página" },
       { en: "Ask how anything works — it answers with the steps", es: "Pregunta cómo funciona algo — responde con los pasos" },
@@ -192,7 +192,7 @@ function Demo() {
           <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
             {["en", "es"].map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
-                background: lang === l ? "#4ade80" : "transparent",
+                background: lang === l ? "#f97316" : "transparent",
                 color: lang === l ? "#000" : "rgba(255,255,255,.6)",
                 border: "none", borderRadius: 18, padding: "4px 14px",
                 fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",

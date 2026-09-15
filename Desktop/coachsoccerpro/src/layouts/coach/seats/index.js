@@ -103,7 +103,7 @@ function Seats() {
                   ${due}
                 </VuiTypography>
                 {!handGift && offset > 0 && (
-                  <VuiTypography variant="button" sx={{ color: "#4ade80", fontWeight: 700 }}>
+                  <VuiTypography variant="button" sx={{ color: "#f97316", fontWeight: 700 }}>
                     ${FEE} − ${offset}
                   </VuiTypography>
                 )}
@@ -135,7 +135,7 @@ function Seats() {
                   <VuiBox sx={{ mt: 1, height: 10, borderRadius: 5, background: "rgba(255,255,255,.1)", overflow: "hidden" }}>
                     <VuiBox sx={{
                       width: `${Math.min(100, (count / nextRung.at) * 100)}%`, height: "100%",
-                      background: "linear-gradient(90deg,#4ade80,#22d3ee)",
+                      background: "linear-gradient(90deg,#f97316,#22d3ee)",
                     }} />
                   </VuiBox>
                 </>
@@ -172,7 +172,7 @@ function Seats() {
                 ? { bg: "rgba(96,165,250,.15)", col: "#60a5fa", label: t("TRIAL", "PRUEBA") }
                 : status === "churned"
                 ? { bg: "rgba(255,255,255,.08)", col: "rgba(255,255,255,.4)", label: t("LEFT", "SE FUE") }
-                : { bg: "rgba(74,222,128,.15)", col: "#4ade80", label: t("ACTIVE", "ACTIVA") };
+                : { bg: "rgba(249,115,22,.15)", col: "#f97316", label: t("ACTIVE", "ACTIVA") };
             return (
               <VuiBox key={s.player_ref} sx={{
                 background: "rgba(255,255,255,.04)",
