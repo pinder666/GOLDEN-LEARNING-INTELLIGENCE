@@ -16,28 +16,32 @@ import { supabase } from "services/supabase";
 import { DEV_MODE } from "devMode";
 
 const FEE = 99;
-// Ladder rungs (display only; SM's ladder_state string wins when present)
-const RUNGS = [
-  { at: 20, en: "your fee reaches $0", es: "tu cuota llega a $0" },
-  { at: 35, en: "free assistant-coach seat", es: "asiento gratis de asistente" },
-  { at: 50, en: "your club on the stadium boards", es: "tu club en las vallas del estadio" },
-];
+// SM's ladder_state object is authoritative: {rung, seats_active, seats_to_next}
+const RUNG_NEXT = {
+  none: { at: 20, en: "your fee reaches $0", es: "tu cuota llega a $0" },
+  fee_zero: { at: 35, en: "free assistant-coach seat", es: "asiento gratis de asistente" },
+  assistant_seat: { at: 50, en: "your club on the stadium boards", es: "tu club en las vallas del estadio" },
+  boards_founding: null, // top of the ladder
+};
 
+// SM final spec: 9-field progress_card, status trial|active|churned,
+// founding = boolean on the seat, last_active is a bucket string.
+const pc = (o) => ({ latest_badge: null, stage_label: "", from_your_coach: { assigned: 0, opened: 0 }, ...o });
 const DEMO_CACHE = {
   as_of: new Date().toISOString(),
   seat_count_active: 9,
   offset_usd: 45,
-  ladder_state: "climbing",
+  ladder_state: { rung: "none", seats_active: 9, seats_to_next: 11 },
   seats: [
-    { player_ref: "PLR-8347", player_alias: "Marcus J.", status: "founding", progress_card: { days_sealed: 34, current_streak: 6, preseason_status: "graduated", last_sealed_date: "2026-09-13", sessions_this_week: 4 } },
-    { player_ref: "PLR-2210", player_alias: "Sofia G.", status: "founding", progress_card: { days_sealed: 41, current_streak: 12, preseason_status: "graduated", last_sealed_date: "2026-09-14", sessions_this_week: 5 } },
-    { player_ref: "PLR-9921", player_alias: "Liam S.", status: "preseason", progress_card: { days_sealed: 3, current_streak: 3, preseason_status: "day 3 of 7", last_sealed_date: "2026-09-14", sessions_this_week: 3 } },
-    { player_ref: "PLR-4470", player_alias: "Emma W.", status: "founding", progress_card: { days_sealed: 27, current_streak: 0, preseason_status: "graduated", last_sealed_date: "2026-09-08", sessions_this_week: 0 } },
-    { player_ref: "PLR-1183", player_alias: "Noah B.", status: "founding", progress_card: { days_sealed: 19, current_streak: 2, preseason_status: "graduated", last_sealed_date: "2026-09-13", sessions_this_week: 2 } },
-    { player_ref: "PLR-7752", player_alias: "Olivia D.", status: "founding", progress_card: { days_sealed: 22, current_streak: 4, preseason_status: "graduated", last_sealed_date: "2026-09-14", sessions_this_week: 3 } },
-    { player_ref: "PLR-3319", player_alias: "Ava M.", status: "preseason", progress_card: { days_sealed: 1, current_streak: 1, preseason_status: "day 1 of 7", last_sealed_date: "2026-09-14", sessions_this_week: 1 } },
-    { player_ref: "PLR-6604", player_alias: "Ethan T.", status: "founding", progress_card: { days_sealed: 15, current_streak: 5, preseason_status: "graduated", last_sealed_date: "2026-09-14", sessions_this_week: 4 } },
-    { player_ref: "PLR-5588", player_alias: "Mia R.", status: "founding", progress_card: { days_sealed: 30, current_streak: 9, preseason_status: "graduated", last_sealed_date: "2026-09-14", sessions_this_week: 5 } },
+    { player_ref: "SM-8A3F02B41C9D", founding: true, progress_card: pc({ player_alias: "Marcus J.", status: "active", days_sealed: 34, current_streak: 6, last_active: "today", sessions_this_week: 4, latest_badge: "Perfect Week", stage_label: "Foundation — Day 5", from_your_coach: { assigned: 2, opened: 2 } }) },
+    { player_ref: "SM-22C10FE97A55", founding: true, progress_card: pc({ player_alias: "Sofia G.", status: "active", days_sealed: 41, current_streak: 12, last_active: "today", sessions_this_week: 5, latest_badge: "Iron Will", stage_label: "First Team" }) },
+    { player_ref: "SM-99D21B6E4F08", founding: false, progress_card: pc({ player_alias: "Liam S.", status: "trial", days_sealed: 3, current_streak: 3, last_active: "today", sessions_this_week: 3, stage_label: "Preseason — Day 3" }) },
+    { player_ref: "SM-4470AC55D2E1", founding: true, progress_card: pc({ player_alias: "Emma W.", status: "active", days_sealed: 27, current_streak: 0, last_active: "quiet 2+ weeks", sessions_this_week: 0, latest_badge: "First Goal", stage_label: "Foundation — Day 7" }) },
+    { player_ref: "SM-1183FE09B7C2", founding: true, progress_card: pc({ player_alias: "Noah B.", status: "active", days_sealed: 19, current_streak: 2, last_active: "this week", sessions_this_week: 2, stage_label: "Foundation — Day 4" }) },
+    { player_ref: "SM-7752D3A18E64", founding: true, progress_card: pc({ player_alias: "Olivia D.", status: "active", days_sealed: 22, current_streak: 4, last_active: "today", sessions_this_week: 3, stage_label: "Foundation — Day 6" }) },
+    { player_ref: "SM-3319B8C4F1D7", founding: false, progress_card: pc({ player_alias: "Ava M.", status: "trial", days_sealed: 1, current_streak: 1, last_active: "today", sessions_this_week: 1, stage_label: "Preseason — Day 1" }) },
+    { player_ref: "SM-6604E2F91A3B", founding: true, progress_card: pc({ player_alias: "Ethan T.", status: "active", days_sealed: 15, current_streak: 5, last_active: "today", sessions_this_week: 4, stage_label: "Foundation — Day 3" }) },
+    { player_ref: "SM-5588C7D20B9E", founding: true, progress_card: pc({ player_alias: "Mia R.", status: "active", days_sealed: 30, current_streak: 9, last_active: "today", sessions_this_week: 5, latest_badge: "Most Improved", stage_label: "Foundation — Day 7" }) },
   ],
 };
 
@@ -62,16 +66,15 @@ function Seats() {
   }, [coachData]);
 
   const seats = cache?.seats || [];
-  const count = cache?.seat_count_active ?? 0;
+  const ladder = cache?.ladder_state || { rung: "none", seats_active: cache?.seat_count_active ?? 0, seats_to_next: null };
+  const count = ladder.seats_active ?? cache?.seat_count_active ?? 0;
   const offset = Number(cache?.offset_usd ?? 0);
   const due = handGift ? 0 : Math.max(0, FEE - offset);
-  const nextRung = RUNGS.find((r) => count < r.at);
+  const nextRung = RUNG_NEXT[ladder.rung] ?? null;
   const savings = count * 10; // $10/mo team-rate value per family — the pitch line
 
-  const quiet = (card) => {
-    const d = card?.last_sealed_date ? (Date.now() - new Date(card.last_sealed_date)) / 86400000 : 99;
-    return d >= 5;
-  };
+  // SM sends last_active as a bucket string; "quiet" is the nudge trigger
+  const quiet = (card) => (card?.last_active || "").includes("quiet");
 
   return (
     <DashboardLayout>
@@ -162,31 +165,44 @@ function Seats() {
           )}
           {seats.map((s) => {
             const c = s.progress_card || {};
+            const status = c.status || s.status || "active";
             const isQuiet = quiet(c);
+            const chip =
+              status === "trial"
+                ? { bg: "rgba(96,165,250,.15)", col: "#60a5fa", label: t("TRIAL", "PRUEBA") }
+                : status === "churned"
+                ? { bg: "rgba(255,255,255,.08)", col: "rgba(255,255,255,.4)", label: t("LEFT", "SE FUE") }
+                : { bg: "rgba(74,222,128,.15)", col: "#4ade80", label: t("ACTIVE", "ACTIVA") };
             return (
               <VuiBox key={s.player_ref} sx={{
                 background: "rgba(255,255,255,.04)",
                 border: `1px solid ${isQuiet ? "rgba(251,191,36,.4)" : "rgba(255,255,255,.08)"}`,
                 borderRadius: "12px", padding: "12px 14px",
+                opacity: status === "churned" ? 0.55 : 1,
               }}>
-                <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={0.5}>
                   <VuiTypography variant="button" color="white" fontWeight="bold">
-                    {s.player_alias}
+                    {c.player_alias || s.player_alias}
+                    {s.founding && <span title={t("Founding family", "Familia fundadora")} style={{ marginLeft: 6, fontSize: 10 }}>⭐</span>}
                   </VuiTypography>
                   <span style={{
                     fontSize: 9, fontWeight: 800, borderRadius: 10, padding: "2px 8px",
-                    background: s.status === "preseason" ? "rgba(96,165,250,.15)" : "rgba(74,222,128,.15)",
-                    color: s.status === "preseason" ? "#60a5fa" : "#4ade80",
-                    textTransform: "uppercase",
+                    background: chip.bg, color: chip.col, textTransform: "uppercase",
                   }}>
-                    {s.status === "preseason" ? (c.preseason_status || "preseason") : s.status}
+                    {chip.label}
                   </span>
                 </VuiBox>
+                {c.stage_label && (
+                  <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.45)", fontSize: 9.5, display: "block", mb: 0.75 }}>
+                    {c.stage_label}{c.latest_badge ? ` · 🏅 ${c.latest_badge}` : ""}
+                  </VuiTypography>
+                )}
                 <VuiBox display="flex" gap="12px" flexWrap="wrap">
                   {[
                     [c.days_sealed ?? 0, t("days sealed", "días sellados")],
                     [`🔥 ${c.current_streak ?? 0}`, t("streak", "racha")],
                     [c.sessions_this_week ?? 0, t("this week", "esta semana")],
+                    [`${c.from_your_coach?.opened ?? 0}/${c.from_your_coach?.assigned ?? 0}`, t("your drills", "tus ejercicios")],
                   ].map(([v, l], i) => (
                     <VuiBox key={i} textAlign="center">
                       <VuiTypography variant="button" color="white" fontWeight="bold" sx={{ display: "block", fontSize: 14 }}>
