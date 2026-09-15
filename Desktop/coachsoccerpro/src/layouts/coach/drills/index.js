@@ -74,8 +74,8 @@ export function PitchCanvas({ drill, playing, speed }) {
   };
 
   return (
-    <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`}
-      style={{ width:"100%", height:"auto", maxHeight:"100%", display:"block", background:"#1a4a2a", borderRadius:10 }}>
+    <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
+      style={{ width:"100%", height:"100%", display:"block", background:"#1a4a2a", borderRadius:10 }}>
       {/* Green background with equal padding around pitch */}
       <rect x={0} y={0} width={W} height={H} fill="#1a4a2a"/>
       <defs>
@@ -371,8 +371,8 @@ function CoachDrills() {
 
           {/* Pitch + info */}
           <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflow:"hidden"}}>
-            {/* pitch fills the column width — big, like the artifact */}
-            <VuiBox sx={{flexShrink:0, borderRadius:"12px", overflow:"hidden"}}>
+            {/* pitch takes ALL remaining space, scaled whole so green never clips */}
+            <VuiBox sx={{flex:1, minHeight:0, borderRadius:"12px", overflow:"hidden", display:"flex"}}>
               <PitchCanvas drill={activeDrill} playing={playing} speed={speed}/>
             </VuiBox>
 
@@ -523,7 +523,7 @@ function CoachDrills() {
               <VuiBox sx={{
                 background:"rgba(255,255,255,.05)", borderRadius:"10px",
                 padding:"12px 14px", borderLeft:`3px solid ${catColor}`,
-                flexShrink:0, maxHeight:"38%", overflowY:"auto",
+                flexShrink:0, maxHeight:"170px", overflowY:"auto",
                 scrollbarWidth:"none", "&::-webkit-scrollbar":{display:"none"},
               }}>
                 <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
