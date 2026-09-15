@@ -66,6 +66,16 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const [controller, dispatch] = useVisionUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
   const [openMenu, setOpenMenu] = useState(false);
+
+  // Global voice mute (services/voice.js reads the same flag)
+  const [voiceMuted, setVoiceMuted] = useState(() => {
+    try { return localStorage.getItem("csp_muted") === "1"; } catch (e) { return false; }
+  });
+  const toggleVoiceMute = () => {
+    const next = !voiceMuted;
+    setVoiceMuted(next);
+    import("services/voice").then((v) => v.setMuted(next));
+  };
   const route = useLocation().pathname.split("/").slice(1);
 
   useEffect(() => {
@@ -163,6 +173,18 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 onClick={handleMiniSidenav}
               >
                 <Icon color="white">{miniSidenav ? "menu_open" : "menu"}</Icon>
+              </IconButton>
+              {/* Global voice mute — silences every coach voice in the app */}
+              <IconButton
+                size="small"
+                color="white"
+                sx={navbarIconButton}
+                title={voiceMuted ? "Unmute voices" : "Mute voices"}
+                onClick={toggleVoiceMute}
+              >
+                <Icon sx={voiceMuted ? { color: "#fbbf24 !important" } : undefined}>
+                  {voiceMuted ? "volume_off" : "volume_up"}
+                </Icon>
               </IconButton>
               <IconButton
                 size="small"

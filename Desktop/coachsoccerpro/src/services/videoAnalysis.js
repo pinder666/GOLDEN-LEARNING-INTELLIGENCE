@@ -1369,6 +1369,15 @@ export async function exportWalkthroughVideo(video, outcome, opts = {}) {
  * Returns the Audio element so callers can chain or stop playback.
  */
 export function playAnalysisLine(key, lang = "en") {
+  // Honor the global mute: return a silent stand-in that still fires
+  // onended so voice sequences and the replay keep their pacing.
+  try {
+    if (localStorage.getItem("csp_muted") === "1") {
+      const shim = new Audio();
+      setTimeout(() => shim.onended && shim.onended(), 400);
+      return shim;
+    }
+  } catch { /* noop */ }
   const base = `/audio/analysis/${key}-${lang === "es" ? "es" : "en"}`;
   const audio = new Audio(`${base}.mp3`);
   // Piper-generated lines are .wav — fall back transparently

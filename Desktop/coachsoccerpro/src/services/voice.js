@@ -11,6 +11,16 @@ const COACH_ES = 'pMsXgVXv3BLzUgSXRplE';
 let currentAudio = null;
 let busy = false;
 
+// ── Global voice mute — one switch for every voice in the app ──
+export function isMuted() {
+  try { return localStorage.getItem('csp_muted') === '1'; } catch (e) { return false; }
+}
+export function setMuted(m) {
+  try { localStorage.setItem('csp_muted', m ? '1' : '0'); } catch (e) {}
+  if (m) stop();
+  try { window.dispatchEvent(new Event('csp-mute-changed')); } catch (e) {}
+}
+
 // SHA1 for cache lookup
 function sha1hex(str) {
   function rol(n, s) { return (n << s) | (n >>> (32 - s)); }
@@ -103,6 +113,7 @@ function deviceSpeak(text, lang, callbacks) {
 
 // Speak drill by ID — tries drill-specific file first
 export function speakDrill(drillId, lang = 'en', callbacks = {}) {
+  if (isMuted()) { callbacks.onEnd?.(); return; }
   stop();
   busy = true;
 
@@ -116,7 +127,7 @@ export function speakDrill(drillId, lang = 'en', callbacks = {}) {
 
 // Speak arbitrary text — tries SHA1 cache
 export function speak(text, lang = 'en', callbacks = {}) {
-  if (!text) { callbacks.onEnd?.(); return; }
+  if (!text || isMuted()) { callbacks.onEnd?.(); return; }
 
   stop();
   busy = true;

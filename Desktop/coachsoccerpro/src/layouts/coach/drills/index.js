@@ -8,7 +8,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 import { DRILLS, CATS, CAT_COLORS } from "data/drills";
-import { speakDrill, stop as coachStop } from "services/voice";
+import { speakDrill, stop as coachStop, isMuted } from "services/voice";
 
 // ─── Pitch renderer ────────────────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -232,6 +232,7 @@ function CoachDrills() {
       return;
     }
 
+    if (isMuted()) return; // global mute
     setSpeaking(true);
     if (activeDrill.custom) {
       // Coach's own drill: their recorded voice IS the audio
