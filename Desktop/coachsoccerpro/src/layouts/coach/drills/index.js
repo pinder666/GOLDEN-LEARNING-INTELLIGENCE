@@ -74,8 +74,8 @@ export function PitchCanvas({ drill, playing, speed }) {
   };
 
   return (
-    <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`}
-      style={{ width:"100%", maxWidth:"100%", height:"auto", display:"block", background:"#1a4a2a", borderRadius:10 }}>
+    <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
+      style={{ width:"100%", height:"100%", maxHeight:"100%", display:"block", background:"#1a4a2a", borderRadius:10 }}>
       {/* Green background with equal padding around pitch */}
       <rect x={0} y={0} width={W} height={H} fill="#1a4a2a"/>
       <defs>
@@ -324,10 +324,11 @@ function CoachDrills() {
         {/* Main layout */}
         <VuiBox display="flex" gap="12px" sx={{flex:1, minHeight:0, overflow:"hidden"}}>
 
-          {/* Sidebar */}
-          <VuiBox style={{
+          {/* Sidebar — scrolls internally, no visible scrollbar */}
+          <VuiBox sx={{
             width:200, flexShrink:0, background:"rgba(255,255,255,.04)",
-            borderRadius:10, padding:10, overflow:"hidden",
+            borderRadius:"10px", padding:"10px", overflowY:"auto", minHeight:0,
+            scrollbarWidth:"none", "&::-webkit-scrollbar":{display:"none"},
           }}>
             {CATS.map(cat=>{
               const catDrills = filtered.filter(d=>d.cat===cat);
@@ -370,7 +371,8 @@ function CoachDrills() {
 
           {/* Pitch + info */}
           <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflow:"hidden"}}>
-            <VuiBox sx={{flexShrink:0}}>
+            {/* pitch takes the space it can and fits by HEIGHT — no page scroll */}
+            <VuiBox sx={{flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <PitchCanvas drill={activeDrill} playing={playing} speed={speed}/>
             </VuiBox>
 
@@ -516,12 +518,13 @@ function CoachDrills() {
               </VuiBox>
             )}
 
-            {/* Drill info */}
+            {/* Drill info — fixed slice, scrolls inside if long, no page scroll */}
             {activeDrill && (
               <VuiBox sx={{
                 background:"rgba(255,255,255,.05)", borderRadius:"10px",
                 padding:"12px 14px", borderLeft:`3px solid ${catColor}`,
-                flex:1, minHeight:0, overflow:"hidden",
+                flexShrink:0, maxHeight:"38%", overflowY:"auto",
+                scrollbarWidth:"none", "&::-webkit-scrollbar":{display:"none"},
               }}>
                 <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
                   <VuiTypography variant="h6" color="white" fontWeight="bold">
