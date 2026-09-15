@@ -28,3 +28,6 @@ commit.sh
 
 # Piper local TTS binaries + models (recreate with: node scripts/setup-piper.js)
 tools/piper/
+
+# Pipe secrets — never commit
+supabase/functions/.env
