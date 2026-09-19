@@ -16,6 +16,8 @@
  */
 
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+import { getDetector, detectFrame as detectObjects, bestBall } from "services/objectDetect";
+import { detectPoses as rtmoDetect, getRtmo } from "services/rtmoPose";
 
 const landmarkerCache = {}; // keyed by numPoses
 
@@ -150,6 +152,23 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const landmarker = await getLandmarker(numPoses);
   const ballTracker = opts.ballAnchor ? createBallTracker(video, opts.ballAnchor) : null;
 
+  // UPGRADE: on-device object detection finds the ball automatically (no manual
+  // tap needed) and locates every player (helps crowded scenes). Runs only when
+  // the coach didn't tap the ball, and can be turned off with autoDetect:false.
+  let objDetector = null;
+  if (opts.autoDetect !== false && !ballTracker) {
+    try { objDetector = await getDetector(true); } catch (e) { objDetector = null; }
+  }
+  let autoBall = false;
+  let detPlayerCount = 0;
+
+  // POSE ENGINE: RTMO (Shanghai AI Lab, Apache-2.0, ONNX Runtime Web) is the
+  // DEFAULT now — run raw. Only "mediapipe" explicitly falls back. If RTMO fails
+  // to load, we drop to MediaPipe automatically (and report which actually ran).
+  const engine = opts.engine === "mediapipe" ? "mediapipe" : "rtmo";
+  let rtmoReady = false;
+  if (engine === "rtmo") { try { await getRtmo(); rtmoReady = true; } catch (e) { rtmoReady = false; } }
+
   // Length caps: penalty/duel are short moments (30s); open play can run
   // longer (90s). Longer clips sample fewer frames/sec so timing stays sane.
   const maxLen = scenario === "open" ? 90 : 30;
@@ -178,6 +197,15 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     cropCanvas.height = Math.max(64, Math.round(((crop.h * vh) / (crop.w * vw)) * 640));
     cropCtx = cropCanvas.getContext("2d");
   }
+
+  // Wide multi-person detection for the frame. RTMO (when ready) runs on the
+  // full frame natively; otherwise MediaPipe (optionally cropped) below.
+  const detectWide = async () => {
+    if (engine === "rtmo" && rtmoReady) {
+      try { return await rtmoDetect(video, 0.3); } catch (e) { return detectFrame(); }
+    }
+    return detectFrame();
+  };
 
   const detectFrame = () => {
     if (!crop) return landmarker.detectForVideo(video, nextTs())?.landmarks || [];
@@ -265,7 +293,7 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
   const ballPath = [];
   for (let t = 0; t < duration; t += step) {
     await seekTo(video, t);
-    const widePoses = detectFrame();
+    const widePoses = await detectWide();
 
     let framePoses = widePoses;
     if (anchors) {
@@ -299,6 +327,12 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
       ball = ballTracker.step();
       ball.t = t;
       ballPath.push(ball);
+    } else if (objDetector) {
+      // Auto-find the ball (and count players) on the full frame, on-device.
+      const od = detectObjects(objDetector, video, nextTs());
+      if (od.players.length > detPlayerCount) detPlayerCount = od.players.length;
+      const b = bestBall(od.balls);
+      if (b) { ball = { x: b.x, y: b.y, t, conf: b.score }; ballPath.push(ball); autoBall = true; }
     }
     if (opts.onFrame) opts.onFrame(framePoses, t, ball);
     rawFrames.push({ t, poses: framePoses, wide: anchors ? widePoses : undefined });
@@ -334,8 +368,33 @@ export async function analyzeVideoElement(video, onProgress, opts = {}) {
     outcome.allFrames = anchors ? framesForAnalysis : rawFrames; // replay shows only who matters
     if (ballPath.length) outcome.ballPath = ballPath;
     if (coverage) outcome.coverage = coverage;
+    outcome.autoBall = autoBall;                 // the analyst found the ball itself
+    outcome.detectedPlayers = detPlayerCount;    // how many players it saw on screen
+    outcome.engine = engine === "rtmo" && rtmoReady ? "rtmo" : "mediapipe";
+    if (ballPath.length > 1) outcome.ballMetrics = computeBallMetrics(ballPath, video);
   }
   return outcome;
+}
+
+// Real ball events from the tracked path (auto or manual): top speed and how
+// much of the clip the ball was actually in play/visible. Ball coords are
+// normalized; convert to a rough speed using the frame's real width.
+function computeBallMetrics(ballPath, video) {
+  const vw = video.videoWidth || 640;
+  let peak = 0, moved = 0;
+  for (let i = 1; i < ballPath.length; i++) {
+    const a = ballPath[i - 1], b = ballPath[i];
+    const dt = (b.t - a.t) || 0.001;
+    const dx = (b.x - a.x) * vw, dy = (b.y - a.y) * vw;
+    const sp = Math.sqrt(dx * dx + dy * dy) / dt; // px/s in frame terms
+    if (sp > peak) peak = sp;
+    if (Math.hypot(b.x - a.x, b.y - a.y) > 0.01) moved++;
+  }
+  return {
+    seen: ballPath.length,
+    inPlayPct: Math.round((moved / Math.max(1, ballPath.length - 1)) * 100),
+    peakSpeedPxS: Math.round(peak),
+  };
 }
 
 function extractFrame(lm, t) {

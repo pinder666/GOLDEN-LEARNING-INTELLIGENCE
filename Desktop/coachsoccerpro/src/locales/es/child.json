@@ -1,0 +1,136 @@
+{
+  "dashboard": {
+    "yourCard": "Tu Tarjeta de Jugador",
+    "coachSays": "El Entrenador Dice",
+    "proHabit": "Hábito Pro del Día",
+    "todaysHabits": "Hábitos de Hoy",
+    "habitsComplete": "{{done}} de {{total}} Listos",
+    "nextEvent": "Próximo",
+    "daysUntil": "en {{count}} días",
+    "tomorrow": "¡Mañana!",
+    "today": "¡Hoy!"
+  },
+  "playerCard": {
+    "level": "Nivel {{level}}",
+    "rank": "Puesto #{{rank}}",
+    "points": "{{points}} pts",
+    "streak": "{{count}} semanas seguidas",
+    "tapToFlip": "Toca para voltear",
+    "cardBack": "Estadísticas",
+    "attendance": "Asistencia",
+    "effort": "Esfuerzo",
+    "teamwork": "Trabajo en Equipo",
+    "skill": "Habilidad"
+  },
+  "cardFrames": {
+    "bronze": "Bronce",
+    "silver": "Plata",
+    "gold": "Oro",
+    "platinum": "Platino",
+    "diamond": "Diamante"
+  },
+  "badges": {
+    "title": "Mis Insignias",
+    "collected": "{{earned}} de {{total}} Coleccionadas",
+    "locked": "Bloqueada",
+    "earnedOn": "Ganada el {{date}}",
+    "howToEarn": "Cómo ganarla",
+    "rarity": {
+      "common": "Común",
+      "uncommon": "Poco Común",
+      "rare": "Rara",
+      "epic": "Épica",
+      "legendary": "Legendaria"
+    },
+    "categories": {
+      "attendance": "Asistencia",
+      "skills": "Habilidades",
+      "teamwork": "Trabajo en Equipo",
+      "milestones": "Logros",
+      "special": "Especial",
+      "rare": "Rara"
+    },
+    "newBadge": "¡Nueva Insignia!",
+    "congrats": "¡Felicidades!",
+    "youEarned": "Ganaste"
+  },
+  "leaderboard": {
+    "title": "Tabla del Equipo",
+    "thisWeek": "Esta Semana",
+    "thisSeason": "Esta Temporada",
+    "allTime": "Histórico",
+    "yourRank": "Tu Puesto",
+    "movedUp": "¡Subiste {{count}} puestos!",
+    "movedDown": "Bajaste {{count}}",
+    "noChange": "Mismo puesto",
+    "points": "pts",
+    "firstPlace": "1°",
+    "secondPlace": "2°",
+    "thirdPlace": "3°"
+  },
+  "streaks": {
+    "title": "Mis Rachas",
+    "attendance": "Racha de Asistencia",
+    "effort": "Racha de Esfuerzo",
+    "teammate": "Racha de Compañerismo",
+    "weeks": "{{count}} semanas",
+    "onFire": "¡En Llamas!",
+    "keepItGoing": "¡Sigue así!",
+    "streakShield": "Escudo de Racha Activo",
+    "shieldUsed": "¡Escudo usado! A seguir.",
+    "startStreak": "¡Empieza tu racha!"
+  },
+  "habits": {
+    "title": "Hábitos Diarios",
+    "water": "Tomé agua hoy",
+    "sleep": "Dormí 8+ horas",
+    "food": "Comí saludable",
+    "stretch": "Hice estiramientos",
+    "allDone": "¡Todos los hábitos completos!",
+    "proComparison": "¡Hiciste lo mismo que {{player}}!",
+    "greatJob": "¡Buen trabajo!",
+    "keepGoing": "¡Sigue así!"
+  },
+  "journey": {
+    "title": "Mi Camino",
+    "progress": "Tu Progreso",
+    "completed": "Completado",
+    "nextMilestone": "Próxima Meta",
+    "seasonChampion": "Campeón de la Temporada",
+    "milestones": {
+      "firstPractice": "Primer Entrenamiento",
+      "firstWeek": "Primera Semana Completa",
+      "firstGoal": "Primer Gol",
+      "fourWeekStreak": "Racha de 4 Semanas",
+      "fiveBadges": "Ganar 5 Insignias",
+      "silverCard": "Alcanzar Tarjeta Plata",
+      "tenBadges": "Ganar 10 Insignias",
+      "goldCard": "Alcanzar Tarjeta Oro",
+      "halfSeason": "Mitad de Temporada",
+      "fullSeason": "Temporada Completa"
+    }
+  },
+  "schedule": {
+    "title": "Mi Calendario",
+    "upcoming": "Próximos",
+    "noEvents": "Sin eventos próximos",
+    "countdown": "{{days}} días, {{hours}} horas",
+    "getReady": "¡Prepárate!"
+  },
+  "coachMessage": {
+    "fromCoach": "Del Entrenador {{name}}",
+    "newMessage": "¡Nuevo mensaje de tu entrenador!"
+  },
+  "celebrations": {
+    "badgeUnlocked": "¡Insignia Desbloqueada!",
+    "levelUp": "¡Subiste de Nivel!",
+    "newStreak": "¡Racha Iniciada!",
+    "streakMilestone": "¡{{count}} Semanas Seguidas!",
+    "rankUp": "¡Subiste de puesto!",
+    "cardUpgrade": "¡Tarjeta Mejorada!",
+    "awesome": "¡Increíble!",
+    "amazing": "¡Asombroso!",
+    "legendary": "¡Legendario!",
+    "keepItUp": "¡Sigue así!"
+  }
+}

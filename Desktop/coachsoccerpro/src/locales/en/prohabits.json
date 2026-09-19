@@ -1,0 +1,155 @@
+{
+  "sleep": {
+    "messi9Hours": {
+      "player": "Lionel Messi",
+      "habit": "I never get less than 9 hours of sleep. My body needs it to recover.",
+      "source": "Multiple interviews"
+    },
+    "ronaldo5Naps": {
+      "player": "Cristiano Ronaldo",
+      "habit": "I take 5 short naps of 90 minutes instead of one long sleep. Recovery is everything.",
+      "source": "Sleep coach Nick Littlehales"
+    },
+    "haalandBedtime": {
+      "player": "Erling Haaland",
+      "habit": "I go to bed at 10pm every night. No exceptions. Phone goes away at 9pm.",
+      "source": "Interview 2023"
+    },
+    "mbappeNoScreens": {
+      "player": "Kylian Mbappé",
+      "habit": "No screens 1 hour before bed. The light ruins your sleep.",
+      "source": "French national team"
+    },
+    "benzemaRoutine": {
+      "player": "Karim Benzema",
+      "habit": "Same bedtime every night, even on weekends. Your body needs consistency.",
+      "source": "Real Madrid training staff"
+    },
+    "sakaRest": {
+      "player": "Bukayo Saka",
+      "habit": "Sleep is when your muscles actually grow. I protect my sleep like I protect the ball.",
+      "source": "Arsenal media"
+    },
+    "viniJrRecovery": {
+      "player": "Vinícius Jr",
+      "habit": "After a big game, I sleep even more. Recovery is part of training.",
+      "source": "Real Madrid"
+    }
+  },
+  "nutrition": {
+    "messiPasta": {
+      "player": "Lionel Messi",
+      "habit": "I eat pasta the night before every game. Carbs give you energy.",
+      "source": "Barcelona nutritionist"
+    },
+    "ronaldoNoSugar": {
+      "player": "Cristiano Ronaldo",
+      "habit": "No sugar, no alcohol. I eat 6 small meals a day instead of 3 big ones.",
+      "source": "Multiple interviews"
+    },
+    "haalandProtein": {
+      "player": "Erling Haaland",
+      "habit": "I eat protein within 30 minutes after training. Helps muscles rebuild.",
+      "source": "Manchester City"
+    },
+    "mbappeNoSoda": {
+      "player": "Kylian Mbappé",
+      "habit": "I don't drink soda. Water and natural juice only.",
+      "source": "French media"
+    },
+    "pulisicGameDay": {
+      "player": "Christian Pulisic",
+      "habit": "Big breakfast, light lunch on game day. You want energy but not a full stomach.",
+      "source": "US Soccer"
+    },
+    "pedriWater": {
+      "player": "Pedri",
+      "habit": "I drink water all day, not just when I'm thirsty. Stay ahead of thirst.",
+      "source": "Barcelona"
+    },
+    "bellinghaamFuel": {
+      "player": "Jude Bellingham",
+      "habit": "Think of food as fuel. Would you put bad fuel in a Ferrari?",
+      "source": "Real Madrid media"
+    }
+  },
+  "training": {
+    "ronaldoExtra": {
+      "player": "Cristiano Ronaldo",
+      "habit": "I stay 30 minutes after every practice. Extra work makes the difference.",
+      "source": "Multiple coaches"
+    },
+    "messiWeakFoot": {
+      "player": "Lionel Messi",
+      "habit": "I practice with my weak foot every day. Both feet should be weapons.",
+      "source": "Barcelona coaches"
+    },
+    "mbappeTired": {
+      "player": "Kylian Mbappé",
+      "habit": "I do sprints when I'm tired, not when I'm fresh. That's when it counts.",
+      "source": "French coach"
+    },
+    "haalandFinishing": {
+      "player": "Erling Haaland",
+      "habit": "100 shots after every training. Finishing is a skill you build.",
+      "source": "Dortmund"
+    },
+    "salaahRepetition": {
+      "player": "Mohamed Salah",
+      "habit": "Repeat the same move 1000 times until your body does it without thinking.",
+      "source": "Liverpool"
+    },
+    "debruyneVision": {
+      "player": "Kevin De Bruyne",
+      "habit": "I always know where my teammates are before I get the ball. Look around constantly.",
+      "source": "Manchester City"
+    },
+    "neymarCreativity": {
+      "player": "Neymar",
+      "habit": "Practice tricks. Football should be fun. When you enjoy it, you play better.",
+      "source": "Multiple interviews"
+    }
+  },
+  "mindset": {
+    "messiSmallSteps": {
+      "player": "Lionel Messi",
+      "habit": "Small improvements every day. You don't become great overnight.",
+      "source": "Multiple interviews"
+    },
+    "ronaldoHardWork": {
+      "player": "Cristiano Ronaldo",
+      "habit": "Hard work beats talent when talent doesn't work hard.",
+      "source": "Famous quote"
+    },
+    "morganGoals": {
+      "player": "Alex Morgan",
+      "habit": "I write down my goals every season. If you don't know where you're going, you won't get there.",
+      "source": "US Women's team"
+    },
+    "rapinoeVisualize": {
+      "player": "Megan Rapinoe",
+      "habit": "I visualize my best plays the night before a game. See it before you do it.",
+      "source": "Interview"
+    },
+    "sonThankful": {
+      "player": "Son Heung-min",
+      "habit": "I thank my teammates after every goal. Football is a team sport.",
+      "source": "Tottenham"
+    },
+    "putellasBelieve": {
+      "player": "Alexia Putellas",
+      "habit": "Believe you belong on the field with anyone. Confidence is a choice.",
+      "source": "Barcelona Femení"
+    },
+    "modricNeverQuit": {
+      "player": "Luka Modrić",
+      "habit": "The game is never over until the final whistle. Keep fighting.",
+      "source": "Real Madrid"
+    },
+    "rashfordMistakes": {
+      "player": "Marcus Rashford",
+      "habit": "Mistakes are lessons. Every time I fail, I learn something new.",
+      "source": "Manchester United"
+    }
+  }
+}

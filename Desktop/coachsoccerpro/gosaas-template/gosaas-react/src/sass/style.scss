@@ -1,0 +1,41 @@
+/*--------------------------------------------------------------
+>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+01. Google Fonts
+02. Color Variable
+03. Typography
+04. Preloader
+05. Spacing
+06. General
+07. Slider
+08. Video Modal
+09. Header
+10. Footer
+11. Sidebar
+12. Hero
+13. Cards
+14. Iconbox
+15. Pricing
+16. Testimonial
+17. Layouts and Sections
+18. Posts Post Details page
+--------------------------------------------------------------*/
+
+@use "./default/fonts";
+@use "default/variable";
+@use "default/typography";
+@use "common/preloader";
+@use "common/spacing";
+@use "common/general";
+@use "common/slider";
+@use "common/video-modal";
+@use "common/header";
+@use "common/footer";
+@use "common/sidebar";
+@use "shortcode/hero";
+@use "shortcode/cards";
+@use "shortcode/iconbox";
+@use "shortcode/pricing";
+@use "shortcode/testimonial";
+@use "shortcode/layouts";
+@use "shortcode/post";

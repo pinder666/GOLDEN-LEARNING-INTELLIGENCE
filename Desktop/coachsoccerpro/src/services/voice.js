@@ -22,7 +22,7 @@ export function setMuted(m) {
 }
 
 // SHA1 for cache lookup
-function sha1hex(str) {
+export function sha1hex(str) {
   function rol(n, s) { return (n << s) | (n >>> (32 - s)); }
   function hx(v) { let s = ''; for (let i = 7; i >= 0; i--) s += ((v >>> (i * 4)) & 0x0f).toString(16); return s; }
   const msg = unescape(encodeURIComponent(str));
@@ -94,25 +94,17 @@ function playAudio(url, callbacks, onFail) {
     });
 }
 
-// Device speech fallback
+// NO robotic voice anywhere (Jason 2026-09-18). When a real owned clip is
+// missing we stay SILENT — never fall back to the device's robotic TTS.
 function deviceSpeak(text, lang, callbacks) {
-  if (typeof window === 'undefined' || !window.speechSynthesis) {
-    busy = false;
-    callbacks.onEnd?.();
-    return;
-  }
-
-  const utt = new SpeechSynthesisUtterance(String(text));
-  utt.rate = 1.1;
-  utt.lang = lang === 'es' ? 'es-MX' : 'en-US';
-  utt.onstart = () => callbacks.onStart?.();
-  utt.onend = () => { busy = false; callbacks.onEnd?.(); };
-  utt.onerror = () => { busy = false; callbacks.onEnd?.(); };
-  speechSynthesis.speak(utt);
+  busy = false;
+  callbacks.onEnd?.();
 }
 
-// Speak drill by ID — tries drill-specific file first
-export function speakDrill(drillId, lang = 'en', callbacks = {}) {
+// Speak drill by ID — tries drill-specific file first. If the file is missing,
+// falls back to device voice of `fallbackText` (the real drill copy), never the
+// raw id.
+export function speakDrill(drillId, lang = 'en', callbacks = {}, fallbackText = '') {
   if (isMuted()) { callbacks.onEnd?.(); return; }
   stop();
   busy = true;
@@ -120,8 +112,8 @@ export function speakDrill(drillId, lang = 'en', callbacks = {}) {
   const drillUrl = `/audio/drills/${drillId}-${lang}.mp3`;
 
   playAudio(drillUrl, callbacks, () => {
-    // Drill file not found — try SHA1 cache won't work (different text), go to device
-    deviceSpeak(drillId, lang, callbacks);
+    // Drill file not found — read the drill's own text on the device voice.
+    deviceSpeak(fallbackText || drillId, lang, callbacks);
   });
 }
 

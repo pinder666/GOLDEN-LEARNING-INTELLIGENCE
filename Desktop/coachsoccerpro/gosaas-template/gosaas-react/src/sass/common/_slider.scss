@@ -1,0 +1,190 @@
+/*--------------------------------------------------------------
+  07. Slider
+----------------------------------------------------------------*/
+
+.cs_slider {
+  position: relative;
+  z-index: 1;
+}
+
+.slick-arrow {
+  cursor: pointer;
+}
+
+.draggable {
+  cursor: url(../img/drag.png) 16 9, ew-resize !important;
+}
+
+.slick-slide > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cs_remove_overflow {
+  .slick-list {
+    overflow: visible;
+  }
+
+  .slick-slide {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s linear;
+
+    &.slick-active {
+      height: 100%;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.cs_slider_gap_24 {
+  .slick-slide {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .slick-list {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+
+.cs_slider_gap_30 {
+  .slick-slide {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .slick-list {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+}
+
+/*---------------------------------------
+ Infinite scrolling slider
+-----------------------------------------*/
+.cs_horizontal_slider_wrapper {
+  margin: 0 auto;
+  overflow: hidden;
+
+  &.cs_type_1 {
+    max-width: 810px;
+  }
+
+  &.cs_type_2 {
+    margin-top: 24px;
+
+    .cs_tools_wrapper {
+      animation-direction: reverse;
+      animation-duration: 60s;
+    }
+  }
+
+  .cs_slider_in {
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .cs_brands_list {
+    min-width: 100%;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 74px;
+    margin: 0 37px;
+    animation: slider-left 30s linear infinite;
+  }
+
+  &:hover {
+    .cs_brands_list,
+    .cs_tools_wrapper {
+      animation-play-state: paused;
+    }
+  }
+
+  .cs_tools_wrapper {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 0 12px;
+    animation: slider-left 50s linear infinite;
+  }
+}
+
+.cs_pagination.cs_style_1 {
+  text-align: center;
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .swiper-pagination-bullet,
+  li {
+    height: 12px;
+    width: 12px;
+    border-radius: 2px;
+    background: var(--purple-color);
+    opacity: 0.2;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &.swiper-pagination-bullet-active,
+    &.slick-active {
+      opacity: 1;
+    }
+  }
+
+  button {
+    display: none;
+  }
+}
+
+// react slider styles
+.cs_react_slider.cs_style_1 {
+  .swiper-pagination {
+    position: initial !important;
+  }
+}
+.cs_react_slider.cs_style_2 {
+  .swiper-pagination {
+    position: initial !important;
+  }
+  // testimonial home 1
+  .cs_slider_wrapper {
+    width: initial !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .cs_mobile_hide {
+    display: none !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .cs_mobile_show {
+    display: none !important;
+  }
+}
+
+@keyframes slider-left {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}

@@ -20,6 +20,7 @@ import CoachPayments from "layouts/coach/payments";
 import CoachSettings from "layouts/coach/settings";
 import CoachDrills from "layouts/coach/drills";
 import TacticsBoard from "layouts/coach/tactics";
+import Classroom from "layouts/coach/classroom";
 import SessionPlanner from "layouts/coach/sessionplanner";
 import Checkmatch from "layouts/coach/checkmatch";
 import Automation from "layouts/coach/automation";
@@ -51,7 +52,7 @@ import ChildHabits from "layouts/child/habits";
 
 // React icons
 import { IoHome, IoPeople, IoCalendar, IoChatbubbles, IoCard, IoTrophy, IoSettings, IoFitness, IoImages, IoFlash, IoGameController, IoCog, IoHelpCircle, IoCreate } from "react-icons/io5";
-import { FaMedal, FaChartLine, FaFutbol, FaChessBoard } from "react-icons/fa";
+import { FaMedal, FaChartLine, FaFutbol, FaChessBoard, FaGraduationCap } from "react-icons/fa";
 
 // =============================================
 // COACH ROUTES (Sidebar navigation)
@@ -206,6 +207,16 @@ const coachRoutes = [
     icon: <FaChessBoard size="15px" color="inherit" />,
     route: "/coach/tactics",
     component: <TacticsBoard />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Classroom",
+    nameEs: "Aula",
+    key: "coach-classroom",
+    icon: <FaGraduationCap size="15px" color="inherit" />,
+    route: "/coach/classroom",
+    component: <Classroom />,
     noCollapse: true,
   },
   {

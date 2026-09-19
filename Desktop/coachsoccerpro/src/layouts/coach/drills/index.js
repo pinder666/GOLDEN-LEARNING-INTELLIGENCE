@@ -160,7 +160,7 @@ export function loadCustomDrills() {
 function CoachDrills() {
   const [activeCat, setActiveCat] = useState("All");
   const [activeDrill, setActiveDrill] = useState(DRILLS[0]);
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(false); // land ready — one Play press starts pitch + voice
   const [speed, setSpeed] = useState(1);
   const [ageFilter, setAgeFilter] = useState("All");
   const [lang, setLang] = useLang();
@@ -225,32 +225,44 @@ function CoachDrills() {
 
   const t = (en, es) => lang === "es" ? (es || en) : en;
 
-  const handleSpeak = () => {
-    if (!activeDrill) return;
-    if (speaking) {
-      coachStop();
-      if (customAudioRef.current) { customAudioRef.current.pause(); customAudioRef.current = null; }
-      setSpeaking(false);
-      return;
-    }
+  const stopVoice = () => {
+    coachStop();
+    if (customAudioRef.current) { customAudioRef.current.pause(); customAudioRef.current = null; }
+    setSpeaking(false);
+  };
 
-    if (isMuted()) return; // global mute
+  // Read a drill aloud from the start. Coach's own drill uses their recording;
+  // library drills use the pre-baked file, falling back to device voice of the
+  // drill's own text (never the id).
+  const startVoice = (drill) => {
+    const d = drill || activeDrill;
+    if (!d || isMuted()) return;
+    stopVoice();
     setSpeaking(true);
-    if (activeDrill.custom) {
-      // Coach's own drill: their recorded voice IS the audio
-      if (activeDrill.audio) {
-        const a = new Audio(activeDrill.audio);
+    if (d.custom) {
+      if (d.audio) {
+        const a = new Audio(d.audio);
         customAudioRef.current = a;
         a.onended = () => setSpeaking(false);
         a.play().catch(() => setSpeaking(false));
-      } else {
-        setSpeaking(false);
-      }
+      } else { setSpeaking(false); }
       return;
     }
-    speakDrill(activeDrill.id, lang, {
-      onEnd: () => setSpeaking(false),
-    });
+    const fallback = (lang === "es" ? (d.descEs || d.desc || d.titleEs || d.title) : (d.desc || d.title)) || "";
+    speakDrill(d.id, lang, { onEnd: () => setSpeaking(false) }, fallback);
+  };
+
+  // The one Play control: starts BOTH the pitch animation and the voice; Pause
+  // stops both.
+  const togglePlay = () => {
+    if (playing) { setPlaying(false); stopVoice(); }
+    else { setPlaying(true); startVoice(); }
+  };
+
+  // Standalone "read again" button (voice only).
+  const handleSpeak = () => {
+    if (speaking) { stopVoice(); return; }
+    startVoice();
   };
 
   const handleCopyParent = () => {
@@ -343,11 +355,12 @@ function CoachDrills() {
                   </VuiTypography>
                   {catDrills.map(d=>(
                     <button key={d.id} onClick={()=>{
+                      // Pick a drill → play it (pitch + voice together).
+                      stopVoice();
                       setActiveDrill(d);
-                      setPlaying(true);
                       setParentOpen(false);
-                      setSpeaking(true);
-                      speakDrill(d.id, lang, { onEnd: () => setSpeaking(false) });
+                      setPlaying(true);
+                      startVoice(d);
                     }} style={{
                       display:"block", width:"100%", textAlign:"left",
                       background:activeDrill?.id===d.id?"rgba(255,255,255,.12)":"transparent",
@@ -378,7 +391,7 @@ function CoachDrills() {
 
             {/* Controls */}
             <VuiBox display="flex" alignItems="center" gap="6px" mb={1} flexWrap="wrap" sx={{flexShrink:0}}>
-              <button onClick={()=>setPlaying(p=>!p)} style={{
+              <button onClick={togglePlay} style={{
                 background: playing?"rgba(255,255,255,.15)":"#f97316",
                 color: playing?"#fff":"#000",
                 border:"none", borderRadius:8, padding:"7px 18px",

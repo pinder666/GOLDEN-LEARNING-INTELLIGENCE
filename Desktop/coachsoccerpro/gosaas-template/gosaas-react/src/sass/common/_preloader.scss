@@ -1,0 +1,84 @@
+/*--------------------------------------------------------------
+  04. Preloader
+----------------------------------------------------------------*/
+.cs_preloader {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.cs_preloader_in {
+  width: 110px;
+  height: 110px;
+  position: relative;
+  border-radius: 50%;
+
+
+  &:before,
+  &:after {
+    content: '';
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 50%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  &:after {
+    border-color: transparent;
+    border-top-color: var(--purple-color);
+    border-bottom-color: var(--purple-color);
+    opacity: 0.8;
+    animation: spin 1s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  &:before {
+    border-color: var(--purple-color);
+    opacity: 0.2;
+  }
+
+  span {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background-color: var(--purple-color);
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: bubble-animation 2s linear infinite;
+
+    &:nth-child(2) {
+      animation-delay: 1s;
+    }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes bubble-animation {
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}

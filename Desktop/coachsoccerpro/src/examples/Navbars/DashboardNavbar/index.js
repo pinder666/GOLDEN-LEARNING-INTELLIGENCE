@@ -19,6 +19,7 @@ import { useState, useEffect } from "react";
 
 // react-router components
 import { useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -60,12 +61,15 @@ import {
 // Images
 import team2 from "assets/images/team-2.jpg";
 import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
+import agentFace from "assets/images/avatar4.png";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useVisionUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
   const [openMenu, setOpenMenu] = useState(false);
+  const { i18n } = useTranslation();
+  const uiLang = (i18n.language || "en").startsWith("es") ? "es" : "en";
 
   // Global voice mute (services/voice.js reads the same flag)
   const [voiceMuted, setVoiceMuted] = useState(() => {
@@ -174,6 +178,36 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon color="white">{miniSidenav ? "menu_open" : "menu"}</Icon>
               </IconButton>
+              {/* MIA — the assistant. Her face, not a bare mic. Tap and talk;
+                  she runs on-device (attendance, payments, messages, nav). */}
+              <VuiBox
+                onClick={() => window.dispatchEvent(new Event("csp-toggle-agent"))}
+                title="Mia — tap and talk"
+                sx={{
+                  position: "relative", width: 36, height: 36, mr: 1.5, ml: 0.5,
+                  borderRadius: "50%", cursor: "pointer", flexShrink: 0,
+                  border: "2px solid #f97316", boxShadow: "0 2px 10px rgba(249,115,22,.5)",
+                  overflow: "hidden", transition: "transform .15s",
+                  "&:hover": { transform: "scale(1.08)" },
+                }}
+              >
+                <VuiBox component="img" src={agentFace} alt="Mia"
+                  sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <VuiBox sx={{
+                  position: "absolute", right: -1, bottom: -1, width: 13, height: 13,
+                  borderRadius: "50%", background: "#f97316", border: "2px solid #0f0c29",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7,
+                }}>🎙️</VuiBox>
+              </VuiBox>
+              {/* Global EN/ES — the ONE language switch, reachable on every page */}
+              <VuiBox sx={{ display: "inline-flex", gap: "2px", background: "rgba(255,255,255,.08)", borderRadius: "16px", p: "2px", mr: 1, verticalAlign: "middle" }}>
+                {["en", "es"].map((l) => (
+                  <button key={l} onClick={() => i18n.changeLanguage(l)} style={{
+                    background: uiLang === l ? "#f97316" : "transparent", color: uiLang === l ? "#000" : "rgba(255,255,255,.6)",
+                    border: "none", borderRadius: "14px", padding: "3px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                  }}>{l.toUpperCase()}</button>
+                ))}
+              </VuiBox>
               {/* Global voice mute — silences every coach voice in the app */}
               <IconButton
                 size="small"

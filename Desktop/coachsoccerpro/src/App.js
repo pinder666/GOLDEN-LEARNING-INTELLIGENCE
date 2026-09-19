@@ -29,6 +29,7 @@ import { useAuth } from "context/AuthContext";
 
 // The Assistant + its learning memory
 import Assistant from "components/Assistant";
+import LandingPage from "layouts/landing";
 import { recordVisit } from "services/habits";
 
 // Vision UI Dashboard PRO React contexts
@@ -211,6 +212,10 @@ export default function App() {
       )}
 
       <Routes>
+        {/* Landing — root when logged out; /landing always (for preview) */}
+        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/" element={user ? <Navigate to="/coach/dashboard" replace /> : <LandingPage />} />
+
         {/* Auth routes */}
         {getRoutes(authRoutes)}
 

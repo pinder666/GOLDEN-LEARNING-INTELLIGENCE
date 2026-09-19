@@ -31,3 +31,13 @@ tools/piper/
 
 # Pipe secrets — never commit
 supabase/functions/.env
+
+# never commit secrets
+.env
+.env.*.local
+# heavy generated/served binaries — keep out of the repo
+/public/tts_cache/
+/public/models/
+/public/ort/
+/public/audio/
+/handoff/audio/

@@ -7,6 +7,17 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 const AUTOMATIONS = [
   {
+    id: "welcome-new-parent",
+    title: "Welcome New Parents",
+    titleEs: "Bienvenida a Nuevos Padres",
+    desc: "The moment a parent is added — by you or by a roster import — they get a warm welcome from you: who you are, what to expect, and that their child is in good hands. Nothing feels automated to them.",
+    descEs: "En cuanto se agrega un padre — por ti o al importar la plantilla — recibe una bienvenida cálida de tu parte: quién eres, qué esperar, y que su hijo está en buenas manos. Nada les parece automático.",
+    icon: "👋",
+    color: "#4ade80",
+    enabled: true,
+    schedule: "When a parent is added",
+  },
+  {
     id: "birthday-messages",
     title: "Birthday Messages",
     titleEs: "Mensajes de Cumpleaños",
@@ -85,6 +96,17 @@ const AUTOMATIONS = [
   },
 ];
 
+const SCHED_ES = {
+  "When a parent is added": "Cuando se agrega un padre",
+  "Day before + birthday morning": "Día antes + mañana del cumpleaños",
+  "3 days before, on due, 3 days after": "3 días antes, el día del pago, 3 días después",
+  "Every Monday 8am": "Cada lunes 8am",
+  "Every Friday 5pm": "Cada viernes 5pm",
+  "Daily check": "Revisión diaria",
+  "24h before session": "24h antes de la sesión",
+  "After each session": "Después de cada sesión",
+};
+
 function Automation() {
   const [lang, setLang] = useLang();
   const [automations, setAutomations] = useState(AUTOMATIONS);
@@ -150,7 +172,7 @@ function Automation() {
                       {lang === "es" ? auto.titleEs : auto.title}
                     </VuiTypography>
                     <VuiTypography variant="caption" sx={{ color: "rgba(255,255,255,.4)", fontSize: 10 }}>
-                      {auto.schedule}
+                      {lang === "es" ? (SCHED_ES[auto.schedule] || auto.schedule) : auto.schedule}
                     </VuiTypography>
                   </VuiBox>
                 </VuiBox>

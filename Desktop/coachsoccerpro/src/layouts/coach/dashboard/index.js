@@ -20,7 +20,6 @@ import MiniStatisticsCard from "examples/Cards/StatisticsCards/MiniStatisticsCar
 
 // Icons
 import { IoCalendar } from "react-icons/io5";
-import { FaMicrophone } from "react-icons/fa";
 import { BsFillPeopleFill } from "react-icons/bs";
 
 // Auth & Data
@@ -29,6 +28,7 @@ import { supabase } from "services/supabase";
 
 // Assistant reminders (saved via "remind me to…")
 import { loadReminders } from "components/Assistant";
+import MiaBriefing from "components/MiaBriefing";
 
 const DEMO_MODE = false;
 
@@ -63,6 +63,7 @@ function CoachDashboard() {
   const [loading, setLoading] = useState(DEMO_MODE ? false : true);
   const [aiInsight, setAiInsight] = useState(DEMO_MODE ? DEMO_DATA.aiInsight : "");
   const [reminders, setReminders] = useState(loadReminders);
+  const [unseenCount, setUnseenCount] = useState(DEMO_MODE ? 3 : 0);
 
   useEffect(() => {
     const refresh = () => setReminders(loadReminders());
@@ -134,6 +135,7 @@ function CoachDashboard() {
 
     const playersWithNotes = new Set(recentNotes?.map((n) => n.player_id) || []);
     const playersWithoutNotes = playersData.filter((p) => !playersWithNotes.has(p.id));
+    setUnseenCount(playersWithoutNotes.length);
 
     if (playersWithoutNotes.length > 0) {
       const names = playersWithoutNotes.slice(0, 3).map((p) => p.first_name).join(", ");
@@ -200,7 +202,7 @@ function CoachDashboard() {
     <DashboardLayout>
       <DashboardNavbar />
       <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
-        {/* Welcome Header with Voice Button */}
+        {/* Welcome Header — the ONE mic lives in the top navbar (the agent). */}
         <VuiBox mb={2} display="flex" justifyContent="space-between" alignItems="flex-start">
           <VuiBox>
             <VuiTypography variant="h4" color="white" fontWeight="bold">
@@ -210,25 +212,15 @@ function CoachDashboard() {
               {teamData?.name} • {teamData?.age_group}
             </VuiTypography>
           </VuiBox>
-          {/* Small Voice Command Button */}
-          <VuiBox
-            onClick={() => navigate("/coach/messages")}
-            sx={{
-              width: 44,
-              height: 44,
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, #0075FF 0%, #21d4fd 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              "&:hover": { transform: "scale(1.05)" },
-            }}
-          >
-            <FaMicrophone size={18} color="white" />
-          </VuiBox>
         </VuiBox>
+
+        {/* Mia's briefing — reads what needs you today, in her real voice */}
+        <MiaBriefing
+          playersCount={players.length}
+          pendingPayments={pendingPayments}
+          upcomingEvents={upcomingEvents}
+          unseenCount={unseenCount}
+        />
 
         {/* Stats Row - 3 equal cards */}
         <Grid container spacing={2} mb={2}>

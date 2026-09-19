@@ -1,0 +1,219 @@
+{
+  "attendance": {
+    "perfectWeek": {
+      "name": "Perfect Week",
+      "description": "Attended every event this week",
+      "howToEarn": "Show up to all practices and games in one week"
+    },
+    "perfectMonth": {
+      "name": "Perfect Month",
+      "description": "Attended every event this month",
+      "howToEarn": "Don't miss a single event for a full month"
+    },
+    "ironPlayer": {
+      "name": "Iron Player",
+      "description": "3 months of perfect attendance",
+      "howToEarn": "Show up every time for 3 months straight"
+    },
+    "earlyBird": {
+      "name": "Early Bird",
+      "description": "Arrived early 5 times",
+      "howToEarn": "Be one of the first to arrive 5 times"
+    },
+    "rainyDayWarrior": {
+      "name": "Rainy Day Warrior",
+      "description": "Practiced in bad weather",
+      "howToEarn": "Show up when the weather is rough"
+    },
+    "fourWeekStreak": {
+      "name": "On Fire",
+      "description": "4 weeks attendance streak",
+      "howToEarn": "Attend every event for 4 weeks in a row"
+    },
+    "eightWeekStreak": {
+      "name": "Unstoppable",
+      "description": "8 weeks attendance streak",
+      "howToEarn": "Attend every event for 8 weeks in a row"
+    },
+    "ironWill": {
+      "name": "Iron Will",
+      "description": "Full season perfect attendance",
+      "howToEarn": "Never miss a single event all season"
+    }
+  },
+  "skills": {
+    "firstGoal": {
+      "name": "First Goal",
+      "description": "Scored your first goal",
+      "howToEarn": "Score a goal in a game"
+    },
+    "hatTrick": {
+      "name": "Hat Trick Hero",
+      "description": "Scored 3 goals in one game",
+      "howToEarn": "Score 3 goals in a single match"
+    },
+    "cleanSheet": {
+      "name": "Clean Sheet",
+      "description": "Kept a clean sheet as goalkeeper",
+      "howToEarn": "Play as goalkeeper and don't let any goals in"
+    },
+    "bothFeet": {
+      "name": "Both Feet",
+      "description": "Scored with both left and right foot",
+      "howToEarn": "Score at least one goal with each foot"
+    },
+    "setPieceSpecialist": {
+      "name": "Set Piece Specialist",
+      "description": "Scored from a free kick or corner",
+      "howToEarn": "Score directly from a set piece"
+    },
+    "speedDemon": {
+      "name": "Speed Demon",
+      "description": "Fastest player in a sprint drill",
+      "howToEarn": "Win a sprint competition at practice"
+    },
+    "wallOfDefense": {
+      "name": "Wall of Defense",
+      "description": "Outstanding defensive performance",
+      "howToEarn": "Coach awards this for great defending"
+    },
+    "goldenGloves": {
+      "name": "Golden Gloves",
+      "description": "Made 5+ saves in one game",
+      "howToEarn": "Make at least 5 saves as goalkeeper in a match"
+    }
+  },
+  "teamwork": {
+    "assistKing": {
+      "name": "Assist King",
+      "description": "Made 5 assists",
+      "howToEarn": "Set up 5 goals for your teammates"
+    },
+    "encourager": {
+      "name": "Encourager",
+      "description": "Supported teammates who were struggling",
+      "howToEarn": "Coach awards this for lifting up teammates"
+    },
+    "goodSport": {
+      "name": "Good Sport",
+      "description": "Showed great sportsmanship",
+      "howToEarn": "Coach awards this for fair play"
+    },
+    "teamCaptain": {
+      "name": "Team Captain",
+      "description": "Showed leadership on the field",
+      "howToEarn": "Coach awards this for leading the team"
+    },
+    "helperHand": {
+      "name": "Helping Hand",
+      "description": "Helped set up or clean up without being asked",
+      "howToEarn": "Help with equipment before or after practice"
+    },
+    "greatTeammate": {
+      "name": "Great Teammate",
+      "description": "Consistently supported others",
+      "howToEarn": "Coach tags you as Great Teammate 3 times"
+    }
+  },
+  "milestones": {
+    "firstPractice": {
+      "name": "First Practice",
+      "description": "Attended your first practice",
+      "howToEarn": "Show up to your first practice"
+    },
+    "firstGame": {
+      "name": "First Game",
+      "description": "Played in your first game",
+      "howToEarn": "Play in your first match"
+    },
+    "firstSeason": {
+      "name": "First Season Complete",
+      "description": "Completed your first season",
+      "howToEarn": "Finish an entire season with the team"
+    },
+    "games25": {
+      "name": "25 Games",
+      "description": "Played in 25 games",
+      "howToEarn": "Play in 25 matches total"
+    },
+    "games50": {
+      "name": "50 Games",
+      "description": "Played in 50 games",
+      "howToEarn": "Play in 50 matches total"
+    },
+    "games100": {
+      "name": "Century Player",
+      "description": "Played in 100 games",
+      "howToEarn": "Play in 100 matches total"
+    },
+    "oneYear": {
+      "name": "One Year Strong",
+      "description": "One year with the team",
+      "howToEarn": "Be on the team for a full year"
+    },
+    "mostImproved": {
+      "name": "Most Improved",
+      "description": "Showed the most improvement",
+      "howToEarn": "Coach awards this for amazing progress"
+    }
+  },
+  "special": {
+    "worldCup2026": {
+      "name": "World Cup 2026",
+      "description": "Part of the team during World Cup 2026",
+      "howToEarn": "Be active during the 2026 World Cup summer"
+    },
+    "tournamentChampion": {
+      "name": "Tournament Champion",
+      "description": "Won a tournament",
+      "howToEarn": "Win a tournament with your team"
+    },
+    "penaltyPerfect": {
+      "name": "Penalty Perfect",
+      "description": "Scored a penalty kick",
+      "howToEarn": "Score from the penalty spot"
+    },
+    "matchMVP": {
+      "name": "MVP",
+      "description": "Most Valuable Player of a match",
+      "howToEarn": "Coach names you MVP after a game"
+    },
+    "coachsPick": {
+      "name": "Coach's Pick",
+      "description": "Selected by coach for outstanding effort",
+      "howToEarn": "Coach picks you as standout player"
+    },
+    "messiSleep": {
+      "name": "Messi Sleep",
+      "description": "Got 8+ hours sleep for 7 nights",
+      "howToEarn": "Complete the sleep habit for 7 days in a row"
+    },
+    "ronaldoWorkEthic": {
+      "name": "Ronaldo Work Ethic",
+      "description": "Stayed after practice 3 times",
+      "howToEarn": "Put in extra work after 3 practices"
+    },
+    "healthyHabits": {
+      "name": "Healthy Habits",
+      "description": "Completed all daily habits for a week",
+      "howToEarn": "Check off water, sleep, food, and stretch for 7 days"
+    }
+  },
+  "effort": {
+    "gaveEverything": {
+      "name": "Gave Everything",
+      "description": "Gave 100% effort in practice",
+      "howToEarn": "Coach tags you as Gave Full Effort 3 times"
+    },
+    "neverGaveUp": {
+      "name": "Never Gave Up",
+      "description": "Kept trying even when it was hard",
+      "howToEarn": "Coach awards this for persistence"
+    },
+    "practiceHard": {
+      "name": "Practice Hard",
+      "description": "Consistently high effort in training",
+      "howToEarn": "Get Gave Full Effort tag 5 times"
+    }
+  }
+}

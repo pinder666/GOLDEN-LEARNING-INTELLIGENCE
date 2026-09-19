@@ -1,0 +1,136 @@
+{
+  "dashboard": {
+    "yourCard": "Your Player Card",
+    "coachSays": "Coach Says",
+    "proHabit": "Pro Habit of the Day",
+    "todaysHabits": "Today's Habits",
+    "habitsComplete": "{{done}} of {{total}} Done",
+    "nextEvent": "Next Up",
+    "daysUntil": "{{count}} days away",
+    "tomorrow": "Tomorrow!",
+    "today": "Today!"
+  },
+  "playerCard": {
+    "level": "Level {{level}}",
+    "rank": "Rank #{{rank}}",
+    "points": "{{points}} pts",
+    "streak": "{{count}} week streak",
+    "tapToFlip": "Tap to flip",
+    "cardBack": "Stats",
+    "attendance": "Attendance",
+    "effort": "Effort",
+    "teamwork": "Teamwork",
+    "skill": "Skill"
+  },
+  "cardFrames": {
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "diamond": "Diamond"
+  },
+  "badges": {
+    "title": "My Badges",
+    "collected": "{{earned}} of {{total}} Collected",
+    "locked": "Locked",
+    "earnedOn": "Earned on {{date}}",
+    "howToEarn": "How to earn",
+    "rarity": {
+      "common": "Common",
+      "uncommon": "Uncommon",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    },
+    "categories": {
+      "attendance": "Attendance",
+      "skills": "Skills",
+      "teamwork": "Teamwork",
+      "milestones": "Milestones",
+      "special": "Special",
+      "rare": "Rare"
+    },
+    "newBadge": "New Badge!",
+    "congrats": "Congratulations!",
+    "youEarned": "You earned"
+  },
+  "leaderboard": {
+    "title": "Team Leaderboard",
+    "thisWeek": "This Week",
+    "thisSeason": "This Season",
+    "allTime": "All Time",
+    "yourRank": "Your Rank",
+    "movedUp": "You moved up {{count}} spots!",
+    "movedDown": "Down {{count}}",
+    "noChange": "Same spot",
+    "points": "pts",
+    "firstPlace": "1st",
+    "secondPlace": "2nd",
+    "thirdPlace": "3rd"
+  },
+  "streaks": {
+    "title": "My Streaks",
+    "attendance": "Attendance Streak",
+    "effort": "Effort Streak",
+    "teammate": "Teammate Streak",
+    "weeks": "{{count}} weeks",
+    "onFire": "On Fire!",
+    "keepItGoing": "Keep it going!",
+    "streakShield": "Streak Shield Active",
+    "shieldUsed": "Shield used! Back at it.",
+    "startStreak": "Start your streak!"
+  },
+  "habits": {
+    "title": "Daily Habits",
+    "water": "Drank water today",
+    "sleep": "Got 8+ hours sleep",
+    "food": "Ate a healthy meal",
+    "stretch": "Stretched today",
+    "allDone": "All habits complete!",
+    "proComparison": "You just did what {{player}} does!",
+    "greatJob": "Great job!",
+    "keepGoing": "Keep going!"
+  },
+  "journey": {
+    "title": "My Journey",
+    "progress": "Your Progress",
+    "completed": "Completed",
+    "nextMilestone": "Next Milestone",
+    "seasonChampion": "Season Champion",
+    "milestones": {
+      "firstPractice": "First Practice",
+      "firstWeek": "First Week Complete",
+      "firstGoal": "Score First Goal",
+      "fourWeekStreak": "4-Week Streak",
+      "fiveBadges": "Earn 5 Badges",
+      "silverCard": "Reach Silver Card",
+      "tenBadges": "Earn 10 Badges",
+      "goldCard": "Reach Gold Card",
+      "halfSeason": "Halfway Through Season",
+      "fullSeason": "Complete Full Season"
+    }
+  },
+  "schedule": {
+    "title": "My Schedule",
+    "upcoming": "Upcoming",
+    "noEvents": "No events coming up",
+    "countdown": "{{days}} days, {{hours}} hours",
+    "getReady": "Get ready!"
+  },
+  "coachMessage": {
+    "fromCoach": "From Coach {{name}}",
+    "newMessage": "New message from your coach!"
+  },
+  "celebrations": {
+    "badgeUnlocked": "Badge Unlocked!",
+    "levelUp": "Level Up!",
+    "newStreak": "Streak Started!",
+    "streakMilestone": "{{count}} Week Streak!",
+    "rankUp": "You moved up!",
+    "cardUpgrade": "Card Upgraded!",
+    "awesome": "Awesome!",
+    "amazing": "Amazing!",
+    "legendary": "Legendary!",
+    "keepItUp": "Keep it up!"
+  }
+}

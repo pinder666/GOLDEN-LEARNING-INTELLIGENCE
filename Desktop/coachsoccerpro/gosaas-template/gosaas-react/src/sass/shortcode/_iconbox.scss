@@ -1,0 +1,340 @@
+/*--------------------------------------------------------------
+  14. Iconbox
+----------------------------------------------------------------*/
+.cs_iconbox.cs_style_1 {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .cs_iconbox_icon {
+    width: 87px;
+    height: 87px;
+    padding: 10px;
+  }
+
+  img {
+    transition: all 0.6s ease-in-out;
+  }
+
+  .cs_iconbox_info {
+    margin-top: auto;
+  }
+
+  .cs_iconbox_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    .cs_btn_icon {
+      width: 20px;
+      height: 20px;
+      transform: rotate(-45deg);
+      overflow: hidden;
+    }
+
+    .cs_btn_icon i,
+    .cs_btn_icon svg {
+      text-shadow: -20px 0px 0px currentColor;
+      transition: all 0.3s ease;
+    }
+
+    &:hover {
+      color: var(--purple-color);
+
+      .cs_btn_icon i,
+      .cs_btn_icon svg {
+        transform: translatex(20px);
+      }
+    }
+  }
+
+  &.cs_type_1 {
+    padding: 60px 15px 54px;
+
+    .cs_iconbox_icon {
+      width: 70px;
+      height: 70px;
+    }
+
+    br {
+      display: block;
+    }
+
+    .cs_iconbox_title {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      -webkit-line-clamp: 1;
+    }
+
+    .cs_bg_1 {
+      background-color: #6de8f2;
+    }
+
+    .cs_bg_2 {
+      background-color: #6df2a2;
+    }
+  }
+
+  &:hover {
+    img {
+      transform: rotatey(360deg);
+    }
+  }
+}
+
+.cs_iconbox.cs_style_2 {
+  height: 100%;
+  padding: 40px 35px 35px 40px;
+  box-shadow: 0px 0px 30px 0px rgba(10, 10, 16, 0.04);
+
+  .cs_iconbox_icon {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.15, 1);
+
+    &::before {
+      content: "";
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background-color: var(--accent-color);
+      opacity: 0.1;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    svg,
+    img {
+      transform: translate(-8px, 12px);
+    }
+
+    &.cs_purple_color {
+      &::before {
+        background-color: var(--purple-color);
+      }
+    }
+  }
+
+  &.cs_type_1 {
+    border: 1px solid #252d32;
+
+    .cs_iconbox_icon {
+      width: 70px;
+      height: 70px;
+      background-color: #c3aeff;
+
+      &::before {
+        display: none;
+      }
+
+      &.cs_bg_2 {
+        background-color: #6df2a2;
+      }
+
+      &.cs_bg_3 {
+        background-color: #6df2d0;
+      }
+
+      &.cs_bg_4 {
+        background-color: #6de8f2;
+      }
+
+      &.cs_bg_5 {
+        background-color: #9bf26d;
+      }
+    }
+  }
+
+  &.cs_type_2 {
+    padding: 0;
+    box-shadow: none;
+  }
+
+  &.cs_type_3 {
+    padding: 45px 38px 43px;
+
+    .cs_iconbox_icon {
+      width: max-content;
+      height: max-content;
+      padding: 0;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  &:hover {
+    .cs_iconbox_icon {
+      transform: scale(1.1);
+    }
+  }
+
+  @media (max-width: 1199px) {
+    padding: 30px 15px;
+  }
+}
+// react style for home 3
+.cs_iconbox.cs_style_2.cs_type_1 .cs_iconbox_icon img {
+  transform: initial;
+}
+
+.cs_iconbox.cs_style_3 {
+  padding: 13px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-wrap: nowrap;
+}
+
+.cs_iconbox.cs_style_4 {
+  display: flex;
+  gap: 25px;
+
+  .cs_iconbox_icon {
+    width: 65px;
+    height: 65px;
+    padding: 5px;
+    flex: none;
+    background-color: #6df2d0;
+    color: #008f6b;
+  }
+
+  &:nth-child(2) {
+    .cs_iconbox_icon {
+      background-color: #6de8f2;
+      color: var(--purple-color);
+    }
+  }
+
+  &:nth-child(3) {
+    .cs_iconbox_icon {
+      background-color: #6df2a2;
+      color: #00a843;
+    }
+  }
+
+  @media (max-width: 400px) {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  &.cs_type_1 {
+    .cs_iconbox_icon {
+      background-color: var(--accent-color);
+      color: var(--white-color);
+    }
+  }
+}
+
+.cs_iconbox.cs_style_5 {
+  width: 312px;
+  height: 141px;
+  padding: 20px;
+  background-color: #121b21;
+  border: 1px solid #252d32;
+}
+
+.cs_iconbox.cs_style_6 {
+  display: flex;
+  gap: 30px;
+
+  .cs_iconbox_icon {
+    width: 70px;
+    height: 70px;
+    flex: none;
+  }
+
+  .cs_iconbox_info {
+    padding-top: 15px;
+  }
+
+  // react style
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 400px) {
+    flex-direction: column;
+    gap: 25px;
+
+    .cs_iconbox_info {
+      padding-top: 0;
+    }
+  }
+}
+
+.cs_iconbox.cs_style_7 {
+  height: 100%;
+  padding: 45px 44px 42px;
+
+  .cs_iconbox_icon {
+    display: inline-block;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.15, 1);
+  }
+
+  &:hover {
+    .cs_iconbox_icon {
+      transform: scale(1.1);
+    }
+  }
+
+  @media (max-width: 1199px) {
+    padding: 40px 24px 35px 30px;
+  }
+
+  @media (max-width: 575px) {
+    padding: 40px 20px 35px;
+  }
+}
+
+.cs_iconbox.cs_style_8 {
+  display: flex;
+  max-width: 439px;
+  gap: 30px;
+
+  .cs_iconbox_icon {
+    position: relative;
+    padding: 25px 0 0 24px;
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    &::before {
+      content: "";
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--purple-color);
+      transition: all 0.3s ease;
+      opacity: 0.1;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
+  &:hover {
+    .cs_iconbox_icon {
+      &::before {
+        opacity: 0.3;
+      }
+    }
+  }
+
+  @media (max-width: 400px) {
+    flex-direction: column;
+  }
+}

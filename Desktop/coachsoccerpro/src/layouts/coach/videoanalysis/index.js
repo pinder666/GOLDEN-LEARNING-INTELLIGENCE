@@ -18,6 +18,7 @@ import {
   guideDetect,
   exportWalkthroughVideo,
 } from "services/videoAnalysis";
+import { sampleFrames, analyzeClip, mintLine, mintLines } from "services/videoAI";
 
 // Dev roster for tagging (production: the coach's real roster from Supabase)
 const ROSTER = [
@@ -38,6 +39,7 @@ function LiveCapture({ scenario, lang, onDone, onCancel }) {
   const recRef = useRef(null);
   const chunksRef = useRef([]);
   const busyRef = useRef(false);
+  const lastCenterRef = useRef(null); // for camera-shake ("hold steady") detection
   const [ready, setReady] = useState(false);
   const [rec, setRec] = useState(false);
   const [secs, setSecs] = useState(0);
@@ -75,12 +77,25 @@ function LiveCapture({ scenario, lang, onDone, onCancel }) {
             const nearEdge = people.some(
               (p) => p.hipX < 0.07 || p.hipX > 0.93 || p.hipY > 0.96
             );
+            // biggest person's centre → camera-shake check between reads
+            const big = people.length ? people.reduce((a, b) => (b.torso > a.torso ? b : a)) : null;
+            let shaky = false;
+            if (big) {
+              const prev = lastCenterRef.current;
+              if (prev) { const d = Math.hypot(big.hipX - prev.x, big.hipY - prev.y); shaky = d > 0.14; }
+              lastCenterRef.current = { x: big.hipX, y: big.hipY };
+            } else { lastCenterRef.current = null; }
+
             if (!people.length) {
               setHint({ text: t("POINT AT THE ACTION", "APUNTA A LA ACCIÓN"), color: "#ef4444", good: false });
             } else if (maxTorso < 0.11) {
               setHint({ text: t("MOVE CLOSER", "ACÉRCATE"), color: "#fbbf24", good: false });
+            } else if (maxTorso > 0.6) {
+              setHint({ text: t("STEP BACK — TOO CLOSE", "RETROCEDE — MUY CERCA"), color: "#fbbf24", good: false });
             } else if (nearEdge) {
               setHint({ text: t("KEEP PLAYERS IN FRAME", "MANTÉN A LOS JUGADORES EN CUADRO"), color: "#fbbf24", good: false });
+            } else if (shaky) {
+              setHint({ text: t("HOLD STEADY", "MANTÉN FIRME"), color: "#fbbf24", good: false });
             } else if (scenario !== "open" && people.length < 2) {
               setHint({ text: t("GET BOTH PLAYERS IN", "INCLUYE A AMBOS JUGADORES"), color: "#60a5fa", good: false });
             } else {
@@ -224,6 +239,9 @@ function VideoAnalysis() {
   const [analysisError, setAnalysisError] = useState(null);
   const [scenario, setScenario] = useState("open");
   const [keeperNote, setKeeperNote] = useState(null);
+  const [proEngine, setProEngine] = useState(true); // RTMO (Chinese pose stack) is the default engine — raw
+  const [aiRead, setAiRead] = useState(null);        // Claude vision read (build #1+#2)
+  const [aiStatus, setAiStatus] = useState("");      // "reading" while the AI is thinking
   const [shareBusy, setShareBusy] = useState(false);
   const [targetIndex, setTargetIndex] = useState(0); // which tapped player the report focuses on
   const [anchors, setAnchors] = useState([]);        // coach-tapped player targets
@@ -252,6 +270,30 @@ function VideoAnalysis() {
 
   const t = (en, es) => lang === "es" ? es : en;
 
+  // Jump the clip to a play-by-play moment and freeze on it (slow-mo focus).
+  const seekMoment = (m) => {
+    const video = videoRef.current;
+    if (!video || m == null || m.t == null) return;
+    try {
+      stopVoice();
+      video.pause();
+      const onSeeked = () => {
+        video.removeEventListener("seeked", onSeeked);
+        // redraw the overlay for this frame
+        const oc = outcomeRef.current;
+        if (oc && oc.allFrames) {
+          let best = oc.allFrames[0];
+          for (const f of oc.allFrames) if (Math.abs(f.t - m.t) < Math.abs(best.t - m.t)) best = f;
+          let ball = null;
+          if (oc.ballPath) ball = oc.ballPath.reduce((p, c) => (Math.abs(c.t - m.t) < Math.abs(p.t - m.t) ? c : p), oc.ballPath[0]);
+          if (best) drawOverlay(best.poses, m.t, ball);
+        }
+      };
+      video.addEventListener("seeked", onSeeked);
+      video.currentTime = m.t;
+    } catch (e) {}
+  };
+
   const stopVoice = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -273,9 +315,13 @@ function VideoAnalysis() {
     playNext();
   };
 
-  const speakOne = (insight) => {
+  const speakOne = async (insight) => {
     stopVoice();
-    audioRef.current = playAnalysisLine(insight.audioKey, lang);
+    if (insight.audioKey) { audioRef.current = playAnalysisLine(insight.audioKey, lang); return; }
+    // AI card (no canned key) — read its coaching line in the real coach voice.
+    const text = lang === "es" ? (insight.feedbackEs || insight.feedback) : insight.feedback;
+    const url = await mintLine(text, lang);
+    if (url) { const a = new Audio(url); audioRef.current = a; a.play().catch(() => {}); }
   };
 
   // Live skeleton overlay during analysis (+ tracked ball when tapped)
@@ -526,6 +572,7 @@ function VideoAnalysis() {
     setProgress(0);
     setResults(null);
     setKeeperNote(null);
+    setAiRead(null);
     setAnalysisError(null);
 
     try {
@@ -536,6 +583,7 @@ function VideoAnalysis() {
         ballAnchor: ballAnchor || undefined,
         crop: cropRect || undefined,
         onFrame: drawOverlay,
+        engine: proEngine ? "rtmo" : "mediapipe",
       });
       outcomeRef.current = outcome;
 
@@ -564,6 +612,35 @@ function VideoAnalysis() {
         const insights = buildInsights(outcome.metrics);
         setResults(insights);
         outcome.voiceKeys = ["intro", ...insights.map((i) => i.audioKey)];
+      }
+
+      // ── AI read (build #1 vision + #2): a specific, per-clip read spoken in
+      // the REAL coach voice. Overrides the canned cards + audio when it lands;
+      // silently keeps the on-device insights if there's no key or it fails. ──
+      if (!outcome.error) {
+        setAiStatus(t("Reading the clip…", "Analizando el clip…"));
+        try {
+          const frames = await sampleFrames(video, 6);
+          const playerName = taggedPlayer || (anchors[targetIndex] && anchors[targetIndex].name) || "";
+          const ai = await analyzeClip({
+            scenario,
+            metrics: { ...outcome.metrics, ball: outcome.ballMetrics || null, ballAutoFound: outcome.autoBall || false, playersOnScreen: outcome.detectedPlayers || 0 },
+            playerName, frames, lang,
+          });
+          if (ai) {
+            setAiRead(ai);
+            // Play-by-play: the moments (with real frame timestamps) drive both
+            // the on-screen breakdown and the slow-mo walkthrough.
+            const moments = (lang === "es" ? (ai.momentsEs || ai.moments) : ai.moments) || ai.moments || [];
+            // carry timestamps from the EN moments (Spanish copy may lack them)
+            moments.forEach((m, i) => { if (m.t == null && ai.moments && ai.moments[i]) m.t = ai.moments[i].t; });
+            outcome.moments = moments;
+            const spoken = (lang === "es" ? (ai.spokenEs || ai.spoken) : ai.spoken) || [];
+            const urls = await mintLines(spoken, lang);
+            if (urls.some(Boolean)) { outcome.aiAudioUrls = urls; outcome.aiSpoken = spoken; }
+          }
+        } catch (e) { /* keep the on-device insights */ }
+        setAiStatus("");
       }
 
       // The result IS the walkthrough: slow motion, skeletons live, the
@@ -704,20 +781,22 @@ function VideoAnalysis() {
         momentDone = true;
         video.pause();
         drawAt(momentT);
-        // Speak the verdicts over the frozen key moment, then resume
+        // Speak the verdicts over the frozen key moment, then resume.
+        // Prefer the AI's real-voice read (varied per clip); fall back to canned.
+        const aiUrls = (outcome.aiAudioUrls || []).filter(Boolean);
+        const useAi = aiUrls.length > 0;
         const keys = outcome.voiceKeys
           || [...(results || []).map((c) => c.audioKey), ...(keeperNote ? [keeperNote.audioKey] : [])];
+        const n = useAi ? aiUrls.length : keys.length;
         let idx = 0;
         const next = () => {
           if (!state.active) return;
-          if (idx >= keys.length) {
-            video.play().catch(() => {});
-            return;
-          }
-          const audio = playAnalysisLine(keys[idx], lang);
+          if (idx >= n) { video.play().catch(() => {}); return; }
+          const audio = useAi ? new Audio(aiUrls[idx]) : playAnalysisLine(keys[idx], lang);
           audioRef.current = audio;
           idx += 1;
           audio.onended = next;
+          if (useAi) audio.play().catch(() => next());
         };
         next();
       }
@@ -807,8 +886,9 @@ function VideoAnalysis() {
         {/* Header */}
         <VuiBox mb={1} display="flex" justifyContent="space-between" alignItems="center">
           <VuiBox>
-            <VuiTypography variant="h5" color="white" fontWeight="bold">
+            <VuiTypography variant="h5" color="white" fontWeight="bold" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
               {t("Video Analysis", "Análisis de Video")}
+              <span style={{ background: "rgba(251,191,36,.18)", color: "#fbbf24", border: "1px solid rgba(251,191,36,.5)", borderRadius: 6, padding: "1px 7px", fontSize: 10, fontWeight: 800, letterSpacing: ".08em" }}>BETA</span>
             </VuiTypography>
             <VuiTypography variant="caption" color="text">
               {t("Upload a clip. AI analyzes player movement.", "Sube un clip. La IA analiza el movimiento del jugador.")}
@@ -833,6 +913,21 @@ function VideoAnalysis() {
                 </button>
               ))}
             </div>
+
+            {/* Pro pose engine (RTMO — Chinese one-stage, better in crowds) */}
+            <button onClick={() => setProEngine((v) => !v)} disabled={analyzing}
+              title={t("Pro pose engine (RTMO) — better with many players", "Motor pro (RTMO) — mejor con muchos jugadores")}
+              style={{
+                background: proEngine ? "rgba(96,165,250,.2)" : "rgba(255,255,255,.08)",
+                color: proEngine ? "#60a5fa" : "rgba(255,255,255,.6)",
+                border: `1px solid ${proEngine ? "rgba(96,165,250,.5)" : "rgba(255,255,255,.15)"}`,
+                borderRadius: 20, padding: "5px 14px", fontSize: 12, fontWeight: 700,
+                cursor: analyzing ? "default" : "pointer", fontFamily: "Inter,sans-serif",
+                display: "inline-flex", alignItems: "center", gap: 6,
+              }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: proEngine ? "#60a5fa" : "rgba(255,255,255,.35)" }} />
+              {proEngine ? "RTMO ON" : "Pro engine"}
+            </button>
 
             <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,.08)", borderRadius: 20, padding: 3 }}>
               {["en", "es"].map(l => (
@@ -903,6 +998,10 @@ function VideoAnalysis() {
                     {t("MP4, MOV, or WEBM • Max 100MB", "MP4, MOV o WEBM • Máx 100MB")}
                   </VuiTypography>
 
+                  <VuiTypography variant="caption" sx={{ color: "rgba(96,165,250,.7)", display: "block", marginTop: 10 }}>
+                    {t("Film in-app and I'll guide your shot live for the perfect read.", "Graba en la app y te guío en vivo para la lectura perfecta.")}
+                  </VuiTypography>
+
                   {/* Film straight from the phone camera — in-app, with the
                       live blinker coaching the shot */}
                   <button
@@ -949,7 +1048,7 @@ function VideoAnalysis() {
                 <VuiTypography variant="button" sx={{ color: step === "players" ? "#f97316" : "#fb923c", fontWeight: 800 }}>
                   {step === "players"
                     ? `1/3 — ${t("Tap a player to lock on", "Toca un jugador para fijarlo")}`
-                    : `2/3 — ${t("Now tap the ball", "Ahora toca el balón")}`}
+                    : `2/3 — ${t("Tap the ball, or let me find it", "Toca el balón, o deja que lo encuentre")}`}
                 </VuiTypography>
                 <VuiTypography variant="caption" sx={{
                   color: lockError ? "#fbbf24" : "rgba(255,255,255,.55)",
@@ -967,7 +1066,7 @@ function VideoAnalysis() {
                         : scenario === "penalty"
                           ? t("Lock the kicker — lock the keeper too for the keeper read", "Fija al lanzador — fija también al portero para su lectura")
                           : t("Lock 1-4 players — or drag a box to set the arena first", "Fija 1-4 jugadores — o arrastra un recuadro para definir el área primero")
-                    : t("The orange ring will follow it", "El anillo naranja lo seguirá")}
+                    : t("Tap it and the ring follows — or Auto-find and I'll detect the ball myself", "Tócalo y el anillo lo sigue — o Detección automática y encuentro el balón yo misma")}
                 </VuiTypography>
                 {step === "players" && (
                   <button
@@ -994,12 +1093,12 @@ function VideoAnalysis() {
                       setStep("ready");
                     }}
                     style={{
-                      background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.7)",
-                      border: "none", borderRadius: 8, padding: "8px 14px",
+                      background: "rgba(96,165,250,.15)", color: "#60a5fa",
+                      border: "1px solid rgba(96,165,250,.4)", borderRadius: 8, padding: "8px 14px",
                       fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Inter,sans-serif",
                     }}
                   >
-                    {t("Skip ball", "Sin balón")}
+                    {t("🎯 Auto-find the ball", "🎯 Detectar el balón")}
                   </button>
                 )}
               </VuiBox>
@@ -1107,17 +1206,97 @@ function VideoAnalysis() {
           <VuiBox sx={{
             width: { xs: "100%", md: 340 }, flexShrink: 0, background: "rgba(255,255,255,.04)",
             borderRadius: "12px", padding: "14px 16px",
-            overflow: { xs: "visible", md: "hidden" },
+            overflowY: { xs: "visible", md: "auto" }, overflowX: "hidden",
             display: "flex", flexDirection: "column",
             minHeight: { xs: 300, md: "auto" },
+            scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
           }}>
             <VuiTypography variant="button" color="white" fontWeight="bold" mb={1.5}>
               {t("Analysis Results", "Resultados del Análisis")}
             </VuiTypography>
 
+            {/* What the analyst SAW — on-device ball + player detection */}
+            {results && outcomeRef.current && (outcomeRef.current.engine || outcomeRef.current.autoBall || outcomeRef.current.detectedPlayers > 0) && (
+              <VuiBox mb={1.5} sx={{ background: "rgba(96,165,250,.08)", border: "1px solid rgba(96,165,250,.25)", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ color: "#60a5fa", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", fontFamily: "Inter,sans-serif" }}>
+                    🎯 {t("What I saw", "Lo que vi")}
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".04em", borderRadius: 6, padding: "2px 7px", fontFamily: "Inter,sans-serif",
+                    background: outcomeRef.current.engine === "rtmo" ? "rgba(96,165,250,.2)" : "rgba(255,255,255,.1)",
+                    color: outcomeRef.current.engine === "rtmo" ? "#60a5fa" : "rgba(255,255,255,.5)" }}>
+                    {outcomeRef.current.engine === "rtmo" ? "RTMO ✓" : t("MediaPipe (RTMO failed)", "MediaPipe (RTMO falló)")}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                  {outcomeRef.current.detectedPlayers > 0 && (
+                    <div><div style={{ color: "#fff", fontSize: 16, fontWeight: 800, fontFamily: "Inter,sans-serif" }}>{outcomeRef.current.detectedPlayers}</div><div style={{ color: "rgba(255,255,255,.6)", fontSize: 10 }}>{t("players on screen", "jugadores en pantalla")}</div></div>
+                  )}
+                  {outcomeRef.current.autoBall && (
+                    <div><div style={{ color: "#60a5fa", fontSize: 16, fontWeight: 800, fontFamily: "Inter,sans-serif" }}>✓</div><div style={{ color: "rgba(255,255,255,.6)", fontSize: 10 }}>{t("ball found automatically", "balón detectado")}</div></div>
+                  )}
+                  {outcomeRef.current.ballMetrics && (
+                    <div><div style={{ color: "#fff", fontSize: 16, fontWeight: 800, fontFamily: "Inter,sans-serif" }}>{outcomeRef.current.ballMetrics.inPlayPct}%</div><div style={{ color: "rgba(255,255,255,.6)", fontSize: 10 }}>{t("ball in play", "balón en juego")}</div></div>
+                  )}
+                </div>
+              </VuiBox>
+            )}
+
+            {aiStatus && (
+              <VuiBox mb={1.5} sx={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(249,115,22,.08)", border: "1px solid rgba(249,115,22,.25)", borderRadius: 10, padding: "8px 12px" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f97316", animation: "pulse 1s infinite" }} />
+                <VuiTypography variant="caption" sx={{ color: "#f97316", fontSize: 11, fontWeight: 700 }}>{aiStatus}</VuiTypography>
+              </VuiBox>
+            )}
+
+            {aiRead && aiRead.canSee === false && (
+              <VuiBox mb={1.5} sx={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.3)", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: "#ef4444", fontSize: 12, fontWeight: 800, fontFamily: "Inter,sans-serif", marginBottom: 3 }}>{t("Couldn't read the play", "No pude leer la jugada")}</div>
+                <div style={{ color: "rgba(255,255,255,.7)", fontSize: 11, lineHeight: 1.5, fontFamily: "Inter,sans-serif" }}>{lang === "es" ? (aiRead.observedEs || aiRead.observed) : aiRead.observed}</div>
+                <div style={{ color: "rgba(255,255,255,.45)", fontSize: 10, marginTop: 4 }}>{t("Try a closer clip where the player and ball are clearly visible.", "Prueba un clip más cercano donde el jugador y el balón se vean claramente.")}</div>
+              </VuiBox>
+            )}
+
+            {aiRead && aiRead.canSee !== false && (
+              <VuiBox mb={1.5} sx={{ background: "rgba(249,115,22,.08)", border: "1px solid rgba(249,115,22,.25)", borderRadius: 10, padding: "10px 12px" }}>
+                {/* What it saw + the standard it judged against (the "why") */}
+                <div style={{ color: "#f97316", fontSize: 13, fontWeight: 800, fontFamily: "Inter,sans-serif", marginBottom: 3 }}>{aiRead.headline}</div>
+                {aiRead.context && <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11, lineHeight: 1.5, fontFamily: "Inter,sans-serif" }}><b>{t("Saw", "Vi")}:</b> {lang === "es" ? (aiRead.contextEs || aiRead.context) : aiRead.context}</div>}
+                {aiRead.standard && <div style={{ color: "rgba(255,255,255,.6)", fontSize: 11, lineHeight: 1.5, fontFamily: "Inter,sans-serif", marginTop: 2 }}><b>{t("Judged against", "Comparado con")}:</b> {lang === "es" ? (aiRead.standardEs || aiRead.standard) : aiRead.standard}</div>}
+
+                {/* PLAY BY PLAY — one step per moment, tied to the clip */}
+                {outcomeRef.current && outcomeRef.current.moments && outcomeRef.current.moments.length > 0 && (
+                  <VuiBox mt={1.2}>
+                    <div style={{ color: "rgba(255,255,255,.5)", fontSize: 9, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", marginBottom: 6 }}>▶ {t("Play by play", "Jugada a jugada")}</div>
+                    {outcomeRef.current.moments.map((m, i) => (
+                      <div key={i} onClick={() => seekMoment(m)} title={t("Jump to this moment", "Ir a este momento")} style={{
+                        display: "flex", gap: 8, padding: "6px 0", borderTop: i ? "1px solid rgba(255,255,255,.06)" : "none", cursor: m.t != null ? "pointer" : "default",
+                      }}>
+                        <span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: "50%", background: m.good ? "rgba(74,222,128,.2)" : "rgba(249,115,22,.2)", color: m.good ? "#4ade80" : "#f97316", fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter,sans-serif" }}>{m.seq || i + 1}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontFamily: "Inter,sans-serif", lineHeight: 1.4 }}>{m.saw}</div>
+                          {m.read && <div style={{ color: m.good ? "#4ade80" : "#fbbf24", fontSize: 11, fontFamily: "Inter,sans-serif", lineHeight: 1.4, marginTop: 1 }}>→ {m.read}</div>}
+                        </div>
+                        {m.t != null && <span style={{ color: "rgba(255,255,255,.35)", fontSize: 9, flexShrink: 0 }}>{m.t.toFixed(1)}s</span>}
+                      </div>
+                    ))}
+                  </VuiBox>
+                )}
+
+                <div style={{ marginTop: 8, display: "inline-block", color: "rgba(255,255,255,.5)", fontSize: 9, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", background: "rgba(255,255,255,.06)", borderRadius: 6, padding: "2px 7px" }}>
+                  🎥 {t("AI play-by-play · tap a step to jump", "IA jugada a jugada · toca un paso")}
+                </div>
+              </VuiBox>
+            )}
+
             {results ? (
-              <VuiBox sx={{ display: "flex", flexDirection: "column", gap: "10px", flex: 1, overflow: "hidden" }}>
-                {results.map((insight, i) => (
+              <VuiBox sx={{ display: "flex", flexDirection: "column", gap: "10px", flex: 1, overflow: "visible" }}>
+                {/* Crude on-device stats only when there's no AI play-by-play,
+                    labelled honestly as rough numbers (never a verdict). */}
+                {!(aiRead && aiRead.canSee !== false) && (
+                <div style={{ color: "rgba(255,255,255,.4)", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>{t("Rough on-device movement stats", "Estadísticas de movimiento (aprox.)")}</div>
+                )}
+                {!(aiRead && aiRead.canSee !== false) && results.map((insight, i) => (
                   <VuiBox key={i} sx={{
                     background: "rgba(0,0,0,.2)", borderRadius: "10px", padding: "12px",
                     borderLeft: `3px solid ${getScoreColor(insight.score)}`,
@@ -1152,6 +1331,14 @@ function VideoAnalysis() {
                     </VuiTypography>
                   </VuiBox>
                 ))}
+
+                {aiRead && aiRead.drill && (
+                  <VuiBox sx={{ background: "rgba(96,165,250,.08)", border: "1px solid rgba(96,165,250,.25)", borderRadius: 10, padding: "12px" }}>
+                    <div style={{ color: "#60a5fa", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4, fontFamily: "Inter,sans-serif" }}>🥅 {t("Drill to fix it", "Ejercicio para corregir")}</div>
+                    <div style={{ color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "Inter,sans-serif" }}>{lang === "es" ? (aiRead.drill.titleEs || aiRead.drill.title) : aiRead.drill.title}</div>
+                    <div style={{ color: "rgba(255,255,255,.7)", fontSize: 11, lineHeight: 1.5, marginTop: 2, fontFamily: "Inter,sans-serif" }}>{lang === "es" ? (aiRead.drill.descEs || aiRead.drill.desc) : aiRead.drill.desc}</div>
+                  </VuiBox>
+                )}
 
                 {/* Tag to roster: this clip becomes part of a kid's story */}
                 <VuiBox display="flex" gap="6px" alignItems="center">

@@ -1,0 +1,155 @@
+{
+  "sleep": {
+    "messi9Hours": {
+      "player": "Lionel Messi",
+      "habit": "Nunca duermo menos de 9 horas. Mi cuerpo lo necesita para recuperarse.",
+      "source": "Múltiples entrevistas"
+    },
+    "ronaldo5Naps": {
+      "player": "Cristiano Ronaldo",
+      "habit": "Tomo 5 siestas cortas de 90 minutos en vez de un sueño largo. La recuperación es todo.",
+      "source": "Entrenador de sueño Nick Littlehales"
+    },
+    "haalandBedtime": {
+      "player": "Erling Haaland",
+      "habit": "Me acuesto a las 10pm cada noche. Sin excepciones. El teléfono se apaga a las 9pm.",
+      "source": "Entrevista 2023"
+    },
+    "mbappeNoScreens": {
+      "player": "Kylian Mbappé",
+      "habit": "Sin pantallas 1 hora antes de dormir. La luz arruina tu sueño.",
+      "source": "Selección francesa"
+    },
+    "benzemaRoutine": {
+      "player": "Karim Benzema",
+      "habit": "La misma hora de dormir cada noche, incluso los fines de semana. Tu cuerpo necesita consistencia.",
+      "source": "Real Madrid"
+    },
+    "sakaRest": {
+      "player": "Bukayo Saka",
+      "habit": "Durante el sueño es cuando los músculos realmente crecen. Protejo mi sueño como protejo el balón.",
+      "source": "Arsenal"
+    },
+    "viniJrRecovery": {
+      "player": "Vinícius Jr",
+      "habit": "Después de un partido grande, duermo aún más. La recuperación es parte del entrenamiento.",
+      "source": "Real Madrid"
+    }
+  },
+  "nutrition": {
+    "messiPasta": {
+      "player": "Lionel Messi",
+      "habit": "Como pasta la noche antes de cada partido. Los carbohidratos te dan energía.",
+      "source": "Nutricionista del Barcelona"
+    },
+    "ronaldoNoSugar": {
+      "player": "Cristiano Ronaldo",
+      "habit": "Sin azúcar, sin alcohol. Como 6 comidas pequeñas al día en vez de 3 grandes.",
+      "source": "Múltiples entrevistas"
+    },
+    "haalandProtein": {
+      "player": "Erling Haaland",
+      "habit": "Como proteína dentro de 30 minutos después de entrenar. Ayuda a reconstruir los músculos.",
+      "source": "Manchester City"
+    },
+    "mbappeNoSoda": {
+      "player": "Kylian Mbappé",
+      "habit": "No tomo refresco. Solo agua y jugos naturales.",
+      "source": "Medios franceses"
+    },
+    "pulisicGameDay": {
+      "player": "Christian Pulisic",
+      "habit": "Desayuno grande, almuerzo ligero el día del partido. Quieres energía pero no el estómago lleno.",
+      "source": "US Soccer"
+    },
+    "pedriWater": {
+      "player": "Pedri",
+      "habit": "Tomo agua todo el día, no solo cuando tengo sed. Mantente adelante de la sed.",
+      "source": "Barcelona"
+    },
+    "bellinghaamFuel": {
+      "player": "Jude Bellingham",
+      "habit": "Piensa en la comida como combustible. ¿Le pondrías mal combustible a un Ferrari?",
+      "source": "Real Madrid"
+    }
+  },
+  "training": {
+    "ronaldoExtra": {
+      "player": "Cristiano Ronaldo",
+      "habit": "Me quedo 30 minutos después de cada entrenamiento. El trabajo extra marca la diferencia.",
+      "source": "Múltiples entrenadores"
+    },
+    "messiWeakFoot": {
+      "player": "Lionel Messi",
+      "habit": "Practico con mi pie débil todos los días. Ambos pies deben ser armas.",
+      "source": "Entrenadores del Barcelona"
+    },
+    "mbappeTired": {
+      "player": "Kylian Mbappé",
+      "habit": "Hago sprints cuando estoy cansado, no cuando estoy fresco. Ahí es cuando cuenta.",
+      "source": "Entrenador francés"
+    },
+    "haalandFinishing": {
+      "player": "Erling Haaland",
+      "habit": "100 tiros después de cada entrenamiento. El remate es una habilidad que se construye.",
+      "source": "Dortmund"
+    },
+    "salaahRepetition": {
+      "player": "Mohamed Salah",
+      "habit": "Repite el mismo movimiento 1000 veces hasta que tu cuerpo lo haga sin pensar.",
+      "source": "Liverpool"
+    },
+    "debruyneVision": {
+      "player": "Kevin De Bruyne",
+      "habit": "Siempre sé dónde están mis compañeros antes de recibir el balón. Mira alrededor constantemente.",
+      "source": "Manchester City"
+    },
+    "neymarCreativity": {
+      "player": "Neymar",
+      "habit": "Practica trucos. El fútbol debe ser divertido. Cuando lo disfrutas, juegas mejor.",
+      "source": "Múltiples entrevistas"
+    }
+  },
+  "mindset": {
+    "messiSmallSteps": {
+      "player": "Lionel Messi",
+      "habit": "Pequeñas mejoras cada día. No te vuelves grande de la noche a la mañana.",
+      "source": "Múltiples entrevistas"
+    },
+    "ronaldoHardWork": {
+      "player": "Cristiano Ronaldo",
+      "habit": "El trabajo duro vence al talento cuando el talento no trabaja duro.",
+      "source": "Cita famosa"
+    },
+    "morganGoals": {
+      "player": "Alex Morgan",
+      "habit": "Escribo mis metas cada temporada. Si no sabes a dónde vas, no llegarás.",
+      "source": "Selección femenina de EE.UU."
+    },
+    "rapinoeVisualize": {
+      "player": "Megan Rapinoe",
+      "habit": "Visualizo mis mejores jugadas la noche antes de un partido. Míralo antes de hacerlo.",
+      "source": "Entrevista"
+    },
+    "sonThankful": {
+      "player": "Son Heung-min",
+      "habit": "Agradezco a mis compañeros después de cada gol. El fútbol es un deporte de equipo.",
+      "source": "Tottenham"
+    },
+    "putellasBelieve": {
+      "player": "Alexia Putellas",
+      "habit": "Cree que perteneces en el campo con cualquiera. La confianza es una decisión.",
+      "source": "Barcelona Femenino"
+    },
+    "modricNeverQuit": {
+      "player": "Luka Modrić",
+      "habit": "El partido nunca termina hasta el pitido final. Sigue luchando.",
+      "source": "Real Madrid"
+    },
+    "rashfordMistakes": {
+      "player": "Marcus Rashford",
+      "habit": "Los errores son lecciones. Cada vez que fallo, aprendo algo nuevo.",
+      "source": "Manchester United"
+    }
+  }
+}

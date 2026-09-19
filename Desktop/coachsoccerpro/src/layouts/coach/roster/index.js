@@ -14,6 +14,7 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
 import VuiButton from "components/VuiButton";
+import RosterImport from "components/RosterImport";
 import VuiAvatar from "components/VuiAvatar";
 import VuiBadge from "components/VuiBadge";
 
@@ -38,6 +39,7 @@ function CoachRoster() {
   const { teamData } = useAuth();
 
   const [players, setPlayers] = useState([]);
+  const [importOpen, setImportOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -155,14 +157,25 @@ function CoachRoster() {
               {t("coach:roster.playerCount", { count: players.length })}
             </VuiTypography>
           </VuiBox>
-          <VuiButton
-            color="info"
-            onClick={() => navigate("/coach/roster/add")}
-            startIcon={<IoAdd />}
-          >
-            {t("coach:roster.addPlayer")}
-          </VuiButton>
+          <VuiBox display="flex" gap={1}>
+            <VuiButton
+              color="warning"
+              variant="outlined"
+              onClick={() => setImportOpen(true)}
+              startIcon={<Icon>upload_file</Icon>}
+            >
+              {t("coach:roster.import", "Import")}
+            </VuiButton>
+            <VuiButton
+              color="info"
+              onClick={() => navigate("/coach/roster/add")}
+              startIcon={<IoAdd />}
+            >
+              {t("coach:roster.addPlayer")}
+            </VuiButton>
+          </VuiBox>
         </VuiBox>
+        <RosterImport open={importOpen} onClose={() => setImportOpen(false)} onImported={() => fetchPlayers()} />
 
         {/* Search & View Toggle */}
         <VuiBox display="flex" gap={2} mb={3}>

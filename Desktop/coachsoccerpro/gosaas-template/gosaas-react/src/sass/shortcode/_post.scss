@@ -1,0 +1,365 @@
+/*--------------------------------------------------------------
+  18. Posts Post Details page
+----------------------------------------------------------------*/
+.cs_post.cs_style_1 {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+
+  .cs_post_thumbnail {
+    width: 390px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      transition: all 0.6s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.06);
+    }
+  }
+
+  .cs_post_content {
+    flex: 1;
+  }
+
+  .cs_post_title {
+    &:hover a {
+      color: var(--purple-color);
+    }
+  }
+
+  .cs_post_meta_wrapper {
+    display: flex;
+    gap: 10px 25px;
+    flex-wrap: wrap;
+
+    @media (max-width:390px) {
+
+      .cs_post_meta {
+        padding-left: 0;
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .cs_post_meta {
+    padding-left: 20px;
+    position: relative;
+
+    &::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      position: absolute;
+      left: 0;
+      top: 12px;
+    }
+
+    &:first-child {
+      padding-left: 0;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width:1199px) {
+    flex-direction: column;
+    gap: 30px;
+
+    .cs_post_thumbnail {
+      width: 100%;
+    }
+  }
+
+}
+
+.cs_post.cs_style_2 {
+
+  .cs_post_thumbnail {
+    display: flex;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      border-radius: inherit;
+      transition: all 0.6s ease-in-out;
+    }
+
+    &:hover {
+      img {
+        transform: scale(1.04);
+      }
+    }
+  }
+
+  .cs_post_content {
+    padding: 36px 30px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 15px 15px;
+    border-top: 0;
+    margin-top: -16px;
+
+    h3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    a:hover {
+      color: var(--purple-color);
+    }
+  }
+
+  @media (max-width:767px) {
+    .cs_post_content {
+      padding: 36px 15px 20px;
+    }
+  }
+}
+
+.cs_post_slider_wrapper {
+  max-width: 1768px;
+  margin: 0 auto;
+}
+
+/*-------------------------------------
+ Blog Details Page
+---------------------------------------*/
+.cs_post_details {
+  .cs_post_meta_wrapper {
+    display: flex;
+    gap: 10px 25px;
+    flex-wrap: wrap;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 33px;
+  }
+
+  h1 {
+    font-size: 50px;
+    font-weight: 600;
+    line-height: 1.3em;
+    margin-bottom: 37px;
+  }
+
+  h2 {
+    font-size: 29px;
+    font-weight: 400;
+    line-height: 1.21em;
+    margin-bottom: 15px;
+  }
+
+  p {
+    margin-bottom: 30px;
+  }
+
+  p:nth-child(4) {
+    padding-left: 50px;
+
+    &:first-letter {
+      font-size: 50px;
+      font-weight: 600;
+      color: var(--heading-color);
+      float: left;
+      clear: both;
+      margin-left: -50px;
+      margin-top: 10px;
+    }
+  }
+
+  article {
+    margin-bottom: 30px;
+
+    p {
+      margin-bottom: 13px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  blockquote {
+    font-size: 21px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.67em;
+    color: var(--heading-color);
+    padding: 60px 0 0 29px;
+    position: relative;
+    margin-bottom: 33px;
+    position: relative;
+
+    &::before {
+      content: "";
+      width: 5px;
+      height: 100%;
+      background-color: var(--purple-color);
+      border-radius: 10px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    svg {
+      color: var(--accent-color);
+      position: absolute;
+      left: 31px;
+      top: 0;
+    }
+
+    small {
+      display: block;
+      font-size: 18px;
+      line-height: 1.67em;
+      color: var(--body-color);
+      margin-top: 17px;
+    }
+  }
+
+  button {
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    color: var(--heading-color);
+    line-height: 1.67em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      color: var(--purple-color);
+    }
+  }
+
+  ul li {
+    list-style: disc;
+  }
+
+  .cs_post_shares {
+    padding: 13px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px 30px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+
+    h3 {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.67em;
+      margin-bottom: 0;
+    }
+
+    .cs_tags_wrapper {
+      display: flex;
+      gap: 15px 10px;
+    }
+
+    .cs_socials_wrapper {
+      display: flex;
+      gap: 15px 28px;
+    }
+
+    a:hover {
+      color: var(--purple-color);
+    }
+
+    .cs_post_tags {
+      a {
+        margin-right: 10px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    .cs_social_links {
+      a {
+        font-size: 15px;
+        display: inline-block;
+        margin-right: 18px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+  .cs_post_btns_wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  @media (max-width:991px) {
+    h1 {
+      font-size: 42px;
+    }
+  }
+
+  @media (max-width:575px) {
+    h1 {
+      font-size: 36px;
+    }
+
+    h2 {
+      font-size: 24px;
+    }
+
+    p:nth-child(4) {
+      padding-left: 0px;
+
+      &:first-letter {
+        font-size: 36px;
+        margin-left: 0px;
+        margin-top: 0px;
+        margin-right: 5px;
+      }
+    }
+
+    blockquote {
+      padding: 60px 0 0 20px;
+    }
+  }
+}
+
+/*--------------------------------------
+ Comments
+----------------------------------------*/
+.cs_comment_form {
+  .cs_form_field {
+    border-color: var(--body-color);
+
+    &:focus {
+      border-color: var(--purple-color);
+    }
+  }
+
+  label {
+    color: var(--body-color);
+  }
+}

@@ -1,0 +1,354 @@
+/*--------------------------------------------------------------
+  15. Pricing
+----------------------------------------------------------------*/
+.cs_pricing_table.cs_style_1 {
+  padding: 30px 35px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+
+  small {
+    // margin-left: -6px;
+  }
+
+  li,
+  h2,
+  h3,
+  p {
+    transition: all 0.3s ease;
+  }
+
+  .yearlyPrice,
+  .yearlyText {
+    display: none;
+  }
+
+  .cs_pricing_feature_list {
+    li {
+      margin-bottom: 10px;
+      padding-left: 28px;
+      position: relative;
+      transition: all 0.4s ease-in-out;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      i,
+      svg {
+        font-size: 20px;
+        position: absolute;
+        top: 7px;
+        left: 0;
+      }
+    }
+  }
+
+  .cs_pricing_btn {
+    width: 100%;
+    padding: 12px 25px;
+    text-align: center;
+    line-height: 1.56em;
+    border: 1px solid var(--heading-color);
+    border-radius: 50px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+  }
+
+  .cs_pricing_badge {
+    padding: 2px 74px;
+    background-color: #e54800;
+    color: var(--white-color);
+    top: 30px;
+    right: -70px;
+    transform: rotate(45deg);
+  }
+
+  &.cs_type_1 {
+    border: 1px solid var(--border-color);
+  }
+
+  &.cs_type_2 {
+    box-shadow: none;
+    background-color: #121b21;
+    border: 1px solid #252d32;
+
+    .cs_pricing_btn {
+      border-color: var(--white-color);
+    }
+  }
+
+  &.cs_type_3 {
+    padding: 20px 30px 40px;
+    box-shadow: 0px 0px 10px 5px rgba(239, 236, 244, 0.5);
+
+    li {
+      padding-left: 34px;
+      margin-bottom: 12px;
+    }
+
+    .cs_feature_icon {
+      width: 22px;
+      height: 22px;
+      padding: 5px;
+      position: absolute;
+      left: 0;
+      top: 4px;
+
+      i,
+      svg {
+        font-size: 12px;
+        position: initial;
+      }
+    }
+
+    .cs_pricing_btn {
+      background-color: var(--white-color);
+      color: var(--heading-color);
+    }
+  }
+
+  &:hover,
+  &.active {
+    box-shadow: 0px 0px 20px 5px rgba(216, 216, 216, 0.4);
+
+    .cs_pricing_btn {
+      background-color: var(--purple-color);
+      color: var(--white-color);
+      border-color: var(--purple-color);
+
+      &:hover {
+        background-color: var(--white-color);
+        color: var(--purple-color);
+      }
+    }
+
+    &.cs_type_1 {
+      box-shadow: none;
+      border-color: var(--heading-color);
+    }
+
+    &.cs_type_2 {
+      box-shadow: none;
+      transform: scaleY(1.05);
+    }
+
+    &.cs_type_3 {
+      background-color: var(--purple-color);
+
+      .cs_pricing_btn {
+        color: var(--heading-color);
+        background-color: var(--white-color);
+
+        &:hover {
+          color: var(--purple-color);
+        }
+      }
+
+      li,
+      h2,
+      h3,
+      p {
+        color: var(--white-color);
+      }
+    }
+  }
+
+  @media (max-width: 1399px) {
+    padding: 30px 20px;
+  }
+
+  @media (max-width: 1199px) {
+    padding: 40px 20px;
+  }
+
+  @media (max-width: 991px) {
+    box-shadow: 0px 0px 20px 5px rgba(216, 216, 216, 0.4);
+
+    &.cs_type_1,
+    &.cs_type_2 {
+      box-shadow: none;
+    }
+  }
+}
+
+.cs_pricing_table_wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+
+  @media (min-width: 1400px) {
+    gap: 30px 75px;
+  }
+
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.cs_pricing_table_wrapper_2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px 57px;
+
+  @media (max-width: 1399px) {
+    gap: 30px;
+  }
+
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/*---------------------------------------------------------------
+Pricing controller 
+----------------------------------------------------------------*/
+.cs_pricing_control {
+  list-style: none;
+  font-size: 16px;
+  line-height: 1.6em;
+  margin-bottom: 60px;
+
+  li {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    a:hover {
+      color: var(--heading-color);
+    }
+
+    a[href="yearly"]::before {
+      left: initial;
+      right: 100%;
+    }
+
+    &.active {
+      a {
+        pointer-events: none;
+      }
+
+      .cs_switch {
+        &::before {
+          left: 5px;
+        }
+      }
+
+      > a,
+      span {
+        color: var(--heading-color);
+      }
+    }
+  }
+  // react style
+  &.cs_type_2 li.active span {
+    color: var(--purple-color);
+  }
+
+  .cs_switch {
+    display: inline-block;
+    position: relative;
+    height: 35px;
+    width: 60px;
+    background: var(--border-color);
+    border-radius: 25px;
+    margin: 0 15px;
+    cursor: pointer;
+
+    &::before {
+      content: "";
+      height: 25px;
+      width: 25px;
+      border-radius: 50%;
+      background-color: var(--purple-color);
+      position: absolute;
+      top: 50%;
+      left: 30px;
+      transform: translateY(-50%);
+      transition: all 0.4s ease;
+    }
+  }
+
+  a {
+    position: relative;
+
+    &::before {
+      content: "";
+      height: 24px;
+      width: 45px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 100%;
+      z-index: 1;
+    }
+  }
+
+  .cs_offer_info {
+    display: flex;
+    align-items: center;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: indication 3s linear infinite;
+
+    span {
+      display: inline-block;
+      margin-bottom: -30px;
+      text-wrap: nowrap;
+    }
+  }
+
+  &.cs_type_1 {
+    .cs_offer_info {
+      top: 7%;
+
+      svg {
+        transform: rotate(-20deg);
+      }
+
+      span {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &.cs_type_2 {
+    li a {
+      color: var(--border-color);
+
+      &:hover {
+        color: var(--white-color);
+      }
+    }
+
+    li.active {
+      a {
+        color: var(--white-color);
+      }
+    }
+  }
+
+  .cs_offer_info.cs_type_1 {
+    top: initial;
+    bottom: 50%;
+    left: 110%;
+    animation: none;
+
+    svg {
+      transform: rotate(0deg);
+    }
+  }
+
+  @media (max-width: 575px) {
+    .cs_offer_info {
+      display: none;
+    }
+  }
+}
+
+@keyframes indication {
+  50% {
+    transform: translate(5px, -50%) rotate(-2deg);
+  }
+}

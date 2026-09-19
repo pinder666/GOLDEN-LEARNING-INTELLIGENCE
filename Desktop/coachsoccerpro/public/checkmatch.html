@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkmatch — SoccerMental</title>
+<style>
+:root{
+  --pitch:#0a4a26; --pitch2:#0d5a2f; --line:rgba(242,238,226,.28);
+  --gold:#FFD700; --blue:#37B6FF; --bad:#FF3355; --good:#00FF88;
+  --ink:#04110A; --paper:#F2EEE2; --bg:#061309; --panel:#0a1f11;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--paper);font-family:'Arial Rounded MT Bold','Arial Narrow',Arial,sans-serif;min-height:100vh;}
+/* THE BOARD DOMINATES: full-screen grid — slim header on top, the board fills
+   the main area (sized to screen height), the info panel a tall column on the right. */
+#wrap{display:grid;grid-template-columns:1fr min(340px,28vw);grid-template-rows:auto 1fr;grid-template-areas:"hdr panel" "board panel";column-gap:16px;row-gap:2px;height:100dvh;max-width:none;margin:0;padding:4px 14px 8px;box-sizing:border-box;}
+
+/* HEADER */
+#hdr{grid-area:hdr;text-align:center;padding:2px 0 0;}
+#hdr h1{font-size:22px;font-weight:900;letter-spacing:.12em;}
+#hdr h1 em{font-style:normal;color:var(--gold);}
+#hdr .sub{font-size:10px;letter-spacing:.22em;opacity:.55;text-transform:uppercase;margin-top:2px;}
+
+/* BOARD */
+#board-wrap{grid-area:board;position:relative;align-self:center;justify-self:center;width:min(100%,calc(100dvh - 78px));}
+#board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:8/8;border:3px solid rgba(255,215,0,.35);border-radius:6px;overflow:hidden;}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.sq.a{background:var(--pitch);}
+.sq.b{background:var(--pitch2);}
+.sq.goal-t{box-shadow:inset 0 5px 0 rgba(55,182,255,.55);}
+.sq.goal-b{box-shadow:inset 0 -5px 0 rgba(255,215,0,.55);}
+.sq.box-t{background-image:linear-gradient(rgba(55,182,255,.06),rgba(55,182,255,.06));}
+.sq.box-b{background-image:linear-gradient(rgba(255,215,0,.06),rgba(255,215,0,.06));}
+.sq .hl{position:absolute;inset:12%;border-radius:50%;pointer-events:none;}
+.sq.hl-move .hl{background:rgba(0,255,136,.22);border:2px solid rgba(0,255,136,.75);}
+.sq.hl-pass .hl{background:rgba(255,215,0,.18);border:2px dashed rgba(255,215,0,.85);}
+.sq.hl-tackle .hl{background:rgba(255,51,85,.25);border:2px solid rgba(255,51,85,.9);}
+.sq.hl-shot .hl{background:rgba(255,215,0,.35);border:3px solid var(--gold);inset:6%;}
+.sq.hl-read .hl{background:rgba(204,68,255,.22);border:2px dotted rgba(204,68,255,.9);}
+.pc{position:relative;width:74%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(9px,2.2vw,13px);font-weight:900;border:2.5px solid;user-select:none;transition:transform .12s;}
+.pc.t0{background:rgba(0,0,0,.72);border-color:var(--gold);color:var(--gold);}
+.pc.t1{background:rgba(0,0,0,.72);border-color:var(--blue);color:var(--blue);}
+.pc.sel{transform:scale(1.14);box-shadow:0 0 12px currentColor;}
+.pc.frozen{opacity:.38;}
+.pc.frozen::after{content:"BEATEN";position:absolute;bottom:-11px;font-size:6.5px;letter-spacing:.08em;color:var(--bad);}
+.pc.hasball::before{content:"";position:absolute;top:-5px;right:-5px;width:12px;height:12px;border-radius:50%;
+  background:#fff;border:2px solid #000;box-shadow:0 0 8px var(--gold);}
+.pc.scan-target{animation:scanPulse 1s ease infinite;}
+@keyframes scanPulse{0%,100%{box-shadow:0 0 4px rgba(204,68,255,.4);}50%{box-shadow:0 0 16px rgba(204,68,255,.95);}}
+
+/* PANEL */
+#panel{grid-area:panel;display:flex;flex-direction:column;gap:9px;overflow-y:auto;max-height:100%;align-self:stretch;}
+.card{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;}
+#phase-card{border-color:rgba(255,215,0,.35);}
+#turn-line{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+#turn-team{font-size:13px;font-weight:900;letter-spacing:.1em;}
+#turn-count{font-size:10px;opacity:.5;}
+#phase-instr{font-size:12.5px;line-height:1.45;min-height:36px;}
+#phase-instr b{color:var(--gold);}
+.btnrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+button{font-family:inherit;font-weight:900;font-size:11px;letter-spacing:.06em;border:none;border-radius:8px;
+  padding:9px 13px;cursor:pointer;background:rgba(255,255,255,.1);color:var(--paper);}
+button.gold{background:linear-gradient(180deg,var(--gold),#d9b400);color:var(--ink);}
+button.ghost{background:rgba(255,255,255,.06);color:rgba(242,238,226,.6);}
+button:disabled{opacity:.35;cursor:default;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.stat{background:rgba(0,0,0,.35);border-radius:7px;padding:7px 9px;}
+.stat .n{font-size:16px;font-weight:900;color:var(--gold);line-height:1;}
+.stat .l{font-size:8px;letter-spacing:.1em;text-transform:uppercase;opacity:.55;margin-top:3px;}
+.card h3{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+#habits{font-size:11px;line-height:1.55;opacity:.85;}
+#habits em{font-style:normal;color:var(--blue);font-weight:900;}
+#panel>.card:last-of-type{flex:1 1 auto;display:flex;flex-direction:column;min-height:130px;}
+  #log{font-size:10.5px;line-height:1.5;flex:1;max-height:none;overflow-y:auto;opacity:.75;}
+#log div{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+
+/* BANNER */
+#banner{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;z-index:50;text-align:center;padding:20px;}
+#banner.show{display:flex;}
+#banner h2{font-size:34px;font-weight:900;letter-spacing:.1em;color:var(--gold);}
+#banner p{font-size:13px;opacity:.8;max-width:420px;line-height:1.5;}
+
+/* RULES */
+#rules{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:60;overflow-y:auto;padding:22px;}
+#rules.show{display:block;}
+#rules .inner{max-width:560px;margin:0 auto;font-size:12.5px;line-height:1.6;}
+#rules h2{color:var(--gold);font-size:18px;letter-spacing:.1em;margin-bottom:10px;}
+#rules h4{color:var(--gold);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:14px 0 4px;}
+#rules p{opacity:.85;margin-bottom:6px;}
+#rules .close{position:sticky;top:0;float:right;}
+
+@media (max-width:850px){#wrap{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"hdr" "board" "panel";height:auto;min-height:100dvh;}#board-wrap{width:min(94vw,68vh);}#panel{max-height:none;}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hdr">
+    <h1>CHECK<em>MATCH</em></h1>
+    <div class="sub">Create the conditions where scoring becomes inevitable</div>
+    <div class="sub" style="opacity:.4;font-size:8px;margin-top:3px;letter-spacing:.14em;">&copy; SOCCERMENTAL &middot; CREATED BY JASON WALLACE</div>
+  </div>
+
+  <div id="board-wrap"><div id="board"></div></div>
+
+  <div id="panel">
+    <div class="card" id="phase-card">
+      <div id="turn-line">
+        <span id="turn-team">GOLD</span>
+        <span id="turn-count">Turn 1 / 60</span>
+      </div>
+      <div id="phase-instr"></div>
+      <div class="btnrow">
+        <button id="btn-tempo" class="gold" style="display:none;">⚡ USE TEMPO</button>
+        <button id="btn-skip-read" class="ghost" style="display:none;">Skip Read</button>
+        <button id="btn-end-read" class="gold" style="display:none;">Confirm Read</button>
+        <button id="btn-rules" class="ghost">Rules</button>
+        <button id="btn-reset" class="ghost">Restart</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat"><div class="n" id="cp0">0</div><div class="l">Gold territory</div></div>
+        <div class="stat"><div class="n" id="cp1">0</div><div class="l">Blue territory</div></div>
+        <div class="stat"><div class="n" id="scan0">—</div><div class="l">Gold scan rating</div></div>
+        <div class="stat"><div class="n" id="scan1">—</div><div class="l">Blue scan rating</div></div>
+        <div class="stat"><div class="n" id="tempo0">0</div><div class="l">Gold tempo</div></div>
+        <div class="stat"><div class="n" id="tempo1">0</div><div class="l">Blue tempo</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Opponent read — their habits</h3>
+      <div id="habits">No pattern yet. Watch how they play.</div>
+    </div>
+
+    <div class="card">
+      <h3>Match log</h3>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<div id="banner">
+  <h2 id="banner-title"></h2>
+  <p id="banner-text"></p>
+  <button class="gold" onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="rules">
+  <div class="inner">
+    <button class="close ghost" onclick="document.getElementById('rules').classList.remove('show')">✕ Close</button>
+    <h2>CHECKMATCH — THE LAWS</h2>
+    <p>The objective is not to shoot. It is to make the save impossible. The keeper is the last wall: he covers his own square and every square touching it. A shot into covered space is always saved. You score only by removing his protection — dragging defenders away, pinning him to one post, and striking the square he can no longer reach. The goal is proof that the position was already won.</p>
+    <h4>The pieces — 7 a side</h4>
+    <p><b>GK</b> — the keeper. Moves 1 square, may never leave his box (the 4 central columns of his own two rows). Covers his square + all touching squares against shots.</p>
+    <p><b>DF ×2</b> — defenders. Straight lines only, up to 2 squares.</p>
+    <p><b>WG ×2</b> — wingers. Diagonals only, up to 3 squares. They own the angles.</p>
+    <p><b>PM</b> — the playmaker. Any direction, up to 2 squares.</p>
+    <p><b>ST</b> — the striker. Jumps in an L: two squares, then one to the side — arriving where nobody tracked the run. With the ball he moves 1 square only: close control.</p>
+    <h4>The turn — three phases</h4>
+    <p><b>1 SCAN.</b> Before you may act, tap the opponent piece you believe acts next. Right or wrong, it is logged — your Scan Rating is your awareness score across the game.</p>
+    <p><b>2 ACT.</b> One action: move a piece, dribble the ball, pass, shoot, or tackle.</p>
+    <p><b>3 READ (optional).</b> Predict your opponent's exact next action: their piece and its destination square. If you are right, you earn <b>TEMPO</b> — two actions in a future turn. Reading habits is how you gain speed.</p>
+    <h4>The ball</h4>
+    <p>A pass travels in a straight or diagonal ray and stops at the <b>first player it meets</b> — teammate receives, opponent intercepts. You cannot pass into empty space. Structure comes before the pass.</p>
+    <p>Dribbling carries the ball but slows you: movement range −1. The striker with the ball moves 1 square only.</p>
+    <h4>The Pressure Law</h4>
+    <p>A tackle is only legal when your players <b>outnumber</b> theirs in the squares around the carrier. One player never wins the ball alone. The press is collective or it is nothing. A tackled player is displaced toward his own goal and BEATEN for one turn. No piece ever leaves the board.</p>
+    <h4>Shooting</h4>
+    <p>A shot is a pass aimed at the opponent's goal mouth (the two marked squares), released from inside their final three rows, with a clear lane. If the keeper stands on or beside the target square — always saved, and he keeps the ball. Strip his cover first. Then strike.</p>
+    <h4>Territory</h4>
+    <p>The first time your carrier stands in each row of the opponent's half, you claim it: +1 territory. If no goal falls in 60 turns, territory decides the match. Build-up is never wasted.</p>
+    <h4>Winning</h4>
+    <p>One goal ends the game. Everything before it is the argument; the goal is the conclusion.</p>
+  </div>
+</div>
+
+<script src="/sm_telemetry.js"></script>
+<script src="/sm_i18n.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const N=8;
+const GOAL_T=[[3,0],[4,0]], GOAL_B=[[3,7],[4,7]];
+const inBoxT=(x,y)=>x>=2&&x<=5&&y<=1;
+const inBoxB=(x,y)=>x>=2&&x<=5&&y>=6;
+
+// ── STATE ─────────────────────────────────────────────
+let pieces=[], holder=null, turn=0, turnCount=1, phase='scan';
+let selected=null, legal=[], actionsLeft=1, tempoUsedThisTurn=false;
+let scanPick=null, scanStats=[{h:0,t:0},{h:0,t:0}];
+let readPending=[null,null];      // stored read waiting to be checked: {pid, x, y}
+let readSel={pid:null,x:null,y:null};
+let cp=[0,0], cpRows=[new Set(),new Set()];
+let tempo=[0,0];
+let habits=[
+ {pass:0,dribble:0,move:0,tackle:0,shot:0,L:0,C:0,R:0,back:0,fwd:0,pressN:0},
+ {pass:0,dribble:0,move:0,tackle:0,shot:0,L:0,C:0,R:0,back:0,fwd:0,pressN:0}
+];
+let over=false, SCORE=[0,0], lastAi=null;
+
+function mk(team,role,x,y){pieces.push({id:pieces.length,team,role,x,y,frozenUntil:0});}
+function setup(){
+  pieces=[];
+  // GOLD team 0 — bottom, attacks UP toward row 0
+  mk(0,'GK',3,7); mk(0,'DF',2,6); mk(0,'DF',5,6);
+  mk(0,'WG',0,5); mk(0,'WG',7,5); mk(0,'PM',3,5); mk(0,'ST',4,4);
+  // BLUE team 1 — top, attacks DOWN toward row 7
+  mk(1,'GK',4,0); mk(1,'DF',2,1); mk(1,'DF',5,1);
+  mk(1,'WG',0,2); mk(1,'WG',7,2); mk(1,'PM',4,2); mk(1,'ST',3,3);
+  holder=pieces.find(p=>p.team===0&&p.role==='PM').id;
+}
+const at=(x,y)=>pieces.find(p=>p.x===x&&p.y===y);
+const frozen=p=>p.frozenUntil>turnCount;
+const carrier=()=>pieces[holder];
+const oppGoal=t=>t===0?GOAL_T:GOAL_B;
+const shotRange=(t,y)=>t===0?y<=2:y>=5;
+const kingCovers=(gk,gx,gy)=>Math.abs(gk.x-gx)+Math.abs(gk.y-gy)<=1; // on or orth-adjacent
+
+// ── MOVEMENT ──────────────────────────────────────────
+const DIRS8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+const ORTH=[[1,0],[-1,0],[0,1],[0,-1]];
+const DIAG=[[1,1],[1,-1],[-1,1],[-1,-1]];
+const KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+
+function moveSquares(p){
+  const carry=p.id===holder;
+  let out=[];
+  if(p.role==='GK'){
+    for(const[dx,dy]of DIRS8){const x=p.x+dx,y=p.y+dy;
+      if(x<0||x>7||y<0||y>7)continue;
+      if(p.team===1?!inBoxT(x,y):!inBoxB(x,y))continue;
+      if(!at(x,y))out.push([x,y]);}
+    return out;
+  }
+  if(p.role==='ST'){
+    if(carry){for(const[dx,dy]of DIRS8){const x=p.x+dx,y=p.y+dy;
+      if(x>=0&&x<8&&y>=0&&y<8&&!at(x,y))out.push([x,y]);}return out;}
+    for(const[dx,dy]of KN){const x=p.x+dx,y=p.y+dy;
+      if(x>=0&&x<8&&y>=0&&y<8&&!at(x,y))out.push([x,y]);}
+    return out;
+  }
+  let dirs,range;
+  if(p.role==='DF'){dirs=ORTH;range=2;}
+  else if(p.role==='WG'){dirs=DIAG;range=3;}
+  else {dirs=DIRS8;range=2;} // PM
+  if(carry)range=Math.max(1,range-1);
+  for(const[dx,dy]of dirs){
+    for(let s=1;s<=range;s++){
+      const x=p.x+dx*s,y=p.y+dy*s;
+      if(x<0||x>7||y<0||y>7)break;
+      if(at(x,y))break;
+      out.push([x,y]);
+    }
+  }
+  return out;
+}
+
+// Pressure Law: tackle target squares for piece p (enemy carrier square reachable by p's movement pattern)
+function tackleSquare(p){
+  const c=carrier();
+  if(!c||c.team===p.team)return null;
+  // can p physically reach carrier square with its move pattern (path clear)?
+  let reach=false;
+  if(p.role==='ST'&&p.id!==holder){
+    reach=KN.some(([dx,dy])=>p.x+dx===c.x&&p.y+dy===c.y);
+  } else if(p.role==='GK'){
+    reach=Math.max(Math.abs(p.x-c.x),Math.abs(p.y-c.y))===1&&
+      (p.team===1?inBoxT(c.x,c.y):inBoxB(c.x,c.y));
+  } else {
+    let dirs,range;
+    if(p.role==='DF'){dirs=ORTH;range=2;}
+    else if(p.role==='WG'){dirs=DIAG;range=3;}
+    else{dirs=DIRS8;range=2;}
+    for(const[dx,dy]of dirs){
+      for(let s=1;s<=range;s++){
+        const x=p.x+dx*s,y=p.y+dy*s;
+        if(x<0||x>7||y<0||y>7)break;
+        const q=at(x,y);
+        if(q){if(q.id===c.id&&s>=1)reach=true;break;}
+      }
+    }
+  }
+  if(!reach)return null;
+  // pressure count around carrier
+  let mine=0,theirs=0;
+  for(const[dx,dy]of DIRS8){
+    const q=at(c.x+dx,c.y+dy);
+    if(!q)continue;
+    if(q.team===p.team)mine++;else theirs++;
+  }
+  return mine>theirs?[c.x,c.y]:null;
+}
+
+// Pass rays: returns list of {x,y,kind:'pass'|'intercept'|'shot'|'save'}
+function passTargets(){
+  const c=carrier();if(!c)return[];
+  const out=[];
+  const gks=pieces.find(p=>p.team!==c.team&&p.role==='GK');
+  for(const[dx,dy]of DIRS8){
+    let x=c.x,y=c.y;
+    while(true){
+      x+=dx;y+=dy;
+      if(x<0||x>7||y<0||y>7)break;
+      // goal square of opponent?
+      const goals=oppGoal(c.team);
+      const isGoal=goals.some(([gx,gy])=>gx===x&&gy===y);
+      if(isGoal){
+        if(shotRange(c.team,c.y)){
+          const saved=kingCovers(gks,x,y);
+          out.push({x,y,kind:saved?'save':'shot'});
+        }
+        break;
+      }
+      const q=at(x,y);
+      if(q){
+        if(q.team===c.team&&q.id!==c.id&&!frozen(q))out.push({x,y,kind:'pass'});
+        else if(q.team!==c.team)out.push({x,y,kind:'intercept'});
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+// ── RENDER ────────────────────────────────────────────
+const board=$('board');
+function showHints(){try{return demoOn||GUIDE>0||(MODE==='engine'&&LEVEL<=1);}catch(e){return true;}}
+function paintLastAi(){try{if(!lastAi||over||turn!==0)return;var sq=cmSqEl(lastAi.t[0],lastAi.t[1]);if(sq){var pc=sq.querySelector('.pc');if(pc)pc.classList.add('ai-moved');}}catch(e){}}
+function render(){
+  board.innerHTML='';
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const sq=document.createElement('div');
+    sq.className='sq '+((x+y)%2?'b':'a');
+    if(GOAL_T.some(([gx,gy])=>gx===x&&gy===y))sq.classList.add('goal-t');
+    if(GOAL_B.some(([gx,gy])=>gx===x&&gy===y))sq.classList.add('goal-b');
+    if(inBoxT(x,y))sq.classList.add('box-t');
+    if(inBoxB(x,y))sq.classList.add('box-b');
+    const l=(function(){var _m=legal.find(mm=>mm.x===x&&mm.y===y);return (_m&&(showHints()||_m.hl==='tackle'))?_m:null;})();
+    if(l){sq.classList.add('hl-'+l.hl);const h=document.createElement('div');h.className='hl';sq.appendChild(h);}
+    const p=at(x,y);
+    if(p){
+      const el=document.createElement('div');
+      el.className='pc t'+p.team;
+      if(selected===p.id)el.classList.add('sel');
+      if(frozen(p))el.classList.add('frozen');
+      if(holder===p.id)el.classList.add('hasball');
+      if(phase==='scan'&&p.team!==turn&&!over&&showHints())el.classList.add('scan-target');
+      el.textContent=p.role;
+      sq.appendChild(el);
+    }
+    sq.addEventListener('click',()=>onSquare(x,y));
+    board.appendChild(sq);
+  }
+  if(typeof paintLastAi==='function')paintLastAi();
+  $('turn-team').textContent=turn===0?'GOLD':'BLUE';
+  $('turn-team').style.color=turn===0?'var(--gold)':'var(--blue)';
+  $('turn-count').innerHTML = holder>=0 ? (pieces[holder].team===0?'<b style="color:var(--gold)">&#9679; YOU have the ball</b>':'<b style="color:var(--blue)">&#9675; THEY have the ball &mdash; win it back</b>') : '';
+  $('cp0').textContent=cp[0];$('cp1').textContent=cp[1];
+  $('tempo0').textContent=tempo[0];$('tempo1').textContent=tempo[1];
+  for(const t of[0,1]){
+    const s=scanStats[t];
+    $('scan'+t).textContent=s.t?Math.round(100*s.h/s.t)+'%':'—';
+  }
+  $('btn-tempo').style.display=(phase==='action'&&tempo[turn]>0&&!tempoUsedThisTurn&&actionsLeft===0)?'inline-block':'none';
+  $('btn-skip-read').style.display=phase==='read'?'inline-block':'none';
+  $('btn-end-read').style.display=(phase==='read'&&readSel.pid!==null&&readSel.x!==null)?'inline-block':'none';
+  instr();
+  renderHabits();
+}
+
+function instr(){
+  const t=turn===0?'GOLD':'BLUE';
+  let s='';
+  if(phase==='scan')s=`<b>${t} — SCAN.</b> Tap the opponent piece you believe acts next. Awareness before action.`;
+  else if(phase==='action')s=actionsLeft>0
+    ?`<b>${t} — ACT.</b> Select a piece. Green = move · Gold dashed = pass · Solid gold = SHOT · Red = tackle (Pressure Law).`
+    :`<b>${t}.</b> Action complete.`;
+  else if(phase==='read')s=`<b>${t} — READ (optional).</b> Predict their next action: tap an enemy piece, then the square it will finish on. Correct = TEMPO. Or skip.`;
+  $('phase-instr').innerHTML=s;
+}
+
+function renderHabits(){
+  const h=habits[1-turn];
+  const total=h.pass+h.dribble+h.move+h.tackle+h.shot;
+  if(total<4){$('habits').textContent='No pattern yet. Watch how they play.';return;}
+  const lines=[];
+  const mix=[['pass',h.pass],['dribble',h.dribble],['off-ball move',h.move],['tackle',h.tackle],['shot',h.shot]]
+    .sort((a,b)=>b[1]-a[1]);
+  lines.push(T2('They favour the <em>{label}</em> ({pct}% of actions).',{label:T(mix[0][0]),pct:Math.round(100*mix[0][1]/total)}));
+  const side=[['left channel',h.L],['centre',h.C],['right channel',h.R]].sort((a,b)=>b[1]-a[1]);
+  if(side[0][1]>0)lines.push(T2('Their play leans to the <em>{label}</em>.',{label:T(side[0][0])}));
+  if(h.pressN>=2){
+    const retreat=h.back>=h.fwd;
+    lines.push(T2('Under pressure they <em>{dir}</em> ({pct}% of the time).',{dir:T(retreat?'go backward':'play forward'),pct:Math.round(100*Math.max(h.back,h.fwd)/h.pressN)}));
+  }
+  $('habits').innerHTML=lines.join('<br>');
+}
+
+function log(msg){
+  const d=document.createElement('div');d.textContent=msg;
+  $('log').prepend(d);
+}
+
+// ── INTERACTION ───────────────────────────────────────
+function onSquare(x,y){
+  if(over)return;
+  if(tutOn){tutTap(x,y);return;} /* interactive lesson: route your tap to the coach */
+  if(demoOn||(MODE==='engine'&&(turn===AI||WATCH)))return; /* narrating, or engine's move — block taps */
+  const p=at(x,y);
+  if(phase==='scan'){
+    if(p&&p.team!==turn){
+      scanPick=p.id;
+      phase='action';
+      log(T2('{t} scans {role}.',{t:T(turn===0?'GOLD':'BLUE'),role:p.role}));
+      render();
+      return;
+    }
+    if(p&&p.team===turn&&!frozen(p)){ /* tapped your own player — look automatically, then let you pick it */
+      var _b=null;for(var _i=0;_i<pieces.length;_i++){if(pieces[_i].team!==turn){_b=pieces[_i];break;}}
+      if(_b)scanPick=_b.id;
+      phase='action';
+      /* fall through to selection below */
+    } else { return; }
+  }
+  if(phase==='read'){
+    if(readSel.pid===null){
+      if(p&&p.team!==turn){readSel.pid=p.id;log('Read: piece chosen. Now the square.');render();}
+    } else {
+      readSel.x=x;readSel.y=y;
+      legal=[{x,y,hl:'read'}];
+      render();
+    }
+    return;
+  }
+  if(phase!=='action'||actionsLeft<=0)return;
+  // executing a highlighted action?
+  const l=legal.find(m=>m.x===x&&m.y===y);
+  if(l&&selected!==null){execute(pieces[selected],l);return;}
+  // selecting own piece
+  if(p&&p.team===turn&&!frozen(p)){
+    selected=p.id;legal=[];
+    for(const[mx,my]of moveSquares(p))legal.push({x:mx,y:my,hl:'move'});
+    const ts=tackleSquare(p);
+    if(ts)legal.push({x:ts[0],y:ts[1],hl:'tackle'});
+    if(p.id===holder){
+      for(const t of passTargets()){
+        legal.push({x:t.x,y:t.y,hl:t.kind==='shot'?'shot':t.kind==='save'?'pass':t.kind==='pass'?'pass':'pass',kind:t.kind});
+      }
+    }
+    render();
+  } else {selected=null;legal=[];render();}
+}
+
+function thirds(x){return x<=2?'L':x<=4?'C':'R';}
+function underPressure(c){return DIRS8.some(([dx,dy])=>{const q=at(c.x+dx,c.y+dy);return q&&q.team!==c.team;});}
+
+function execute(p,l){
+  const h=habits[turn];
+  const wasCarrier=p.id===holder;
+  const pressed=wasCarrier&&underPressure(p);
+  const myAtkDir=turn===0?-1:1; // toward smaller y for gold
+  let actName='';
+
+  if(l.hl==='tackle'){
+    const c=carrier();
+    // displace carrier toward own goal
+    const dy=c.team===0?1:-1;
+    let placed=false;
+    const cands=[[c.x,c.y+dy],[c.x-1,c.y+dy],[c.x+1,c.y+dy],[c.x-1,c.y],[c.x+1,c.y],[c.x,c.y-dy]];
+    const tx=c.x,ty=c.y;
+    for(const[qx,qy]of cands){
+      if(qx>=0&&qx<8&&qy>=0&&qy<8&&!at(qx,qy)){c.x=qx;c.y=qy;placed=true;break;}
+    }
+    if(!placed){c.x=Math.max(0,Math.min(7,c.x));} // stay (rare)
+    c.frozenUntil=turnCount+2;
+    p.x=tx;p.y=ty;holder=p.id;
+    h.tackle++;h[thirds(tx)]++;
+    actName=T2('{role} wins the ball — press succeeds',{role:p.role});
+    checkTerritory(p);
+    finishAction(p,tx,ty,actName);
+    return;
+  }
+
+  if(l.kind==='pass'||l.kind==='intercept'||l.kind==='shot'||l.kind==='save'){
+    h.pass++;h[thirds(l.x)]++;
+    if(pressed){h.pressN++;const fwd=(l.y-p.y)*myAtkDir>0;if(fwd)h.fwd++;else h.back++;}
+    if(l.kind==='shot'){
+      h.shot++;
+      goal(turn);
+      return;
+    }
+    if(l.kind==='save'){
+      const gk=pieces.find(q=>q.team!==turn&&q.role==='GK');
+      holder=gk.id;
+      actName=T('SHOT — SAVED. The keeper covered the square. Strip his protection first.');
+      log(actName);
+      finishAction(p,l.x,l.y,actName);
+      return;
+    }
+    const rec=at(l.x,l.y);
+    holder=rec.id;
+    if(l.kind==='intercept'){
+      actName=T2('Pass READ — {role} intercepts. The lane was never open.',{role:rec.role});
+    } else {
+      actName=T2('Pass to {role}.',{role:rec.role});
+      checkTerritory(rec);
+    }
+    finishAction(p,l.x,l.y,actName);
+    return;
+  }
+
+  // move / dribble
+  if(wasCarrier){h.dribble++;if(pressed){h.pressN++;const fwd=(l.y-p.y)*myAtkDir>0;if(fwd)h.fwd++;else h.back++;}}
+  else h.move++;
+  h[thirds(l.x)]++;
+  p.x=l.x;p.y=l.y;
+  if(wasCarrier)checkTerritory(p);
+  actName=wasCarrier?T2('{role} dribbles.',{role:p.role}):T2('{role} repositions.',{role:p.role});
+  finishAction(p,l.x,l.y,actName);
+}
+
+function checkTerritory(p){
+  if(p.id!==holder)return;
+  const oppHalf=turn===0?p.y<=3:p.y>=4;
+  if(oppHalf&&!cpRows[turn].has(p.y)){
+    cpRows[turn].add(p.y);cp[turn]++;
+    log(T(turn===0?'GOLD':'BLUE')+' '+T('claims new territory. +1'));
+  }
+}
+
+function finishAction(p,fx,fy,name){
+  log(T(turn===0?'GOLD':'BLUE')+': '+name);
+  // resolve opponent's stored read against this action
+  const rp=readPending[1-turn];
+  if(rp){
+    const ballSq=carrier();
+    if(rp.pid===p.id&&((rp.x===p.x&&rp.y===p.y)||(rp.x===fx&&rp.y===fy)||(ballSq&&rp.x===ballSq.x&&rp.y===ballSq.y))){
+      tempo[1-turn]=Math.min(1,tempo[1-turn]+1);
+      log(T(1-turn===0?'GOLD':'BLUE')+' '+T('READ IT. Tempo earned.'));
+    }
+    readPending[1-turn]=null;
+  }
+  // resolve opponent's scan of last turn? scans checked at their next turn — resolve current player's scan now:
+  if(scanPick!==null){
+    scanStats[turn].t++;
+    // scan predicted which OPPONENT piece acts next — check on opponent's action; store
+    window.__pendingScan={team:turn,pid:scanPick};
+    scanPick=null;
+  }
+  selected=null;legal=[];
+  actionsLeft--;
+  if(actionsLeft>0){render();return;}
+  phase='read';readSel={pid:null,x:null,y:null};
+  render();
+  if(GUIDE>0&&turn===0&&typeof guideReact==='function'){setTimeout(guideReact,350);}
+  else if(!demoOn&&!over&&!WATCH&&!(MODE==='engine'&&turn===AI)){readPending[turn]=null;setTimeout(nextTurn,30);} /* real play only: skip the read, opponent replies instantly. In WATCH, aiTurn drives BOTH sides — never advance here or the board double-jumps. */
+}
+
+function goal(t){
+  var wasGuiding=(typeof GUIDE!=='undefined'&&GUIDE>0); if(typeof GUIDE!=='undefined')GUIDE=0;
+  if(typeof stopClock==='function')stopClock();
+  if(wasGuiding){ /* the guided lesson: your first goal = success, done */
+    over=true;log('GOAL — GOLD.');
+    $('banner-title').textContent='GOAL!';
+    $('banner-text').textContent='You scored it yourself. That is how you win. Now play a real match.';
+    $('banner').classList.add('show');
+    try{if(t===0&&typeof speakDemo==='function')speakDemo('GOAL! You scored it yourself. That is how you win. Now play a real match.');}catch(e){}
+    setTimeout(function(){var x=document.getElementById('cm-lc');if(x)x.remove();},6000);
+    return;
+  }
+  SCORE[t]=(SCORE[t]||0)+1; if(typeof updateScore==='function')updateScore();
+  log(T('GOAL —')+' '+T(t===0?'GOLD':'BLUE')+'.  '+SCORE[0]+' – '+SCORE[1]);
+  if(SCORE[t]>=2){ /* best of 3 — first to two wins the match */
+    over=true; if(typeof clearSave==='function')clearSave();
+    /* THE EMIT (2026-09-05, Phase 17): Checkmatch judged every match and told
+       no one — now the result is one ledger event (queues until configured). */
+    try{if(window.SMLEDGER)SMLEDGER.track('checkmatch_result',{winner:t===0?'player':'ai',level:LEVEL,mode:MODE,score:SCORE[0]+'-'+SCORE[1]});}catch(e){}
+    $('banner-title').textContent=T(t===0?'GOLD':'BLUE')+' '+T('WINS')+'  '+SCORE[0]+' – '+SCORE[1];
+    $('banner-text').textContent=T(t===0?'You won the match — first to two goals. Well played.':'They took the match. Watch what they did, and go again.');
+    $('banner').classList.add('show');
+    return;
+  }
+  $('banner-title').textContent=T(t===0?'GOLD':'BLUE')+' '+T('SCORES')+'  '+SCORE[0]+' – '+SCORE[1];
+  $('banner-text').textContent='First to two goals wins. Kicking off again...';
+  $('banner').classList.add('show');
+  setTimeout(function(){$('banner').classList.remove('show'); if(typeof kickoff==='function')kickoff(1-t);},2400);
+}
+
+function endMatchOnTurns(){ /* a leg with no goal in 60 turns — territory awards the goal */
+  if(cp[0]===cp[1]){ if(typeof kickoff==='function')kickoff(turn); return; }
+  goal(cp[0]>cp[1]?0:1);
+}
+
+function nextTurn(){
+  // check pending scan: did the scanned piece act? — evaluated in execute of next player;
+  turn=1-turn;
+  turnCount++;
+  if(turnCount>60){endMatchOnTurns();return;}
+  phase='scan';
+  actionsLeft=1;tempoUsedThisTurn=false;
+  selected=null;legal=[];
+  render();
+  if(typeof saveGame==='function')saveGame();
+  if(typeof startClock==='function')startClock();
+  if(MODE==='engine'&&!over&&(turn===AI||WATCH)){setTimeout(aiTurn,WATCH?200:650);}
+  if(GUIDE>0&&!over&&turn===0&&typeof guidePrompt==='function'){setTimeout(guidePrompt,550);}
+}
+
+$('btn-skip-read').addEventListener('click',()=>{
+  readPending[turn]=null;
+  legal=[];
+  nextTurn();
+});
+$('btn-end-read').addEventListener('click',()=>{
+  if(readSel.pid!==null&&readSel.x!==null){
+    readPending[turn]={pid:readSel.pid,x:readSel.x,y:readSel.y};
+    log(T(turn===0?'GOLD':'BLUE')+' '+T('places a read.'));
+  }
+  legal=[];
+  nextTurn();
+});
+$('btn-tempo').addEventListener('click',()=>{
+  if(tempo[turn]>0&&!tempoUsedThisTurn){
+    tempo[turn]--;tempoUsedThisTurn=true;actionsLeft=1;phase='action';
+    log(T(turn===0?'GOLD':'BLUE')+' '+T('spends TEMPO — a second action.'));
+    render();
+  }
+});
+$('btn-rules').addEventListener('click',()=>$('rules').classList.add('show'));
+$('btn-reset').addEventListener('click',()=>{try{localStorage.removeItem('checkmatch_save');}catch(e){}location.reload();});
+
+// scan correctness: hook into execute — check pending scan against the acting piece
+const _exec=execute;
+execute=function(p,l){
+  const ps=window.__pendingScan;
+  if(ps&&ps.team!==turn){
+    if(ps.pid===p.id)scanStats[ps.team].h++;
+    window.__pendingScan=null;
+  }
+  _exec(p,l);
+};
+
+/* ============================================================================
+   CHECKMATCH ENGINE — the opponent runs ON THE DEVICE. No server, no API, no
+   usage cost; scales to any number of players for free. Difficulty = heuristic
+   sharpness + blunder noise, levels 1..5 (Rookie -> Gaffer).
+   ============================================================================ */
+var MODE='engine', AI=1, LEVEL=1; /* default = Rookie. You climb the levels; you never start thrown in the deep end. */
+var LVNAME=['Rookie','Club','Pro','Master','Gaffer'];
+var WATCH=false, START_ACTION='start';
+try{var _q=new URLSearchParams(location.search);var _m=_q.get('mode');if(_m==='friend'||_m==='engine')MODE=_m;var _lv=parseInt(_q.get('lv'),10);if(_lv>=1&&_lv<=5)LEVEL=_lv;if(_q.get('watch')==='1'){WATCH=true;MODE='engine';}
+  if(_q.get('demo')==='1')START_ACTION='demo';
+  else if(WATCH||_q.get('play')==='1'||_m||_q.get('lv'))START_ACTION='play';
+}catch(e){}
+var demoOn=false, tutOn=false, tutExpect=null, tutSel=null, tutSquares=[], GUIDE=0;
+function aiEnabled(){return MODE==='engine'&&!over;}
+
+/* every legal action for the side to move */
+function aiActions(){
+  var acts=[],i,m,t;
+  for(i=0;i<pieces.length;i++){
+    var p=pieces[i];
+    if(p.team!==turn||frozen(p))continue;
+    var ms=moveSquares(p);
+    for(m=0;m<ms.length;m++)acts.push({p:p,l:{x:ms[m][0],y:ms[m][1],hl:'move'}});
+    var ts=tackleSquare(p);
+    if(ts)acts.push({p:p,l:{x:ts[0],y:ts[1],hl:'tackle'}});
+    if(p.id===holder){
+      var pt=passTargets();
+      for(t=0;t<pt.length;t++)acts.push({p:p,l:{x:pt[t].x,y:pt[t].y,hl:pt[t].kind==='shot'?'shot':'pass',kind:pt[t].kind}});
+    }
+  }
+  return acts;
+}
+/* immediate football value of an action for the AI side */
+function aiScore(a){
+  var p=a.p,l=a.l,s=0;
+  var attackRow=(turn===0)?0:7;
+  function fwd(fromY,toY){return (turn===0)?(fromY-toY):(toY-fromY);}
+  if(l.hl==='tackle'){s+=140;}                     /* win the ball — collective press */
+  else if(l.kind==='shot'){s+=1000;}               /* unsavable shot = the goal = win */
+  else if(l.kind==='save'){s-=250;}                /* shooting into the keeper loses the ball */
+  else if(l.kind==='intercept'){s-=400;}           /* passing to an opponent = disaster */
+  else if(l.kind==='pass'){s+=35+fwd(p.y,l.y)*9;}  /* pass — reward forward progress */
+  else{
+    var carry=(p.id===holder);
+    if(carry){s+=8+fwd(p.y,l.y)*7;if(Math.abs(attackRow-l.y)<=3)s+=15;} /* drive at goal */
+    else{
+      s+=fwd(p.y,l.y)*2;                            /* push up the pitch */
+      if(holder>=0&&pieces[holder]&&pieces[holder].team!==turn){ /* they have the ball */
+        var c=pieces[holder];
+        var d0=Math.abs(p.x-c.x)+Math.abs(p.y-c.y),d1=Math.abs(l.x-c.x)+Math.abs(l.y-c.y);
+        if(d1<d0)s+=10;                             /* close the carrier down (build the overload) */
+      }
+    }
+  }
+  return s;
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   DEEP ENGINE — the top levels THINK IN MOVES. Master (L4) and Gaffer (L5)
+   don't just grab the best move now; they play out your reply, and their reply
+   to that, several turns deep, and choose the line that comes out best
+   (alpha-beta negamax). It reuses the REAL rule generator (aiActions) on a
+   sandboxed copy of the live state, so its imagination can never drift from
+   how the game truly plays. Still 100% on-device — no server, no usage cost.
+   Levels 1–3 keep the fast one-move heuristic so a newcomer can actually win.
+   ══════════════════════════════════════════════════════════════════════════ */
+/* snapshot / restore the rules-relevant state IN PLACE (same piece objects, so
+   action references generated at a node stay valid across sibling branches). */
+function _snap(){var P=[],i;for(i=0;i<pieces.length;i++)P.push([pieces[i].x,pieces[i].y,pieces[i].frozenUntil]);return {P:P,h:holder,t:turn,tc:turnCount};}
+function _restore(s){for(var i=0;i<pieces.length;i++){pieces[i].x=s.P[i][0];pieces[i].y=s.P[i][1];pieces[i].frozenUntil=s.P[i][2];}holder=s.h;turn=s.t;turnCount=s.tc;}
+/* apply an action to the LIVE (sandboxed) state — mirrors execute()'s STATE
+   changes only (no DOM, no log, no habits). Returns 'goal' if it scores. */
+function simApply(a){
+  var p=a.p,l=a.l,i;
+  if(l.hl==='tackle'){
+    var c=carrier();if(!c)return null;
+    var dy=c.team===0?1:-1,tx=c.x,ty=c.y;
+    var cands=[[c.x,c.y+dy],[c.x-1,c.y+dy],[c.x+1,c.y+dy],[c.x-1,c.y],[c.x+1,c.y],[c.x,c.y-dy]];
+    for(i=0;i<cands.length;i++){var qx=cands[i][0],qy=cands[i][1];if(qx>=0&&qx<8&&qy>=0&&qy<8&&!at(qx,qy)){c.x=qx;c.y=qy;break;}}
+    c.frozenUntil=turnCount+2;p.x=tx;p.y=ty;holder=p.id;return null;
+  }
+  if(l.kind==='shot')return 'goal';
+  if(l.kind==='save'){for(i=0;i<pieces.length;i++)if(pieces[i].team!==turn&&pieces[i].role==='GK'){holder=pieces[i].id;break;}return null;}
+  if(l.kind==='intercept'||l.kind==='pass'){var rec=at(l.x,l.y);if(rec)holder=rec.id;return null;}
+  p.x=l.x;p.y=l.y;return null; /* move / dribble — holder is an id, so it travels with the carrier automatically */
+}
+/* leaf evaluation — football value of the position for ONE team */
+function _shotThreat(t){var c=(holder!=null)?pieces[holder]:null;if(!c||c.team!==t)return 0;var tg=passTargets(),i;for(i=0;i<tg.length;i++)if(tg[i].kind==='shot')return 1;return 0;}
+function _canTackle(t){var i,p;for(i=0;i<pieces.length;i++){p=pieces[i];if(p.team!==t||frozen(p))continue;if(tackleSquare(p))return 1;}return 0;}
+function sideValue(t){
+  var v=0,i,p;
+  for(i=0;i<pieces.length;i++){p=pieces[i];if(p.team!==t||p.role==='GK')continue;v+=(t===0?(7-p.y):p.y)*1.1;} /* push players up the pitch */
+  if(holder!=null&&pieces[holder]){
+    var c=pieces[holder];
+    if(c.team===t){v+=110;v+=(t===0?(7-c.y):c.y)*7;if(_shotThreat(t))v+=650;} /* hold it, drive it, threaten goal */
+    else if(_canTackle(t))v+=60; /* they have it but we can win it back */
+  }
+  return v;
+}
+function evalFor(side){return sideValue(side)-sideValue(1-side);}
+var _nodes=0,_deadline=0,_maxd=0;
+function search(depth,alpha,beta,K){
+  if(depth<=0)return evalFor(turn);
+  if(((_nodes++)&1023)===0&&performance.now()>_deadline)return evalFor(turn);
+  var acts=aiActions();
+  if(!acts.length)return evalFor(turn);
+  acts.sort(function(a,b){return aiScore(b)-aiScore(a);}); /* order moves so alpha-beta cuts hard */
+  if(acts.length>K)acts=acts.slice(0,K);
+  var best=-1e9,snap=_snap(),i;
+  for(i=0;i<acts.length;i++){
+    var term=simApply(acts[i]),val;
+    if(term==='goal')val=100000-(_maxd-depth)*10; /* score sooner = better */
+    else{turn=1-turn;turnCount++;val=-search(depth-1,-beta,-alpha,Math.max(6,K-2));}
+    _restore(snap);
+    if(val>best)best=val;
+    if(best>alpha)alpha=best;
+    if(alpha>=beta)break; /* cutoff */
+  }
+  return best;
+}
+function deepChoose(){
+  var acts=aiActions();if(!acts.length)return null;
+  if(GUIDE>0){var na=acts.filter(function(a){return a.l.kind!=='shot';});if(na.length)acts=na;}
+  var i;
+  for(i=0;i<acts.length;i++)if(acts[i].l.kind==='shot'&&!(GUIDE>0))return acts[i]; /* an open goal is never passed up */
+  acts.sort(function(a,b){return aiScore(b)-aiScore(a);});
+  var K=(LEVEL>=5)?10:8;
+  if(acts.length>K)acts=acts.slice(0,K);
+  _maxd=(LEVEL>=5)?4:2; _nodes=0; _deadline=performance.now()+((LEVEL>=5)?600:260);
+  var snap=_snap(),best=acts[0],bestV=-1e9,alpha=-1e9;
+  for(i=0;i<acts.length;i++){
+    var term=simApply(acts[i]),val;
+    if(term==='goal')val=100000;
+    else{turn=1-turn;turnCount++;val=-search(_maxd-1,-1e9,-alpha,K);}
+    _restore(snap);
+    if(LEVEL<5)val+=Math.random()*5; /* Master shows a little humanity; Gaffer is ice */
+    if(val>bestV){bestV=val;best=acts[i];}
+    if(val>alpha)alpha=val;
+    if(performance.now()>_deadline)break; /* hard safety — never hang the turn */
+  }
+  return best;
+}
+function aiChoose(){
+  var acts=aiActions();if(!acts.length)return null;
+  if(GUIDE>0){var na=acts.filter(function(a){return a.l.kind!=='shot';});if(na.length)acts=na;} /* in the lesson the engine never scores — you do */
+  if(LEVEL>=4){var d=deepChoose();if(d)return d;} /* Master & Gaffer look ahead */
+  var noise=[900,40,16,6,0][LEVEL-1];if(noise===undefined)noise=6;
+  var bestI=0,bestV=-1e9,i;
+  for(i=0;i<acts.length;i++){var v=aiScore(acts[i])+(noise?Math.random()*noise:0);if(v>bestV){bestV=v;bestI=i;}}
+  return acts[bestI];
+}
+function aiScan(){
+  var i,pick=null;
+  for(i=0;i<pieces.length;i++)if(pieces[i].team!==turn&&pieces[i].id===holder){pick=pieces[i];break;}
+  if(!pick)for(i=0;i<pieces.length;i++)if(pieces[i].team!==turn){pick=pieces[i];break;}
+  if(!pick)return;
+  scanPick=pick.id;phase='action';
+  log(T(turn===0?'GOLD':'BLUE')+' '+T('scans')+' '+pick.role+'.');
+  render();
+}
+var aiBusy=false;
+function aiTurn(){
+  if(!aiEnabled()||!(turn===AI||WATCH))return;
+  if(aiBusy)return; aiBusy=true;                 /* never let two AI turns overlap — the cause of the jumping */
+  var D=WATCH?550:60;                             /* watch: a calm, watchable beat between moves */
+  aiScan();
+  setTimeout(function(){
+    if(over){aiBusy=false;return;}
+    var a=aiChoose();
+    var fromXY=a?[a.p.x,a.p.y]:null;
+    var line=(a&&typeof narrate==='function')?(WATCH?narrate(a):(GUIDE>0&&typeof enemyReadout==='function'?enemyReadout(a):null)):null; /* commentary before the move resolves */
+    if(a)execute(a.p,a.l);
+    if(a&&fromXY){lastAi={f:fromXY,t:[a.l.x,a.l.y]};}
+    if(a&&a.l.kind==='shot'){aiBusy=false;return;} /* a goal: goal()/kickoff drives what happens next, not advance */
+    var done=false;
+    var advance=function(){ if(done)return; done=true; aiBusy=false; if(over)return; if(phase==='read')readPending[turn]=null; nextTurn(); };
+    if(line){ if(typeof setCap==='function')setCap(line); speakDemo(line,advance); if(WATCH)setTimeout(advance,4200); } /* the voice sets the pace, but a missed callback can never stall the game */
+    else setTimeout(advance, WATCH?800:220);
+  },D);
+}
+/* mode + level selector (compact, top of the panel) */
+(function(){
+  var panel=document.getElementById('panel');if(!panel)return;
+  var bar=document.createElement('div');bar.className='card';
+  bar.style.cssText='display:flex;flex-wrap:wrap;gap:5px;align-items:center;';
+  var lab=document.createElement('div');
+  lab.style.cssText='width:100%;font-size:9px;letter-spacing:.16em;font-weight:900;color:var(--gold);text-transform:uppercase;';
+  lab.textContent=MODE==='friend'?'2 Players · one board':('Vs Engine · '+LVNAME[LEVEL-1]);
+  bar.appendChild(lab);
+  function mk(txt,active,go){var b=document.createElement('button');b.textContent=txt;b.title=(txt.length===1?('Level '+txt+' — '+LVNAME[parseInt(txt,10)-1]):'Two players, one device');b.style.cssText='font-size:10px;font-weight:900;padding:6px 9px;border:0;border-radius:7px;cursor:pointer;font-family:inherit;'+(active?'background:linear-gradient(180deg,var(--gold),#d9b400);color:var(--ink);':'background:rgba(255,255,255,.09);color:var(--paper);');b.onclick=go;return b;}
+  for(var i=1;i<=5;i++){(function(i){bar.appendChild(mk(String(i),MODE==='engine'&&LEVEL===i,function(){try{localStorage.removeItem('checkmatch_save');}catch(e){}location.search='?mode=engine&lv='+i;}));})(i);}
+  bar.appendChild(mk('👥 Friend',MODE==='friend',function(){try{localStorage.removeItem('checkmatch_save');}catch(e){}location.search='?mode=friend';}));
+  panel.insertBefore(bar,panel.firstChild);
+  var sb=document.createElement('div');sb.className='card';sb.style.cssText='display:flex;align-items:center;gap:10px;padding-right:46px;white-space:nowrap;';
+  sb.innerHTML='<span id="cm-score" style="font-weight:900;font-size:13px;letter-spacing:.02em;">GOLD 0 &ndash; 0 BLUE</span><span id="cm-clock" style="font-weight:900;font-size:14px;color:var(--gold);font-variant-numeric:tabular-nums;min-width:36px;"></span><button id="cm-hint" style="font-family:inherit;font-weight:900;font-size:11px;border:0;border-radius:7px;padding:6px 10px;cursor:pointer;background:rgba(255,255,255,.12);color:var(--paper);">&#128161; Help</button>';
+  panel.insertBefore(sb,panel.firstChild);
+  var hb=document.getElementById('cm-hint');if(hb)hb.onclick=function(){if(typeof helpHint==='function')helpHint();};
+})();
+
+/* ===================== LESSON + COMMENTARY (coach voice) =====================
+   START screen so a newcomer is never dumped on the board. LEARN = a coach-voiced,
+   one-line-one-picture lesson. WATCH = the engine plays and the coach commentates
+   every move. All voice via COACH (cached /tts), device-speech fallback. */
+(function(){var s=document.createElement('style');s.textContent=
+".sq.demo-hi{box-shadow:inset 0 0 0 3px var(--gold),0 0 18px 4px rgba(255,215,0,.75)!important;z-index:3;}"+
+".sq.demo-sq{box-shadow:inset 0 0 0 3px rgba(255,215,0,.55)!important;}"+
+"@keyframes arrUp{0%,100%{opacity:.3}50%{opacity:.9}}@keyframes goalFlash{0%,100%{opacity:.6}50%{opacity:1}}"+
+".pc.demo-dim{opacity:.14!important;filter:grayscale(1)!important;}"+
+".sq.demo-warn{box-shadow:inset 0 0 0 3px #ff3355!important;}"+
+".pc.ai-moved{box-shadow:0 0 0 3px #8fd3ff,0 0 18px #8fd3ff!important;}"+
+"#cm-lc{border:2px solid var(--gold)!important;background:rgba(6,19,9,.6);font-size:clamp(14px,1.4vw,17px);line-height:1.45;}"+
+"#cm-lc .row{display:flex;gap:6px;margin-top:10px;}"+
+"#cm-lc button{font-family:inherit;font-weight:900;font-size:11px;border:0;border-radius:7px;padding:8px 12px;cursor:pointer;}"+
+"#cm-lc .next{background:linear-gradient(180deg,var(--gold),#d9b400);color:var(--ink);}"+
+"#cm-lc .skip{background:rgba(255,255,255,.14);color:var(--paper);}"+
+"#cm-start{position:fixed;inset:0;z-index:130;background:radial-gradient(130% 100% at 50% 25%,#0e2c18,#04110a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:26px;font-family:inherit;}"+
+"#cm-start h1{font-size:clamp(38px,8vw,78px);font-weight:900;letter-spacing:.1em;color:#fff;margin:0;}"+
+"#cm-start h1 em{font-style:normal;color:var(--gold);}"+
+"#cm-start p{max-width:540px;color:rgba(242,238,226,.82);font-size:clamp(14px,2.5vw,18px);line-height:1.5;margin:0;}"+
+"#cm-start .btns{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:6px;}"+
+"#cm-start button{font-family:inherit;font-weight:900;border:0;border-radius:12px;padding:15px 24px;font-size:15px;cursor:pointer;background:rgba(255,255,255,.11);color:var(--paper);}"+
+"#cm-start button.learn{background:linear-gradient(180deg,var(--gold),#d9b400);color:var(--ink);font-size:18px;padding:17px 34px;}"+
+"#cm-start .cred{position:absolute;bottom:16px;font-size:10px;letter-spacing:.16em;opacity:.5;color:var(--paper);}";
+document.head.appendChild(s);})();
+
+function cmSqEl(x,y){var b=document.getElementById('board');return (b&&x>=0&&x<8&&y>=0&&y<8)?b.children[y*8+x]:null;}
+function showAiMove(from,to){var a=cmSqEl(from[0],from[1]);if(a)a.classList.add('ai-move');var b=cmSqEl(to[0],to[1]);if(b)b.classList.add('ai-move');}
+function helpHint(){if(over||turn!==0||typeof bestSuggest!=='function')return;var s=bestSuggest();if(!s){log('No hint right now.');return;}var ep=cmSqEl(s.p.x,s.p.y);if(ep)ep.classList.add('demo-hi');var e=cmSqEl(s.l.x,s.l.y);if(e)e.classList.add('demo-sq');var why=s.l.kind==='shot'?'Shoot here — the keeper cannot reach it.':(s.l.hl==='tackle'?'Win the ball here — you outnumber them.':(s.p.id===holder?'Move the ball up here — keep the attack going.':'This move helps you most right now.'));log(T('HINT:')+' '+why);try{if(typeof speakDemo==='function')speakDemo(why);}catch(e2){}setTimeout(function(){var a=cmSqEl(s.p.x,s.p.y);if(a)a.classList.remove('demo-hi');var b=cmSqEl(s.l.x,s.l.y);if(b)b.classList.remove('demo-sq');},3000);}
+function cmGold(role,idx){var c=0;for(var i=0;i<pieces.length;i++){if(pieces[i].team===0&&pieces[i].role===role){if(c===(idx||0))return pieces[i];c++;}}return null;}
+function cmHiP(p){if(!p)return;var e=cmSqEl(p.x,p.y);if(e)e.classList.add('demo-hi');}
+function cmHiMoves(p){if(!p)return;try{var ms=moveSquares(p);for(var i=0;i<ms.length;i++){var e=cmSqEl(ms[i][0],ms[i][1]);if(e)e.classList.add('demo-sq');}}catch(e){}}
+function cmClear(){var b=document.getElementById('board');if(b){var els=b.querySelectorAll('.demo-hi,.demo-sq,.demo-warn');for(var i=0;i<els.length;i++){els[i].classList.remove('demo-hi');els[i].classList.remove('demo-sq');els[i].classList.remove('demo-warn');}var dm=b.querySelectorAll('.pc.demo-dim');for(var k=0;k<dm.length;k++)dm[k].classList.remove('demo-dim');}var bw=document.getElementById('board-wrap');if(bw){var ov=bw.querySelectorAll('.demo-arrows,.demo-goal-m,.demo-ghost');for(var j=0;j<ov.length;j++)ov[j].remove();}}
+function cmDimExcept(p){for(var i=0;i<pieces.length;i++){var q=pieces[i];if(p&&q.id===p.id)continue;var e=cmSqEl(q.x,q.y);if(e){var pc=e.querySelector('.pc');if(pc)pc.classList.add('demo-dim');}}}
+function cmPairShow(role){setup();render();var g=null,b=null,i;for(i=0;i<pieces.length;i++){if(pieces[i].role===role){if(pieces[i].team===0&&!g)g=pieces[i];if(pieces[i].team===1&&!b)b=pieces[i];}}for(i=0;i<pieces.length;i++){var q=pieces[i];if((g&&q.id===g.id)||(b&&q.id===b.id))continue;var e=cmSqEl(q.x,q.y);if(e){var pc=e.querySelector('.pc');if(pc)pc.classList.add('demo-dim');}}if(g){cmHiP(g);cmHiMoves(g);}if(b){cmHiP(b);cmHiMoves(b);}return {g:g,b:b};}
+function cmArrows(){var bw=document.getElementById('board-wrap');if(!bw)return;var w=document.createElement('div');w.className='demo-arrows';w.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:5;';[24,50,76].forEach(function(lx){var a=document.createElement('div');a.textContent='⬆';a.style.cssText='position:absolute;left:'+lx+'%;top:45%;transform:translate(-50%,-50%);font-size:13vh;color:rgba(255,215,0,.65);text-shadow:0 0 22px rgba(255,215,0,.7);animation:arrUp 1.1s ease-in-out infinite;';w.appendChild(a);});bw.appendChild(w);}
+function cmArrowsDown(){var bw=document.getElementById('board-wrap');if(!bw)return;var w=document.createElement('div');w.className='demo-arrows';w.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:5;';[24,50,76].forEach(function(lx){var a=document.createElement('div');a.textContent='⬇';a.style.cssText='position:absolute;left:'+lx+'%;top:55%;transform:translate(-50%,-50%);font-size:13vh;color:rgba(143,211,255,.6);text-shadow:0 0 22px rgba(143,211,255,.7);animation:arrUp 1.1s ease-in-out infinite;';w.appendChild(a);});bw.appendChild(w);}
+function cmGoalMarker(){var bw=document.getElementById('board-wrap');if(!bw)return;var m=document.createElement('div');m.className='demo-goal-m';m.innerHTML='<span style="background:rgba(6,19,9,.75);padding:1px 8px;border-radius:6px;">GOAL</span>';m.style.cssText='position:absolute;left:37.5%;width:25%;top:0;height:12.5%;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.12em;color:#fff;background:linear-gradient(rgba(255,215,0,.5),rgba(255,215,0,.05));border:3px solid var(--gold);border-top:0;border-radius:0 0 8px 8px;box-sizing:border-box;z-index:6;pointer-events:none;font-size:min(2.2vh,15px);animation:goalFlash 1s ease-in-out infinite;';bw.appendChild(m);}
+function cmCell(){var b=document.getElementById('board');return b?b.getBoundingClientRect().width/8:40;}
+function cmSlide(p,path){if(!p||!path.length)return;var i=0;(function step(){if(i>=path.length)return;p.x=path[i][0];p.y=path[i][1];render();i++;setTimeout(step,430);})();}
+function cmGhost(from,to,label,bg){var bw=document.getElementById('board-wrap');if(!bw)return;var cell=cmCell();var col=bg||'radial-gradient(circle at 40% 35%,#ffe89a,#d9a017)';var sh=bg?'#8fd3ff':'var(--gold)';var g=document.createElement('div');g.className='demo-ghost';g.textContent=label||'';g.style.cssText='position:absolute;width:'+cell+'px;height:'+cell+'px;left:'+(from[0]*cell)+'px;top:'+(from[1]*cell)+'px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:'+(cell*.3)+'px;color:#111;background:'+col+';border-radius:50%;z-index:7;pointer-events:none;box-shadow:0 0 18px '+sh+';transition:left .6s cubic-bezier(.4,1.2,.4,1),top .6s cubic-bezier(.4,1.2,.4,1);';bw.appendChild(g);requestAnimationFrame(function(){requestAnimationFrame(function(){g.style.left=(to[0]*cell)+'px';g.style.top=(to[1]*cell)+'px';});});setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g);},1500);}
+function cmBall(from,to,label){var bw=document.getElementById('board-wrap');if(!bw)return;var cell=cmCell();var b=document.createElement('div');b.className='demo-ghost';b.style.cssText='position:absolute;width:'+(cell*.5)+'px;height:'+(cell*.5)+'px;left:'+((from[0]+0.25)*cell)+'px;top:'+((from[1]+0.25)*cell)+'px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#c8ccd4);z-index:8;pointer-events:none;box-shadow:0 0 12px #fff;transition:left .55s linear,top .55s linear;';bw.appendChild(b);requestAnimationFrame(function(){requestAnimationFrame(function(){b.style.left=((to[0]+0.25)*cell)+'px';b.style.top=((to[1]+0.25)*cell)+'px';});});if(label){setTimeout(function(){var t=document.createElement('div');t.className='demo-ghost';t.textContent=label;t.style.cssText='position:absolute;left:'+((to[0]-0.2)*cell)+'px;top:'+((to[1]-0.35)*cell)+'px;color:#ff3355;font-weight:900;font-size:'+(cell*.34)+'px;z-index:9;pointer-events:none;text-shadow:0 0 8px #000;';bw.appendChild(t);},600);}setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},1700);}
+function cmGoalFlash(){var bw=document.getElementById('board-wrap');if(!bw)return;var f=document.createElement('div');f.className='demo-ghost';f.textContent='GOAL!';f.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15vh;font-weight:900;color:var(--gold);text-shadow:0 0 30px rgba(255,215,0,.85);z-index:10;pointer-events:none;animation:goalFlash .5s ease-in-out infinite;';bw.appendChild(f);setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},2400);}
+function cmStop(){try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}try{if(window.COACH&&COACH.stop)COACH.stop();}catch(e){}}
+function speakDemo(text,cb){try{if(window.COACH&&COACH.stop)COACH.stop();if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){} /* stop any line still playing — no doubling */
+  var done=false;function fin(){if(done)return;done=true;clearTimeout(bk);cb&&cb();}var bk=setTimeout(fin,Math.max(3200,text.length*105));try{if(window.COACH&&COACH.say){COACH.say(text,{onend:fin});return;}}catch(e){}try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(text);u.rate=.82;u.onend=fin;speechSynthesis.cancel();speechSynthesis.speak(u);return;}}catch(e){}}
+function lessonCard(){var c=document.getElementById('cm-lc');if(c)return c;c=document.createElement('div');c.id='cm-lc';c.className='card';var p=document.getElementById('panel');if(p)p.insertBefore(c,p.firstChild);else document.body.appendChild(c);return c;}
+function setCap(text,controls){var c=lessonCard();var h='<div>'+text+'</div>';if(demoOn){h+='<div class="row"><button class="skip" id="cm-back">&#9664; Back</button><button class="skip" id="cm-skip">Skip</button>'+(controls?'<button class="next" id="cm-next">Next &#9654;</button>':'')+'</div>';}c.innerHTML=h;if(demoOn){var bk=document.getElementById('cm-back');if(bk)bk.onclick=function(){clearTimeout(demoT);cmStop();runStep(_si>0?_si-1:0);};var sk=document.getElementById('cm-skip');if(sk)sk.onclick=endDemo;var nx=document.getElementById('cm-next');if(nx)nx.onclick=function(){clearTimeout(demoT);cmStop();runStep(_si+1);};}}
+function rmCap(){var c=document.getElementById('cm-lc');if(c)c.remove();}
+
+/* live commentary for WATCH mode — one plain line per move */
+function narrate(a){
+  var who=(turn===0?'Gold':'Blue'),l=a.l;
+  if(l.hl==='tackle')return who+' wins the ball back. They had more players around it — that is the only way to tackle.';
+  if(l.kind==='shot')return who+' shoots, and scores! The keeper could not cover that square.';
+  if(l.kind==='pass')return who+' passes forward to a teammate.';
+  if(a.p.id===holder)return who+' drives the ball forward, toward goal.';
+  return who+' moves off the ball, into space.';
+}
+
+/* THE LESSON — interactive. The coach explains, then YOU tap a piece and a square,
+   and she corrects you. 'say' = narrate + auto-advance. 'ask' = wait for your tap. */
+var demoT=null,_si=0;
+var STEPS=[
+ {say:'Welcome. Everything in this game is real football — you are training your football brain, the same way the best players do. This is your team: the gold ones, down at the bottom.',hi:function(){setup();render();for(var i=0;i<pieces.length;i++)if(pieces[i].team===0)cmHiP(pieces[i]);}},
+ {say:'The blue ones are the other team, at the top.',hi:function(){for(var i=0;i<pieces.length;i++)if(pieces[i].team===1)cmHiP(pieces[i]);}},
+ {say:'You want to score in this goal, at the top.',hi:function(){cmGoalMarker();}},
+ {say:'So you go up. This way.',hi:function(){cmArrows();cmGoalMarker();}},
+ {say:'Watch your players walk up towards it.',hi:function(){cmArrows();cmGoalMarker();cmGhost([0,5],[2,2],'');cmGhost([4,4],[4,1],'');cmGhost([7,5],[5,2],'');}},
+ {say:'But the blue team wants to score too — in YOUR goal, down here.',hi:function(){setup();render();cmMyGoal();var g=goldGK();if(g)cmHiP(g);}},
+ {say:'They come the other way, downwards, at your goal. Watch them.',hi:function(){cmMyGoal();cmArrowsDown();cmGhostBlue([4,2],[4,4],'');cmGhostBlue([2,1],[2,3],'');cmGhostBlue([7,2],[6,4],'');}},
+ {say:'So you have two jobs — just like every real player on the pitch: attack their net up top, and protect your own goal down here.',hi:function(){cmGoalMarker();cmMyGoal();}},
+ {say:'Now, meet each of your players. Each one is special. Let us look at them one by one.',hi:function(){setup();render();}},
+ {say:'The winger — yours down here, and theirs up top. It walks in long slanty lines, the furthest walker on the board. On a real pitch this is your wide player: he hugs the touchline, gets in behind, and whips it to the far post. Yours attacks up; theirs comes down at you.',hi:function(){var r=cmPairShow('WG');if(r.g)cmGhost([r.g.x,r.g.y],[r.g.x+3,r.g.y-3],'');if(r.b)cmGhostBlue([r.b.x,r.b.y],[r.b.x+3,r.b.y+3],'');}},
+ {say:'The defender — yours and theirs. It walks in straight lines. On the pitch this is your back line: it holds its shape, blocks the path to goal, and steps in to win the ball. Your wall, and theirs.',hi:function(){var r=cmPairShow('DF');if(r.g)cmGhost([r.g.x,r.g.y],[r.g.x,r.g.y-2],'');if(r.b)cmGhostBlue([r.b.x,r.b.y],[r.b.x,r.b.y+2],'');}},
+ {say:'The striker — yours and theirs. It hops: two, then one, right over everyone. Nobody can block it. That is the real striker making the run in behind — arriving where no defender is marking. So watch out for theirs.',hi:function(){var r=cmPairShow('ST');if(r.g)cmGhost([r.g.x,r.g.y],[r.g.x+1,r.g.y-2],'');if(r.b)cmGhostBlue([r.b.x,r.b.y],[r.b.x+1,r.b.y+2],'');}},
+ {say:'The playmaker — yours and theirs. It walks any way it likes, and starts with the ball. On the pitch this is the number ten, the conductor: he links the whole team and decides where the attack goes. The boss on both teams.',hi:function(){cmPairShow('PM');}},
+ {say:'And the keeper — the last one back, just like on the pitch. THIS one is yours, guarding YOUR goal down here. THAT one is theirs, guarding their net up there. Same job, both ends.',hi:function(){cmPairShow('GK');cmMyGoal();cmGoalMarker();}},
+ {say:'Now let us move a player. It is easy. Just two taps.',hi:function(){setup();render();}},
+ {say:'Tap one: the player. Tap two: where it goes.',hi:function(){cmHiP(cmGold('PM',0));}},
+ {ask:'piece',role:'PM',say:'Your turn. Tap this glowing player.',hi:function(){cmHiP(cmGold('PM',0));}},
+ {ask:'square',say:'Yes! Now tap one of the glowing squares.'},
+ {say:'You did it! You moved a player.',hi:function(){}},
+ {say:'Let us do it one more time.',hi:function(){}},
+ {ask:'piece',role:'WG',say:'Tap this glowing player, on the side.',hi:function(){cmHiP(cmGold('WG',0));}},
+ {ask:'square',say:'Now tap a glowing square.'},
+ {say:'Perfect. Now you know how to move.',hi:function(){}},
+ {say:'Now the big one. To score, you MUST have the ball. No ball, no goal. So let me show you the ball.',hi:function(){setup();render();cmHiP(cmGold('PM',0));}},
+ {say:'See the little white ball? Right now it sits on YOUR player, down here. That means it is your attack to build.',hi:function(){setup();render();cmHiP(cmGold('PM',0));}},
+ {say:'When you move the player who is holding the ball, the ball goes with him. That is how you carry it up — dribbling.',hi:function(){setup();render();var p=cmGold('PM',0);if(p){cmHiP(p);cmGhost([p.x,p.y],[p.x,p.y-2],'');}}},
+ {say:'Careful though: moving any of your OTHER players does NOT bring the ball to them. The ball only moves by dribbling, a pass, or being won.',hi:function(){setup();render();var pm=cmGold('PM',0);if(pm)cmHiP(pm);var w=cmGold('WG',0);if(w)cmGhost([w.x,w.y],[w.x+3,w.y-3],'');}},
+ {say:'Now — what if the OTHER team has the ball? Look, it is on THEIR player now. That means you cannot score at all, until you win it back.',hi:function(){setup();var b=null;for(var i=0;i<pieces.length;i++)if(pieces[i].team===1&&pieces[i].role==='PM')b=pieces[i];if(b)holder=b.id;render();var c=pieces[holder];if(c)cmHiP(c);}},
+ {say:'You do NOT win it by walking one player up to it. One player alone can never take the ball. Watch — one is not enough.',hi:function(){var c=pieces[holder];if(c){cmHiP(c);cmGhost([1,5],[c.x-1,c.y+1],'');}}},
+ {say:'You win it by SURROUNDING it — getting more of your players around the ball than they have. That is the press.',hi:function(){var c=pieces[holder];if(c){cmHiP(c);cmGhost([1,5],[c.x-1,c.y+1],'');cmGhost([6,5],[c.x+1,c.y+1],'');cmGhost([c.x,7],[c.x,c.y+1],'');}}},
+ {say:'Now that you have them surrounded, you tackle: tap your player, then tap the ball. Watch — it becomes yours.',hi:function(){var c=pieces[holder];if(c)cmBall([c.x,c.y],[c.x,c.y+1],'YOURS');}},
+ {say:'And now that you have the ball, you carry it up and score. Remember: no ball, no goal — so winning it back is everything.',hi:function(){setup();render();cmGoalMarker();var p=cmGold('PM',0);if(p){cmHiP(p);cmGhost([p.x,p.y],[p.x,p.y-2],'');}}},
+ {say:'One more way to move the ball: pass it. Tap the player with the ball, then tap a teammate in a straight line, and the ball flies to him.',hi:function(){setup();render();var p=cmGold('PM',0);if(p){cmHiP(p);cmBall([p.x,p.y],[p.x,p.y-2],'');}}},
+ {say:'Now the fun part. How to score a goal.',hi:function(){setup();render();}},
+ {say:'This is the goalkeeper. He guards the goal.',hi:function(){cmGoalMarker();var g=blueGK();if(g)cmHiP(g);}},
+ {say:'He blocks his own square, and every square next to him.',hi:function(){cmGoalMarker();var g=blueGK();if(g){cmHiP(g);cmGoalCover(g);}}},
+ {say:'So if you kick it right at him, he catches it — every time. On a real pitch it is the same: blast it straight at the keeper, and that is exactly what he wants.',hi:function(){cmGoalMarker();var g=blueGK();if(g){cmHiP(g);cmGoalCover(g);cmBall([2,4],[g.x,g.y],'SAVED');}}},
+ {say:'So here is the trick — the one real strikers use. You send a player to threaten one side.',hi:function(){cmGoalMarker();var g=blueGK();if(g)cmHiP(g);var e=cmSqEl(6,1);if(e)e.classList.add('demo-sq');cmGhost([7,3],[6,1],'');}},
+ {say:'Now the keeper HAS to move across, to stop it. Watch him move.',hi:function(){cmGoalMarker();var g=blueGK();if(g)cmSlide(g,[[5,0]]);}},
+ {say:'See? He moved. And now the other side is wide open.',hi:function(){cmGoalMarker();var g=blueGK();if(g)cmHiP(g);var e=cmSqEl(3,0);if(e)e.classList.add('demo-sq');}},
+ {say:'So you kick the ball into the open side.',hi:function(){cmGoalMarker();var e=cmSqEl(3,0);if(e)e.classList.add('demo-sq');cmBall([2,3],[3,0],'');setTimeout(cmGoalFlash,650);}},
+ {say:'GOAL! You win the game!',hi:function(){cmGoalMarker();setTimeout(cmGoalFlash,100);}},
+ {say:'Now, the real secret. The one that makes you the best.',hi:function(){setup();render();}},
+ {say:'Which player is the strongest? Here is the truth — none of them, on its own.',hi:function(){setup();render();for(var i=0;i<pieces.length;i++)if(pieces[i].team===0)cmHiP(pieces[i]);}},
+ {say:'The strongest thing on the whole board is two of your players the keeper cannot cover at once. On the pitch that is the overload — the two-on-one. Every coach in the world builds their attack around it.',hi:function(){setup();render();cmGoalMarker();var g=blueGK();if(g)cmHiP(g);var e1=cmSqEl(3,0),e2=cmSqEl(4,0);if(e1)e1.classList.add('demo-sq');if(e2)e2.classList.add('demo-sq');cmGhost([2,3],[3,1],'');cmGhost([6,3],[5,1],'');}},
+ {say:'He can only stop one of them, so the other one scores. That free player is the spare man — the one every real team hunts for.',hi:function(){cmGoalMarker();var g=blueGK();if(g)cmHiP(g);var e2=cmSqEl(4,0);if(e2)e2.classList.add('demo-sq');cmBall([6,2],[4,0],'');setTimeout(cmGoalFlash,700);}},
+ {say:'That is the whole game. You do not beat the keeper. You give him a problem he cannot solve.',hi:function(){}},
+ {say:'One last, clever thing. Watch how the other team plays.',hi:function(){setup();render();for(var i=0;i<pieces.length;i++)if(pieces[i].team===1)cmHiP(pieces[i]);}},
+ {say:'The game even tells you their habits — do they lean one way? Do they run when you chase? Real players do this too: a good defender reads the run before it even happens.',hi:function(){}},
+ {say:'Use it against them. Set two dangers — whatever they stop, the other one hurts them.',hi:function(){}},
+ {say:'Stay one step ahead, and they start to feel rushed. That is how you really win — in their head, before you even score.',hi:function(){}},
+ {say:'One last thing. Let me show you a quick game — so you see how THEY attack, and how you stop them.',hi:function(){setup();render();}},
+ {say:'Your goal is down here, at the bottom. Your keeper guards it. Watch the blue team come at it.',hi:function(){cmMyGoal();var g=goldGK();if(g)cmHiP(g);}},
+ {say:'They pass forward, down the middle, towards your goal.',hi:function(){cmMyGoal();cmGhostBlue([4,2],[4,4],'');cmGhostBlue([3,3],[3,5],'');}},
+ {say:'Uh oh — nobody moved across to stop them. This lane is wide open.',hi:function(){cmMyGoal();var e=cmSqEl(3,6);if(e)e.classList.add('demo-warn');var e2=cmSqEl(4,6);if(e2)e2.classList.add('demo-warn');}},
+ {say:'They keep coming, and they score. That is a goal against you.',hi:function(){cmMyGoal();cmBall([3,5],[3,7],'');setTimeout(cmConcede,700);}},
+ {say:'But look. If you had moved a defender across, into that lane...',hi:function(){cmMyGoal();var d=goldDF();if(d)cmHiP(d);var e=cmSqEl(3,6);if(e)e.classList.add('demo-sq');cmGhost([2,6],[3,6],'');}},
+ {say:'...you would have blocked them. No goal.',hi:function(){cmMyGoal();var e=cmSqEl(3,6);if(e)e.classList.add('demo-sq');}},
+ {say:'So defending matters as much as scoring. On the pitch, defenders stay goal-side — between the attacker and the net. Keep a player back, watch their runs, and block the lane to your goal.',hi:function(){}},
+ {say:'One heads-up before you play. The other side has clever tricks too — they might steal the ball when you are outnumbered, read your move and grab a free extra go, or rush both posts at once.',hi:function(){setup();render();}},
+ {say:'You do not need to beat those yet. Just know them when you see them. The clever counters come later, when you are ready to really master this.',hi:function(){}},
+ {say:'That is Checkmatch — real football, played in your head. Now let us play together. Then take everything you learned here, out onto the pitch.',hi:function(){}}
+];
+function runStep(i){
+  _si=i;cmClear();tutOn=false;tutExpect=null;
+  if(i>=STEPS.length){endDemo();return;}
+  var s=STEPS[i];
+  if(s.hi)try{s.hi();}catch(e){}
+  if(s.ask==='piece'){
+    var p=cmGold(s.role,0);tutSel=p;setCap(s.say,false);speakDemo(s.say);
+    tutOn=true;tutExpect={kind:'piece',id:p?p.id:-1};
+  } else if(s.ask==='square'){
+    tutSquares=[];
+    if(tutSel){cmHiP(tutSel);var ms=moveSquares(tutSel);for(var k=0;k<ms.length;k++){tutSquares.push(ms[k][0]+','+ms[k][1]);var e=cmSqEl(ms[k][0],ms[k][1]);if(e)e.classList.add('demo-sq');}}
+    setCap(s.say,false);speakDemo(s.say);
+    tutOn=true;tutExpect={kind:'square'};
+  } else {
+    setCap(s.say,true);
+    speakDemo(s.say,function(){if(_si!==i)return;demoT=setTimeout(function(){runStep(i+1);},2200);});
+  }
+}
+function tutTap(x,y){
+  if(!tutExpect)return;
+  if(tutExpect.kind==='piece'){
+    var p=at(x,y);
+    if(p&&p.id===tutExpect.id){cmStop();tutSel=p;runStep(_si+1);}
+    else speakDemo('Not that one. Tap the glowing player.');
+  } else if(tutExpect.kind==='square'){
+    if(tutSquares.indexOf(x+','+y)>=0){
+      cmStop();tutOn=false;tutExpect=null;
+      if(tutSel){tutSel.x=x;tutSel.y=y;}
+      cmClear();render();
+      var ii=_si;
+      speakDemo('Nice. You moved it. Tapped the player, tapped the square.',function(){if(_si!==ii)return;demoT=setTimeout(function(){runStep(ii+1);},1600);});
+    } else speakDemo('Tap one of the glowing squares.');
+  }
+}
+function runDemo(){demoOn=true;tutOn=false;var st=document.getElementById('cm-start');if(st)st.remove();setup();render();var f=0;try{f=parseInt(new URLSearchParams(location.search).get('from'),10)||0;}catch(e){}runStep(f);}
+function endDemo(){demoOn=false;tutOn=false;clearTimeout(demoT);cmStop();cmClear();rmCap();setup();render();startGuide();}
+/* GUIDED FIRST MOVES — the coach stays beside you, shows your options, reacts. */
+function blueGK(){for(var i=0;i<pieces.length;i++)if(pieces[i].team===1&&pieces[i].role==='GK')return pieces[i];return null;}
+function cmGoalCover(g){if(!g)return;for(var dx=-1;dx<=1;dx++)for(var dy=-1;dy<=1;dy++){if(dx===0&&dy===0)continue;var e=cmSqEl(g.x+dx,g.y+dy);if(e)e.classList.add('demo-sq');}}
+function goldGK(){for(var i=0;i<pieces.length;i++)if(pieces[i].team===0&&pieces[i].role==='GK')return pieces[i];return null;}
+function goldDF(){for(var i=0;i<pieces.length;i++)if(pieces[i].team===0&&pieces[i].role==='DF')return pieces[i];return null;}
+function cmGhostBlue(from,to,label){cmGhost(from,to,label,'radial-gradient(circle at 40% 35%,#8fd3ff,#1e6fb0)');}
+function cmMyGoal(){var bw=document.getElementById('board-wrap');if(!bw)return;var m=document.createElement('div');m.className='demo-goal-m';m.innerHTML='<span style="background:rgba(6,19,9,.75);padding:1px 8px;border-radius:6px;">YOUR GOAL</span>';m.style.cssText='position:absolute;left:37.5%;width:25%;bottom:0;height:12.5%;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.1em;color:#fff;background:linear-gradient(rgba(143,211,255,0),rgba(143,211,255,.5));border:3px solid #8fd3ff;border-bottom:0;border-radius:8px 8px 0 0;box-sizing:border-box;z-index:6;pointer-events:none;font-size:min(2.2vh,15px);animation:goalFlash 1s ease-in-out infinite;';bw.appendChild(m);}
+function cmConcede(){var bw=document.getElementById('board-wrap');if(!bw)return;var f=document.createElement('div');f.className='demo-ghost';f.textContent='THEY SCORE';f.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11vh;font-weight:900;color:#ff5577;text-shadow:0 0 30px rgba(0,0,0,.7);z-index:10;pointer-events:none;animation:goalFlash .5s ease-in-out infinite;';bw.appendChild(f);setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},2400);}
+function guideCap(msg){setCap(msg,false);}
+function pieceSide(x){return x<=2?'the left':x>=5?'the right':'the middle';}
+function bestSuggest(){var acts=aiActions();if(!acts.length)return null;var bi=0,bv=-1e9;for(var i=0;i<acts.length;i++){var v=aiScore(acts[i]);if(v>bv){bv=v;bi=i;}}return acts[bi];}
+function backCount(){var n=0;for(var i=0;i<pieces.length;i++)if(pieces[i].team===0&&pieces[i].y>=5)n++;return n;}
+function enemyReadout(a){var side=pieceSide(a.l.x);if(a.l.hl==='tackle')return 'They stole the ball — you had too few players around it. Next time, bring a second player to the ball.';if(a.l.kind==='pass')return 'They passed up '+side+' — trying to get behind you on that side. Put a player in that lane before their next pass.';if(a&&a.p&&a.p.id===holder)return 'They are dribbling up '+side+', straight at your goal. They want you to chase so they can slip past — instead, stay between them and your keeper.';return 'They pushed a player up '+side+' — building an attack. Keep someone back, and watch that side.';}
+function startGuide(){GUIDE=1;LEVEL=1;log('Now we play together — and I stay right beside you, until you score.');setTimeout(guidePrompt,800);}
+function guidePrompt(){
+  if(GUIDE<=0||over||turn!==0)return;
+  if(phase==='scan'){var b=null;for(var i=0;i<pieces.length;i++)if(pieces[i].team===1){b=pieces[i];break;}if(b){scanPick=b.id;phase='action';}}
+  render();cmClear();
+  var s=bestSuggest();if(s){cmHiP(s.p);var e=cmSqEl(s.l.x,s.l.y);if(e)e.classList.add('demo-sq');}
+  var oppBall=(holder>=0&&pieces[holder].team===1),threat=oppBall&&pieces[holder].y>=4,side=oppBall?pieceSide(pieces[holder].x):'',msg;
+  if(s&&s.l.kind==='shot'){msg='You can SCORE! The keeper cannot reach that square. Tap the glowing player, then the glowing square, and put it in.';}
+  else if(threat){msg='Careful — they have the ball near your goal, on '+side+'. Your choice now: block their lane with the glowing player, or surround the ball to steal it. Defend first — tap the glowing player, then the square.';}
+  else if(s&&s.l.hl==='tackle'){msg='Now — you have players around the ball, so you can take it. Tap the glowing player, then the square, and win it back.';}
+  else if(holder>=0&&pieces[holder].team===0){msg='You have the ball. Push up towards their net — the glowing move keeps you moving and safe. Attack while they are still back.';}
+  else {msg='Your turn. The glowing move is a strong one — or choose your own. Always ask yourself: do I attack their net, or protect mine?';}
+  guideCap(msg);speakDemo(msg);
+}
+function guideReact(){
+  if(turn!==0||over)return;
+  cmClear();
+  var h=(holder>=0)?pieces[holder]:null,msg;
+  if(h&&h.team===0){
+    if(h.y<=1)msg='Perfect — you are right at their net. Now make the keeper move to one side, then shoot the side he leaves.';
+    else if(h.y<=3)msg='Good — the ball is in their half. Bring a second player up too: two players near their net is what beats the keeper.';
+    else msg='Good, you kept the ball. Walk it up — remember, you want two players the keeper cannot cover at once.';
+  } else if(h&&h.team===1){ msg='They have the ball now. Do not chase alone — bring a second player, surround it, and take it back.'; }
+  else { msg='Good move. Now think one move ahead: where will they go, and how will you stop it?'; }
+  if(backCount()<2)msg+=' And keep one player back — never leave your own goal open.';
+  guideCap(msg);speakDemo(msg);
+  setTimeout(function(){if(phase==='read'){readPending[turn]=null;nextTurn();}},1500);
+}
+
+function showStart(){
+  if(document.getElementById('cm-start'))return;
+  var o=document.createElement('div');o.id='cm-start';
+  o.innerHTML='<h1>CHECK<em>MATCH</em></h1>'+
+    '<p>Football, played on a board. You win by making the save impossible &mdash; then scoring. New here? Take the lesson first.</p>'+
+    '<div class="btns"><button class="learn" id="cs-learn">&#9654; LEARN TO PLAY</button>'+
+    '<button id="cs-watch">&#128064; WATCH &amp; LEARN</button>'+
+    '<button id="cs-play">PLAY THE ENGINE</button>'+
+    '<button id="cs-rules">RULES</button></div>'+
+    '<div class="cred">&copy; SOCCERMENTAL &middot; CREATED BY JASON WALLACE</div>';
+  document.body.appendChild(o);
+  document.getElementById('cs-learn').onclick=function(){runDemo();};
+  document.getElementById('cs-watch').onclick=function(){location.search='?watch=1&lv='+LEVEL;};
+  document.getElementById('cs-play').onclick=function(){o.remove();try{localStorage.removeItem('checkmatch_save');}catch(e){}if(typeof setup==='function')setup();SCORE=[0,0];aiBusy=false;if(typeof updateScore==='function')updateScore();render();if(typeof startClock==='function')startClock();if(MODE==='engine'&&turn===AI&&typeof aiTurn==='function')setTimeout(aiTurn,650);}; /* clean fresh game — never resume a scattered board */
+  document.getElementById('cs-rules').onclick=function(){var r=document.getElementById('rules');if(r)r.classList.add('show');};
+}
+
+/* ===== BEST OF 3 · AUTO CLOCK · SAVE & RESUME ===== */
+function updateScore(){var e=document.getElementById('cm-score');if(e)e.innerHTML=T('GOLD')+' '+(SCORE[0]||0)+' &ndash; '+(SCORE[1]||0)+' '+T('BLUE');}
+function kickoff(concededTeam){setup();var pm=null;for(var i=0;i<pieces.length;i++)if(pieces[i].team===concededTeam&&pieces[i].role==='PM'){pm=pieces[i];break;}if(pm)holder=pm.id;turn=concededTeam;turnCount=1;phase='scan';actionsLeft=1;tempoUsedThisTurn=false;selected=null;legal=[];cp=[0,0];cpRows=[new Set(),new Set()];over=false;aiBusy=false;render();updateScore();saveGame();startClock();if(MODE==='engine'&&(turn===AI||WATCH))setTimeout(aiTurn,650);} /* WATCH keeps playing both sides after a goal */
+var CLK=null,CLKT=0,CLK_MAX=45;
+function clockOn(){return !demoOn && (typeof GUIDE==='undefined'||GUIDE<=0) && !over && !WATCH && (MODE==='friend'||turn===0);}
+function stopClock(){if(CLK){clearInterval(CLK);CLK=null;}}
+function paintClock(){var e=document.getElementById('cm-clock');if(!e)return;if(!clockOn()){e.textContent='';return;}var m=Math.floor(CLKT/60),s=CLKT%60;e.textContent=m+':'+(s<10?'0':'')+s;e.style.color=CLKT<=10?'#ff5577':'var(--gold)';}
+function startClock(){stopClock();if(!clockOn()){paintClock();return;}CLKT=CLK_MAX;paintClock();CLK=setInterval(function(){CLKT--;paintClock();if(CLKT<=0){stopClock();timeUp();}},1000);}
+function timeUp(){if(over)return;log(T(turn===0?'GOLD':'BLUE')+' '+T('ran out of time — turn forfeited.'));if(turn===0){readPending[turn]=null;nextTurn();}}
+function saveGame(){try{if(demoOn||(typeof GUIDE!=='undefined'&&GUIDE>0)||WATCH||over)return;var st={pieces:pieces,holder:holder,turn:turn,turnCount:turnCount,phase:phase,SCORE:SCORE,cp:cp,cpRows:[Array.from(cpRows[0]),Array.from(cpRows[1])],tempo:tempo,scanStats:scanStats,habits:habits,MODE:MODE,LEVEL:LEVEL};localStorage.setItem('checkmatch_save',JSON.stringify(st));}catch(e){}}
+function clearSave(){try{localStorage.removeItem('checkmatch_save');}catch(e){}}
+function loadGame(){try{var raw=localStorage.getItem('checkmatch_save');if(!raw)return false;var st=JSON.parse(raw);if(!st||!st.pieces)return false;pieces=st.pieces;holder=st.holder;turn=st.turn;turnCount=st.turnCount;phase=st.phase;SCORE=st.SCORE||[0,0];cp=st.cp||[0,0];cpRows=[new Set(st.cpRows&&st.cpRows[0]||[]),new Set(st.cpRows&&st.cpRows[1]||[])];tempo=st.tempo||[0,0];scanStats=st.scanStats||scanStats;habits=st.habits||habits;over=false;render();updateScore();startClock();if(MODE==='engine'&&turn===AI)setTimeout(aiTurn,650);log('Resumed your saved game.');return true;}catch(e){return false;}}
+
+setup();
+updateScore();
+log(MODE==='friend'?'Kickoff. GOLD to play. Two players, one board.':'Kickoff. You are GOLD — the engine is '+LVNAME[LEVEL-1]+'.');
+/* ONE render per boot path — never draw the fresh formation and then a saved board
+   on top of it, which is what made the pieces "jump" on the way in. */
+if(START_ACTION==='demo'){render();runDemo();}
+else if(START_ACTION==='start'){render();showStart();}
+else if(WATCH){render();setTimeout(aiTurn,650);}
+else{ /* real play — always a CLEAN start; no silent resume of a stale, scattered save */
+  clearSave();SCORE=[0,0];updateScore();render();startClock();
+  if(MODE==='engine'&&turn===AI)setTimeout(aiTurn,650);
+}
+})();
+</script>
+<script>
+/* THE BACK LAW (one step): rules overlay open -> close it; otherwise close the
+   room back to the factory. Checkmatch is a single board screen, so board -> factory
+   is the one step. */
+/* PAUSE (2026-09-04): the nav pause button had no hook here, so it did nothing.
+   Pausing stops the per-move clock and drops a PAUSED veil that also blocks the
+   board (it sits above the pieces but below the nav buttons, so you can resume). */
+window.SM_NAV_PAUSE=function(){
+  window.CM_PAUSED=!window.CM_PAUSED;
+  var v=document.getElementById('cm-pause-veil');
+  if(window.CM_PAUSED){
+    try{ if(typeof stopClock==='function')stopClock(); }catch(e){}
+    try{ if(window.COACH&&COACH.stop)COACH.stop(); }catch(e){}
+    if(!v){
+      v=document.createElement('div');v.id='cm-pause-veil';
+      v.style.cssText='position:fixed;inset:0;z-index:120;background:rgba(6,19,9,.74);'
+        +'-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);display:flex;'
+        +'align-items:center;justify-content:center;font-family:inherit;font-weight:900;'
+        +'letter-spacing:.14em;color:var(--gold);font-size:clamp(30px,8vw,60px);';
+      v.textContent='PAUSED';document.body.appendChild(v);
+    }
+    v.style.display='flex';
+  } else {
+    if(v)v.style.display='none';
+    try{ if(typeof startClock==='function')startClock(); }catch(e){}
+  }
+  return !!window.CM_PAUSED;
+};
+
+window.SM_NAV_BACK=function(){
+  var r=document.getElementById('rules');
+  if(r&&r.classList.contains('show')){r.classList.remove('show');return;}
+  if(window.CM_PAUSED&&typeof window.SM_NAV_PAUSE==='function')window.SM_NAV_PAUSE(); /* leaving? drop the veil first */
+  try{ if(window.parent&&window.parent!==window&&window.parent.SM_NAV_HOME){window.parent.SM_NAV_HOME();return;} }catch(e){}
+  history.back();
+};
+</script>
+<script src="/sm_ledger.js"></script>
+<script src="/sm_nav.js" data-home="/soccerscan.html" data-pause data-refresh></script>
+</body>
+</html>

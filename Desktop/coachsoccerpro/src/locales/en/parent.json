@@ -1,0 +1,76 @@
+{
+  "dashboard": {
+    "welcome": "Welcome",
+    "yourChild": "{{name}}'s Progress",
+    "nextEvent": "Next Event",
+    "rsvpNow": "RSVP Now",
+    "recentBadges": "Recent Badges",
+    "currentStreak": "Current Streak",
+    "leaderboardRank": "Team Rank",
+    "coachNotes": "From the Coach",
+    "paymentDue": "Payment Due",
+    "payNow": "Pay Now",
+    "weeklySummary": "This Week"
+  },
+  "child": {
+    "playerCard": "Player Card",
+    "badges": "Badges",
+    "badgesEarned": "{{count}} badges earned",
+    "attendance": "Attendance",
+    "attendanceRate": "{{rate}}% attendance rate",
+    "development": "Development Notes",
+    "noNotes": "No notes yet",
+    "streak": "Streak",
+    "weekStreak": "{{count}} week streak",
+    "rank": "Rank #{{rank}} on team"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "upcoming": "Upcoming Events",
+    "noEvents": "No upcoming events",
+    "eventDetails": "Event Details",
+    "yourRsvp": "Your RSVP",
+    "changeRsvp": "Change RSVP",
+    "addToCalendar": "Add to Calendar",
+    "getDirections": "Get Directions",
+    "rsvpConfirmed": "RSVP confirmed!"
+  },
+  "payments": {
+    "title": "Payments",
+    "currentBalance": "Amount Due",
+    "nothingDue": "All paid up!",
+    "paymentHistory": "Payment History",
+    "dueBy": "Due by {{date}}",
+    "overdue": "Overdue",
+    "payNow": "Pay Now",
+    "paymentComplete": "Payment Complete",
+    "receipt": "View Receipt",
+    "downloadReceipt": "Download Receipt"
+  },
+  "messages": {
+    "title": "Messages",
+    "fromCoach": "From Coach {{name}}",
+    "reply": "Reply",
+    "noMessages": "No messages yet",
+    "sendMessage": "Message Coach",
+    "messageSent": "Message sent!"
+  },
+  "settings": {
+    "title": "Settings",
+    "notifications": "Notifications",
+    "emailReminders": "Email Reminders",
+    "pushNotifications": "Push Notifications",
+    "language": "Language",
+    "account": "Account",
+    "editProfile": "Edit Profile",
+    "changePassword": "Change Password"
+  },
+  "notifications": {
+    "badgeEarned": "{{child}} earned a new badge: {{badge}}",
+    "coachNote": "New note from Coach about {{child}}",
+    "eventReminder": "{{event}} is {{time}}",
+    "paymentReminder": "Payment of {{amount}} due {{date}}",
+    "streakAlert": "{{child}}'s streak is at risk!",
+    "rankChange": "{{child}} moved to #{{rank}} on the leaderboard!"
+  }
+}

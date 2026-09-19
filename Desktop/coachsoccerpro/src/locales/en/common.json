@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "CoachSoccerPro",
+    "tagline": "Every child seen. Every coach equipped."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "roster": "Roster",
+    "calendar": "Calendar",
+    "messages": "Messages",
+    "payments": "Payments",
+    "badges": "Badges",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "send": "Send",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "viewAll": "View All",
+    "record": "Record",
+    "stop": "Stop"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "success": "Success!",
+    "error": "Something went wrong",
+    "noData": "No data yet"
+  },
+  "time": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "thisSeason": "This Season",
+    "allTime": "All Time"
+  },
+  "events": {
+    "practice": "Practice",
+    "game": "Game",
+    "tournament": "Tournament",
+    "meeting": "Meeting"
+  },
+  "rsvp": {
+    "yes": "Going",
+    "no": "Not Going",
+    "maybe": "Maybe",
+    "pending": "No Response"
+  },
+  "attendance": {
+    "present": "Present",
+    "absent": "Absent",
+    "excused": "Excused"
+  },
+  "positions": {
+    "goalkeeper": "Goalkeeper",
+    "defender": "Defender",
+    "midfielder": "Midfielder",
+    "forward": "Forward",
+    "winger": "Winger",
+    "striker": "Striker"
+  }
+}

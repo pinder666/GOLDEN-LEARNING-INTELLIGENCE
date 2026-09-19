@@ -1,0 +1,219 @@
+{
+  "attendance": {
+    "perfectWeek": {
+      "name": "Semana Perfecta",
+      "description": "Asistió a todos los eventos esta semana",
+      "howToEarn": "Asiste a todos los entrenamientos y partidos en una semana"
+    },
+    "perfectMonth": {
+      "name": "Mes Perfecto",
+      "description": "Asistió a todos los eventos este mes",
+      "howToEarn": "No faltes a ningún evento durante un mes completo"
+    },
+    "ironPlayer": {
+      "name": "Jugador de Hierro",
+      "description": "3 meses de asistencia perfecta",
+      "howToEarn": "Asiste a todo durante 3 meses seguidos"
+    },
+    "earlyBird": {
+      "name": "Madrugador",
+      "description": "Llegó temprano 5 veces",
+      "howToEarn": "Sé de los primeros en llegar 5 veces"
+    },
+    "rainyDayWarrior": {
+      "name": "Guerrero de la Lluvia",
+      "description": "Entrenó con mal clima",
+      "howToEarn": "Asiste cuando el clima está difícil"
+    },
+    "fourWeekStreak": {
+      "name": "En Llamas",
+      "description": "Racha de asistencia de 4 semanas",
+      "howToEarn": "Asiste a todos los eventos durante 4 semanas seguidas"
+    },
+    "eightWeekStreak": {
+      "name": "Imparable",
+      "description": "Racha de asistencia de 8 semanas",
+      "howToEarn": "Asiste a todos los eventos durante 8 semanas seguidas"
+    },
+    "ironWill": {
+      "name": "Voluntad de Hierro",
+      "description": "Asistencia perfecta toda la temporada",
+      "howToEarn": "No faltes a ningún evento en toda la temporada"
+    }
+  },
+  "skills": {
+    "firstGoal": {
+      "name": "Primer Gol",
+      "description": "Anotaste tu primer gol",
+      "howToEarn": "Anota un gol en un partido"
+    },
+    "hatTrick": {
+      "name": "Hat Trick",
+      "description": "Anotaste 3 goles en un partido",
+      "howToEarn": "Anota 3 goles en un solo partido"
+    },
+    "cleanSheet": {
+      "name": "Portería Invicta",
+      "description": "No recibiste goles como portero",
+      "howToEarn": "Juega como portero y no dejes entrar ningún gol"
+    },
+    "bothFeet": {
+      "name": "Ambos Pies",
+      "description": "Anotaste con ambos pies",
+      "howToEarn": "Anota al menos un gol con cada pie"
+    },
+    "setPieceSpecialist": {
+      "name": "Especialista en Jugadas",
+      "description": "Anotaste de tiro libre o córner",
+      "howToEarn": "Anota directamente de una jugada a balón parado"
+    },
+    "speedDemon": {
+      "name": "Rayo",
+      "description": "El más rápido en un ejercicio de velocidad",
+      "howToEarn": "Gana una competencia de velocidad en el entrenamiento"
+    },
+    "wallOfDefense": {
+      "name": "Muralla",
+      "description": "Actuación defensiva destacada",
+      "howToEarn": "El entrenador te premia por gran defensa"
+    },
+    "goldenGloves": {
+      "name": "Guantes de Oro",
+      "description": "Hiciste 5+ atajadas en un partido",
+      "howToEarn": "Haz al menos 5 atajadas como portero en un partido"
+    }
+  },
+  "teamwork": {
+    "assistKing": {
+      "name": "Rey de las Asistencias",
+      "description": "Diste 5 asistencias",
+      "howToEarn": "Asiste 5 goles para tus compañeros"
+    },
+    "encourager": {
+      "name": "Motivador",
+      "description": "Apoyaste a compañeros que lo necesitaban",
+      "howToEarn": "El entrenador te premia por animar a tus compañeros"
+    },
+    "goodSport": {
+      "name": "Juego Limpio",
+      "description": "Mostraste gran deportivismo",
+      "howToEarn": "El entrenador te premia por juego limpio"
+    },
+    "teamCaptain": {
+      "name": "Capitán",
+      "description": "Mostraste liderazgo en el campo",
+      "howToEarn": "El entrenador te premia por liderar al equipo"
+    },
+    "helperHand": {
+      "name": "Mano Amiga",
+      "description": "Ayudaste a preparar o recoger sin que te lo pidieran",
+      "howToEarn": "Ayuda con el equipo antes o después del entrenamiento"
+    },
+    "greatTeammate": {
+      "name": "Gran Compañero",
+      "description": "Apoyaste constantemente a los demás",
+      "howToEarn": "El entrenador te etiqueta como Gran Compañero 3 veces"
+    }
+  },
+  "milestones": {
+    "firstPractice": {
+      "name": "Primer Entrenamiento",
+      "description": "Asististe a tu primer entrenamiento",
+      "howToEarn": "Llega a tu primer entrenamiento"
+    },
+    "firstGame": {
+      "name": "Primer Partido",
+      "description": "Jugaste tu primer partido",
+      "howToEarn": "Juega en tu primer partido"
+    },
+    "firstSeason": {
+      "name": "Primera Temporada",
+      "description": "Completaste tu primera temporada",
+      "howToEarn": "Termina una temporada completa con el equipo"
+    },
+    "games25": {
+      "name": "25 Partidos",
+      "description": "Jugaste 25 partidos",
+      "howToEarn": "Juega en 25 partidos en total"
+    },
+    "games50": {
+      "name": "50 Partidos",
+      "description": "Jugaste 50 partidos",
+      "howToEarn": "Juega en 50 partidos en total"
+    },
+    "games100": {
+      "name": "Centenario",
+      "description": "Jugaste 100 partidos",
+      "howToEarn": "Juega en 100 partidos en total"
+    },
+    "oneYear": {
+      "name": "Un Año Fuerte",
+      "description": "Un año con el equipo",
+      "howToEarn": "Permanece en el equipo durante un año completo"
+    },
+    "mostImproved": {
+      "name": "Más Mejorado",
+      "description": "Mostró la mayor mejora",
+      "howToEarn": "El entrenador te premia por tu increíble progreso"
+    }
+  },
+  "special": {
+    "worldCup2026": {
+      "name": "Mundial 2026",
+      "description": "Parte del equipo durante el Mundial 2026",
+      "howToEarn": "Estar activo durante el verano del Mundial 2026"
+    },
+    "tournamentChampion": {
+      "name": "Campeón de Torneo",
+      "description": "Ganaste un torneo",
+      "howToEarn": "Gana un torneo con tu equipo"
+    },
+    "penaltyPerfect": {
+      "name": "Penal Perfecto",
+      "description": "Anotaste un penal",
+      "howToEarn": "Anota desde el punto penal"
+    },
+    "matchMVP": {
+      "name": "MVP",
+      "description": "Jugador Más Valioso del partido",
+      "howToEarn": "El entrenador te nombra MVP después de un partido"
+    },
+    "coachsPick": {
+      "name": "Elegido del Entrenador",
+      "description": "Seleccionado por el entrenador por esfuerzo destacado",
+      "howToEarn": "El entrenador te elige como jugador destacado"
+    },
+    "messiSleep": {
+      "name": "Sueño Messi",
+      "description": "Dormiste 8+ horas durante 7 noches",
+      "howToEarn": "Completa el hábito de sueño por 7 días seguidos"
+    },
+    "ronaldoWorkEthic": {
+      "name": "Ética Ronaldo",
+      "description": "Te quedaste a entrenar extra 3 veces",
+      "howToEarn": "Trabaja extra después de 3 entrenamientos"
+    },
+    "healthyHabits": {
+      "name": "Hábitos Saludables",
+      "description": "Completaste todos los hábitos diarios por una semana",
+      "howToEarn": "Marca agua, sueño, comida y estiramiento por 7 días"
+    }
+  },
+  "effort": {
+    "gaveEverything": {
+      "name": "Lo Dio Todo",
+      "description": "Dio 100% de esfuerzo en el entrenamiento",
+      "howToEarn": "El entrenador te etiqueta como Esfuerzo Total 3 veces"
+    },
+    "neverGaveUp": {
+      "name": "Nunca Se Rindió",
+      "description": "Siguió intentando aunque fue difícil",
+      "howToEarn": "El entrenador te premia por tu persistencia"
+    },
+    "practiceHard": {
+      "name": "Entrena Duro",
+      "description": "Esfuerzo alto consistente en entrenamientos",
+      "howToEarn": "Recibe la etiqueta de Esfuerzo Total 5 veces"
+    }
+  }
+}

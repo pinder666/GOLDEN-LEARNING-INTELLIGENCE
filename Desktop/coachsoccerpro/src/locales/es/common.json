@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "CoachSoccerPro",
+    "tagline": "Cada niño visto. Cada entrenador equipado."
+  },
+  "nav": {
+    "dashboard": "Inicio",
+    "roster": "Plantilla",
+    "calendar": "Calendario",
+    "messages": "Mensajes",
+    "payments": "Pagos",
+    "badges": "Insignias",
+    "settings": "Ajustes",
+    "logout": "Cerrar Sesión"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "register": "Crear Cuenta",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signUp": "Registrarse",
+    "signIn": "Entrar"
+  },
+  "buttons": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "send": "Enviar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Listo",
+    "viewAll": "Ver Todo",
+    "record": "Grabar",
+    "stop": "Detener"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "success": "¡Éxito!",
+    "error": "Algo salió mal",
+    "noData": "Sin datos todavía"
+  },
+  "time": {
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "yesterday": "Ayer",
+    "thisWeek": "Esta Semana",
+    "thisMonth": "Este Mes",
+    "thisSeason": "Esta Temporada",
+    "allTime": "Histórico"
+  },
+  "events": {
+    "practice": "Entrenamiento",
+    "game": "Partido",
+    "tournament": "Torneo",
+    "meeting": "Reunión"
+  },
+  "rsvp": {
+    "yes": "Voy",
+    "no": "No Voy",
+    "maybe": "Tal Vez",
+    "pending": "Sin Respuesta"
+  },
+  "attendance": {
+    "present": "Presente",
+    "absent": "Ausente",
+    "excused": "Justificado"
+  },
+  "positions": {
+    "goalkeeper": "Portero",
+    "defender": "Defensa",
+    "midfielder": "Centrocampista",
+    "forward": "Delantero",
+    "winger": "Extremo",
+    "striker": "Delantero Centro"
+  }
+}

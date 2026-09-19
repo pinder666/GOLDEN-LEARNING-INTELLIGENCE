@@ -1,0 +1,82 @@
+/*--------------------------------------------------------------
+  11. Sidebar
+----------------------------------------------------------------*/
+
+.cs_sidebar.cs_style_1 {
+  // position: sticky;
+  top: 20px;
+
+  .cs_sidebar_widget {
+    padding-bottom: 37px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 32px;
+
+    &:first-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .cs_form_field {
+      padding: 8px 20px 8px 39px;
+
+      &:focus {
+        border-color: var(--purple-color);
+      }
+    }
+
+    .cs_search_icon {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      pointer-events: none;
+    }
+  }
+
+  .cs_category_list li {
+    margin-bottom: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    a:hover {
+      color: var(--purple-color);
+    }
+  }
+
+  .cs_latestpost_list li {
+    margin-bottom: 18px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    a:hover {
+      color: var(--purple-color);
+    }
+  }
+}
+
+.cs_tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  .cs_tag_link {
+    display: inline-block;
+    padding: 8px 23px;
+    border: 1px solid var(--body-color);
+
+    &:hover {
+      background-color: var(--purple-color);
+      border-color: var(--purple-color);
+      color: var(--white-color);
+    }
+  }
+}

@@ -1,0 +1,95 @@
+/*--------------------------------------------------------------
+  16. Testimonial
+----------------------------------------------------------------*/
+.cs_testimonial.cs_style_1 {
+  width: 536px;
+  height: 100%;
+  padding: 50px;
+  background-color: #edf4f3;
+
+  blockquote {
+    font-size: 18px;
+    color: var(--heading-color);
+    font-style: normal;
+    margin-bottom: 32px;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cs_quote_icon {
+    width: 266px;
+    height: 266px;
+    background-image: url(../img/quote-right-2.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    bottom: 24px;
+    right: 63px;
+    z-index: 0;
+  }
+
+  @media (max-width: 991px) {
+    padding: 30px 15px;
+    width: 290px;
+
+    .cs_quote_icon {
+      transform: scale(0.7);
+      right: 0;
+    }
+  }
+}
+
+.swiper-slide:nth-child(even), // use for react
+.slick-slide:nth-child(even) {
+  .cs_testimonial.cs_style_1 {
+    background-color: #ecebfd;
+
+    .cs_quote_icon {
+      background-image: url(../img/quote-right.svg);
+    }
+  }
+}
+
+.cs_testimonial.cs_style_2 {
+  padding: 50px 30px 53px 32px;
+
+  blockquote {
+    font-size: 18px;
+    color: var(--heading-color);
+    font-style: normal;
+    margin-bottom: 30px;
+  }
+
+  .cs_quote_icon {
+    bottom: -1px;
+    right: -1px;
+  }
+}
+
+/*-----------------------------------------
+ Avatar
+-------------------------------------------*/
+.cs_avatar.cs_style_1 {
+  display: flex;
+  gap: 20px;
+
+  .cs_avatar_icon {
+    width: 60px;
+    height: 60px;
+    flex: none;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: inherit;
+    }
+  }
+
+  h3 {
+    margin-bottom: -2px;
+  }
+}

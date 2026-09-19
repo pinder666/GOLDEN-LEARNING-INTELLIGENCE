@@ -1,0 +1,76 @@
+{
+  "dashboard": {
+    "welcome": "Bienvenido",
+    "yourChild": "Progreso de {{name}}",
+    "nextEvent": "Próximo Evento",
+    "rsvpNow": "Confirmar Ahora",
+    "recentBadges": "Insignias Recientes",
+    "currentStreak": "Racha Actual",
+    "leaderboardRank": "Puesto en el Equipo",
+    "coachNotes": "Del Entrenador",
+    "paymentDue": "Pago Pendiente",
+    "payNow": "Pagar Ahora",
+    "weeklySummary": "Esta Semana"
+  },
+  "child": {
+    "playerCard": "Tarjeta de Jugador",
+    "badges": "Insignias",
+    "badgesEarned": "{{count}} insignias ganadas",
+    "attendance": "Asistencia",
+    "attendanceRate": "{{rate}}% de asistencia",
+    "development": "Notas de Desarrollo",
+    "noNotes": "Sin notas todavía",
+    "streak": "Racha",
+    "weekStreak": "{{count}} semanas seguidas",
+    "rank": "Puesto #{{rank}} en el equipo"
+  },
+  "schedule": {
+    "title": "Calendario",
+    "upcoming": "Próximos Eventos",
+    "noEvents": "Sin eventos próximos",
+    "eventDetails": "Detalles del Evento",
+    "yourRsvp": "Tu Confirmación",
+    "changeRsvp": "Cambiar Confirmación",
+    "addToCalendar": "Agregar al Calendario",
+    "getDirections": "Cómo Llegar",
+    "rsvpConfirmed": "¡Confirmación guardada!"
+  },
+  "payments": {
+    "title": "Pagos",
+    "currentBalance": "Monto a Pagar",
+    "nothingDue": "¡Todo pagado!",
+    "paymentHistory": "Historial de Pagos",
+    "dueBy": "Fecha límite: {{date}}",
+    "overdue": "Vencido",
+    "payNow": "Pagar Ahora",
+    "paymentComplete": "Pago Completado",
+    "receipt": "Ver Recibo",
+    "downloadReceipt": "Descargar Recibo"
+  },
+  "messages": {
+    "title": "Mensajes",
+    "fromCoach": "Del Entrenador {{name}}",
+    "reply": "Responder",
+    "noMessages": "Sin mensajes todavía",
+    "sendMessage": "Escribir al Entrenador",
+    "messageSent": "¡Mensaje enviado!"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "notifications": "Notificaciones",
+    "emailReminders": "Recordatorios por Correo",
+    "pushNotifications": "Notificaciones Push",
+    "language": "Idioma",
+    "account": "Cuenta",
+    "editProfile": "Editar Perfil",
+    "changePassword": "Cambiar Contraseña"
+  },
+  "notifications": {
+    "badgeEarned": "{{child}} ganó una nueva insignia: {{badge}}",
+    "coachNote": "Nueva nota del Entrenador sobre {{child}}",
+    "eventReminder": "{{event}} es {{time}}",
+    "paymentReminder": "Pago de {{amount}} vence el {{date}}",
+    "streakAlert": "¡La racha de {{child}} está en riesgo!",
+    "rankChange": "¡{{child}} subió al puesto #{{rank}} en la tabla!"
+  }
+}
