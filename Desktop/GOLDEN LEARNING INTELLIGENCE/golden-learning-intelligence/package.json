@@ -1,0 +1,19 @@
+{
+  "name": "golden-learning-intelligence",
+  "version": "1.0.0",
+  "description": "Private AI-powered education system for two children - state standards first, elite track second",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "chess.js": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.4",
+    "express": "^4.19.2",
+    "msedge-tts": "^2.0.8"
+  }
+}
