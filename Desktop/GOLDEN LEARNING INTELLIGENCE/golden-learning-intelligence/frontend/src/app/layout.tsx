@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Golden Learning Intelligence',
-  description: 'Elite education for Jus and Uni - La Rosey method, Harkness table, real learning',
+  description: 'Private school curriculum for Jus and Uni — structured daily learning with real academic depth.',
 }
 
 export default function RootLayout({

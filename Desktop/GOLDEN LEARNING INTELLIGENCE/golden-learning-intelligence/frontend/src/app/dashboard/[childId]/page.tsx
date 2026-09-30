@@ -48,18 +48,20 @@ const HARKNESS_SESSIONS = [
 ]
 
 const SCHOOL_WINGS = [
-  { id: 'coding',    label: 'Coding Lab',        icon: Code2,     color: '#10B981', desc: 'freeCodeCamp · Blockly · TF.js',     path: (id: string) => `/coding/${id}` },
+  { id: 'coding',    label: 'Coding Lab',        icon: Code2,     color: '#10B981', desc: 'Block code · AI tools · JS',          path: (id: string) => `/coding/${id}` },
   { id: 'chess',     label: 'Chess League',      icon: Swords,    color: '#475569', desc: 'Strategy · Tactics',                  path: (id: string) => `/chess/${id}` },
-  { id: 'puzzles',   label: 'Puzzle Room',       icon: Puzzle,    color: '#8B5CF6', desc: '41 logic games · MIT licensed',       path: (id: string) => `/puzzles/${id}` },
+  { id: 'puzzles',   label: 'Puzzle Room',       icon: Puzzle,    color: '#8B5CF6', desc: '41 logic games',                      path: (id: string) => `/puzzles/${id}` },
   { id: 'tennis',    label: 'Tennis Wing',       icon: Activity,  color: '#F59E0B', desc: 'Reaction · Tactics · 3D Court',       path: (id: string) => `/tennis/${id}` },
-  { id: 'philosophy',label: 'Philosophy',        icon: Lightbulb, color: '#D97706', desc: 'OpenStax · 76 modules',               path: (id: string) => `/basics/${id}/philosophy` },
-  { id: 'history',   label: 'World History',     icon: Globe,     color: '#0EA5E9', desc: 'OpenStax · 162 modules',              path: (id: string) => `/basics/${id}/history` },
-  { id: 'sociology', label: 'Society & Poverty', icon: Users,     color: '#EC4899', desc: 'OpenStax Sociology · 96 modules',     path: (id: string) => `/basics/${id}/sociology` },
+  { id: 'philosophy',label: 'Philosophy',        icon: Lightbulb, color: '#D97706', desc: '76 lessons',                          path: (id: string) => `/basics/${id}/philosophy` },
+  { id: 'history',   label: 'World History',     icon: Globe,     color: '#0EA5E9', desc: '162 lessons',                         path: (id: string) => `/basics/${id}/history` },
+  { id: 'sociology', label: 'Society & Poverty', icon: Users,     color: '#EC4899', desc: '96 lessons',                         path: (id: string) => `/basics/${id}/sociology` },
   { id: 'arduino',   label: 'Arduino / Making',  icon: Wrench,    color: '#EF4444', desc: 'Electronics · Circuits · Build',      path: (id: string) => `/basics/${id}/arduino` },
-  { id: 'deeplearn', label: 'Deep Learning',     icon: Brain,     color: '#7C3AED', desc: 'D2L textbook · Neural nets · ML',     path: (id: string) => `/basics/${id}/deeplearn` },
-  { id: 'arts',      label: 'Arts & Culture',    icon: Music,     color: '#DB2777', desc: 'MIT · Stanford · Open access',        path: (id: string) => `/basics/${id}/arts` },
+  { id: 'deeplearn', label: 'Deep Learning',     icon: Brain,     color: '#7C3AED', desc: 'Neural nets · Machine learning',      path: (id: string) => `/basics/${id}/deeplearn` },
+  { id: 'arts',      label: 'Arts & Culture',    icon: Music,     color: '#DB2777', desc: 'Visual arts · Culture',               path: (id: string) => `/basics/${id}/arts` },
   { id: 'library',   label: 'Learning Library',  icon: BookOpen,  color: '#3B82F6', desc: '35+ topics · auto-play',              path: (id: string) => `/learn/${id}` },
-  { id: 'political', label: 'Political Science', icon: Landmark,  color: '#1D4ED8', desc: 'OpenStax Government & Power',         path: (id: string) => `/basics/${id}/political` },
+  { id: 'political', label: 'Political Science', icon: Landmark,  color: '#1D4ED8', desc: 'Government & Power',                  path: (id: string) => `/basics/${id}/political` },
+  { id: 'languages', label: 'Languages Wing',    icon: Globe,     color: '#0EA5E9', desc: 'French · Spanish · Mandarin · Latin', path: (id: string) => `/languages/${id}` },
+  { id: 'music',     label: 'Music Wing',        icon: Music,     color: '#8B5CF6', desc: 'Theory · History · Notation',         path: (id: string) => `/music/${id}` },
 ]
 
 function todayKey(childId: string) {

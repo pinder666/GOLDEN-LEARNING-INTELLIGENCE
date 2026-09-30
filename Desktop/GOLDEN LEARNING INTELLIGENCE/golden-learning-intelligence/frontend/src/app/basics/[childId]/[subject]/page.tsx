@@ -2157,65 +2157,38 @@ export default function BasicsPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Header + timer */}
-      <header className="border-b border-slate-800 px-6 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <button onClick={() => router.push(`/dashboard/${childId}`)} className="text-slate-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
+      {/* Minimal strip: back · progress bar · timer */}
+      <header className="border-b border-slate-800 px-4 py-2">
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <button onClick={() => router.push(`/dashboard/${childId}`)} className="text-slate-500 hover:text-white flex-shrink-0">
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="text-center">
-            <h1 className="text-white font-bold">{SUBJECT_LABEL[subject]}</h1>
-            {toc && currentMod ? (
-              <>
-                <p className="text-slate-400 text-xs mt-0.5 max-w-xs truncate">{currentChapter?.title}</p>
-                <div className="flex items-center justify-center gap-2 mt-1">
-                  <button onClick={goPrevModule} disabled={chapIdx === 0 && modIdx === 0} className="text-slate-500 hover:text-white disabled:opacity-30">
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setShowToc(v => !v)}
-                    className="text-amber-400 text-xs font-semibold hover:underline"
-                  >
-                    {totalModsSoFar} / {toc.totalModules}
-                  </button>
-                  <button onClick={goNextModule} disabled={chapIdx >= toc.chapters.length - 1 && modIdx >= (currentChapter?.modules.length ?? 1) - 1} className="text-slate-500 hover:text-white disabled:opacity-30">
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p className="text-slate-500 text-xs">{lesson?.title}</p>
-            )}
-          </div>
-          <div className={`flex items-center gap-1.5 text-sm font-mono font-semibold ${secondsLeft < 300 ? 'text-amber-400' : 'text-slate-400'}`}>
-            <Clock className="w-4 h-4" />
-            {minutes}:{secs.toString().padStart(2, '0')}
-          </div>
-        </div>
-        {/* Timer bar */}
-        <div className="max-w-2xl mx-auto mt-3">
-          <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+          <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-1000"
+              className="h-full bg-amber-400 transition-all duration-1000"
               style={{ width: `${progress}%` }}
             />
           </div>
-          {/* Phase tabs */}
-          <div className="flex mt-3 gap-1">
-            {(['teach', 'example', 'practice'] as const).map(p => (
-              <button
-                key={p}
-                onClick={() => setPhase(p)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
-                  phase === p
-                    ? 'bg-amber-500 text-black'
-                    : 'bg-slate-800 text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                {p === 'teach' ? 'Learn' : p === 'example' ? 'Example' : 'Practice'}
-              </button>
-            ))}
+          <div className={`flex-shrink-0 flex items-center gap-1 text-xs font-mono font-semibold ${secondsLeft < 300 ? 'text-amber-400' : 'text-slate-500'}`}>
+            <Clock className="w-3.5 h-3.5" />
+            {minutes}:{secs.toString().padStart(2, '0')}
           </div>
+        </div>
+        {/* Phase tabs */}
+        <div className="max-w-2xl mx-auto flex mt-2 gap-1">
+          {(['teach', 'example', 'practice'] as const).map(p => (
+            <button
+              key={p}
+              onClick={() => setPhase(p)}
+              className={`flex-1 py-1 rounded text-xs font-semibold transition-all ${
+                phase === p
+                  ? 'bg-amber-500 text-black'
+                  : 'bg-slate-800 text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {p === 'teach' ? 'Learn' : p === 'example' ? 'Example' : 'Practice'}
+            </button>
+          ))}
         </div>
       </header>
 
@@ -2256,14 +2229,11 @@ export default function BasicsPage() {
                 </div>
               )}
 
-              {/* Dynamic OpenStax content */}
+              {/* Dynamic content */}
               {moduleContent && !modLoading ? (
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-5">
-                    <div>
-                      <p className="text-amber-400/70 text-xs font-semibold uppercase tracking-wide mb-1">{SUBJECT_BOOKS[subject]?.label}</p>
-                      <h2 className="text-white text-xl font-bold">{moduleContent.title}</h2>
-                    </div>
+                    <h2 className="text-white text-xl font-bold">{moduleContent.title}</h2>
                     <button
                       onClick={() => speakText([...moduleContent.learningOutcomes, ...moduleContent.paragraphs].join(' '))}
                       className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -2557,7 +2527,6 @@ export default function BasicsPage() {
                       <p className="text-slate-300 text-sm leading-relaxed">{items}</p>
                     </div>
                   ))}
-                  <p className="text-xs text-slate-600 border-t border-slate-700 pt-3">Source: Dr. Sebi's Nutritional Guide (public domain) · Minerals from OpenStax Anatomy & Physiology (CC BY)</p>
                 </div>
               </details>
             </div>
