@@ -5,8 +5,8 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale,
-  Lock, CheckCircle2, Clock, ChevronRight,
-  Crown, Swords, Users, Zap, ArrowRight, Puzzle, TrendingUp,
+  CheckCircle2, Clock,
+  Crown, Swords, Users, Zap, ArrowRight, Puzzle,
 } from 'lucide-react'
 
 const CHILD_INFO: Record<string, { name: string; age: number; grade: number; color: string }> = {
@@ -176,53 +176,36 @@ export default function DashboardPage() {
             {MORNING_BLOCKS.map((block, i) => {
               const Icon = block.icon
               const done = progress[block.id]
-              const isActive = block.id === activeBlockId
-              const isLocked = !done && !isActive
+              const isNext = block.id === activeBlockId
 
               return (
-                <Link
-                  key={block.id}
-                  href={isLocked ? '#' : `/basics/${childId}/${block.id}`}
-                  className={isLocked ? 'pointer-events-none' : ''}
-                >
+                <Link key={block.id} href={`/basics/${childId}/${block.id}`}>
                   <div className={`
-                    rounded-2xl p-4 transition-all h-full flex flex-col gap-3 relative overflow-hidden
-                    ${done ? 'bg-green-950/40 border border-green-800/50' :
-                      isActive ? 'bg-slate-800 border border-amber-500/50 shadow-lg shadow-amber-500/10 cursor-pointer hover:border-amber-400' :
-                      'bg-slate-900 border border-slate-800 opacity-40'}
+                    rounded-2xl p-4 transition-all h-full flex flex-col gap-3 relative overflow-hidden cursor-pointer
+                    ${done ? 'bg-green-950/40 border border-green-800/50 hover:border-green-600' :
+                      isNext ? 'bg-slate-800 border border-amber-500/50 shadow-lg shadow-amber-500/10 hover:border-amber-400' :
+                      'bg-slate-800/60 border border-slate-700 hover:border-slate-500'}
                   `}>
-                    {/* Sequence number */}
                     <span className="absolute top-2.5 right-3 text-xs font-mono text-slate-600">{i + 1}</span>
 
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      done ? 'bg-green-900/60' :
-                      isActive ? `bg-gradient-to-br ${block.color}` :
-                      'bg-slate-800'
-                    }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${block.color}`}>
                       {done
-                        ? <CheckCircle2 className="w-5 h-5 text-green-400" />
-                        : isLocked
-                        ? <Lock className="w-4 h-4 text-slate-600" />
+                        ? <CheckCircle2 className="w-5 h-5 text-white" />
                         : <Icon className="w-5 h-5 text-white" />}
                     </div>
 
                     <div>
-                      <p className={`font-semibold text-sm ${done ? 'text-green-400' : isActive ? 'text-white' : 'text-slate-600'}`}>
+                      <p className={`font-semibold text-sm ${done ? 'text-green-400' : 'text-white'}`}>
                         {block.label}
                       </p>
                       <p className="text-xs text-slate-500 mt-0.5 leading-tight">{block.desc}</p>
                     </div>
 
-                    {isActive && (
-                      <div className="flex items-center gap-1 text-xs text-amber-400 mt-auto">
-                        <Clock className="w-3 h-3" />
-                        <span>{block.minutes} min</span>
-                        <ArrowRight className="w-3 h-3 ml-auto" />
-                      </div>
-                    )}
-                    {done && (
-                      <p className="text-xs text-green-600 mt-auto">Complete</p>
-                    )}
+                    <div className="flex items-center gap-1 text-xs mt-auto">
+                      {done
+                        ? <span className="text-green-600">Complete</span>
+                        : <><Clock className="w-3 h-3 text-slate-500" /><span className="text-slate-500">{block.minutes} min</span><ArrowRight className="w-3 h-3 ml-auto text-slate-600" /></>}
+                    </div>
                   </div>
                 </Link>
               )
@@ -239,59 +222,42 @@ export default function DashboardPage() {
             <div>
               <h2 className="font-bold text-white">The Harkness Table</h2>
               <p className="text-xs text-slate-500">
-                {allDone ? 'Open — choose your session' : `Complete morning work to unlock (${completedCount}/6 done)`}
+                {completedCount > 0 ? `${completedCount}/6 morning subjects done` : 'Open — choose your session'}
               </p>
             </div>
-            {!allDone && <Lock className="w-4 h-4 text-slate-600 ml-auto" />}
           </div>
 
-          {allDone ? (
-            <div className="space-y-3">
-              {/* Joint table — featured */}
-              <Link href="/table">
-                <div className="rounded-2xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 p-5 flex items-center gap-4 hover:border-amber-400 transition-all cursor-pointer group">
-                  <div className="flex -space-x-2 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-bold border-2 border-slate-950">J</div>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold border-2 border-slate-950">U</div>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-bold text-amber-300 text-base">Joint Table</p>
-                    <p className="text-sm text-slate-400">Jus + Uni + AI classmates — discuss together</p>
-                  </div>
-                  <Users className="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform" />
+          <div className="space-y-3">
+            {/* Joint table — featured */}
+            <Link href="/table">
+              <div className="rounded-2xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 p-5 flex items-center gap-4 hover:border-amber-400 transition-all cursor-pointer group">
+                <div className="flex -space-x-2 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-bold border-2 border-slate-950">J</div>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold border-2 border-slate-950">U</div>
                 </div>
-              </Link>
+                <div className="flex-1">
+                  <p className="font-bold text-amber-300 text-base">Joint Table</p>
+                  <p className="text-sm text-slate-400">Jus + Uni + AI classmates — discuss together</p>
+                </div>
+                <Users className="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform" />
+              </div>
+            </Link>
 
-              {/* Solo sessions */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {HARKNESS_SESSIONS.map(s => (
-                  <Link key={s.id} href={`/session/${childId}/${s.id}`}>
-                    <div className="rounded-xl bg-slate-800/60 border border-slate-700 p-4 hover:border-slate-500 transition-all cursor-pointer">
-                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center mb-3`}>
-                        <Zap className="w-4 h-4 text-white" />
-                      </div>
-                      <p className="font-semibold text-sm text-white">{s.title}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
+            {/* Solo sessions */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {HARKNESS_SESSIONS.map(s => (
+                <Link key={s.id} href={`/session/${childId}/${s.id}`}>
+                  <div className="rounded-xl bg-slate-800/60 border border-slate-700 p-4 hover:border-slate-500 transition-all cursor-pointer">
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center mb-3`}>
+                      <Zap className="w-4 h-4 text-white" />
                     </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6 flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {CLASSMATES.slice(0, 4).map(c => (
-                  <div key={c.name} className={`w-9 h-9 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white text-xs font-bold border-2 border-slate-900 opacity-40`}>
-                    {c.name[0]}
+                    <p className="font-semibold text-sm text-white">{s.title}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
                   </div>
-                ))}
-              </div>
-              <div>
-                <p className="text-slate-500 text-sm">Marcus, Sophia, Chen, Amara and the others are waiting.</p>
-                <p className="text-slate-600 text-xs mt-0.5">Finish your morning work and they'll be ready for you.</p>
-              </div>
+                </Link>
+              ))}
             </div>
-          )}
+          </div>
         </section>
 
         {/* ── BOTTOM ROW ──────────────────────────────────── */}
