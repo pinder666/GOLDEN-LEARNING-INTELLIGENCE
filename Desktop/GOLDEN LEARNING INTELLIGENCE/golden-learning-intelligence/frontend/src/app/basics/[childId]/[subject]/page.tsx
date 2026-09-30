@@ -31,6 +31,37 @@ const SUBJECT_LABEL: Record<string, string> = {
   health: 'Health & Body',
 }
 
+// Each subject maps to a full OpenStax book in the content-spine
+const SUBJECT_BOOKS: Record<string, { primary: string; label: string; secondary?: string }> = {
+  math:    { primary: 'college-algebra',    label: 'College Algebra' },
+  reading: { primary: 'writing-guide',      label: 'Writing Guide' },
+  science: { primary: 'biology',            label: 'Biology 2e', secondary: 'physics' },
+  ai:      { primary: 'introduction-business', label: 'Introduction to Business' },
+  finance: { primary: 'finance',            label: 'Principles of Finance 2e', secondary: 'economics' },
+  law:     { primary: 'business-law',       label: 'Business Law', secondary: 'american-government' },
+  health:  { primary: 'anatomy-physiology', label: 'Anatomy & Physiology', secondary: 'psychology' },
+}
+
+// Starting chapter index per book per grade (0-indexed)
+const GRADE_CHAPTER_START: Record<string, Record<number, number>> = {
+  'college-algebra':       { 5: 0, 6: 2, 7: 4, 8: 6, 9: 8,  10: 10 },
+  'writing-guide':         { 5: 0, 6: 3, 7: 6, 8: 9, 9: 12, 10: 15 },
+  'biology':               { 5: 0, 6: 3, 7: 6, 8: 9, 9: 12, 10: 15 },
+  'physics':               { 5: 0, 6: 2, 7: 4, 8: 6, 9: 8,  10: 10 },
+  'introduction-business': { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+  'finance':               { 5: 0, 6: 1, 7: 2, 8: 3, 9: 5,  10: 7  },
+  'economics':             { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+  'business-law':          { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+  'american-government':   { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+  'anatomy-physiology':    { 5: 0, 6: 2, 7: 4, 8: 6, 9: 8,  10: 10 },
+  'psychology':            { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+}
+
+interface TocModule { id: string; title: string }
+interface TocChapter { title: string; modules: TocModule[] }
+interface Toc { book: string; bookTitle: string; chapters: TocChapter[]; totalModules: number }
+interface ModuleContent { title: string; paragraphs: string[]; learningOutcomes: string[]; book: string; moduleId: string }
+
 function todayKey(childId: string) {
   const d = new Date()
   return `daily_${childId}_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
@@ -1835,6 +1866,15 @@ export default function BasicsPage() {
   const [marsPhotos, setMarsPhotos] = useState<{url: string; camera: string; sol: number; date: string}[]>([])
   const [showMars, setShowMars] = useState(false)
 
+  // ── Dynamic OpenStax curriculum ──────────────────────────────
+  const [toc, setToc] = useState<Toc | null>(null)
+  const [tocLoading, setTocLoading] = useState(true)
+  const [chapIdx, setChapIdx] = useState(0)
+  const [modIdx, setModIdx] = useState(0)
+  const [moduleContent, setModuleContent] = useState<ModuleContent | null>(null)
+  const [modLoading, setModLoading] = useState(false)
+  const [showToc, setShowToc] = useState(false)
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   async function speakText(text: string) {
@@ -1883,6 +1923,42 @@ export default function BasicsPage() {
       .then(d => { if (d.photos?.length) setMarsPhotos(d.photos.slice(0, 4)) })
       .catch(() => {})
   }, [subject])
+
+  // Fetch OpenStax table of contents for this subject
+  useEffect(() => {
+    const bookKey = SUBJECT_BOOKS[subject]?.primary
+    if (!bookKey) { setTocLoading(false); return }
+    setTocLoading(true)
+    setToc(null)
+    fetch(`${API_URL}/api/curriculum/toc/${bookKey}`)
+      .then(r => r.json())
+      .then((data: Toc) => {
+        if (!data.chapters) return
+        setToc(data)
+        const startChap = GRADE_CHAPTER_START[bookKey]?.[grade] ?? 0
+        const safeChap = Math.min(startChap, data.chapters.length - 1)
+        setChapIdx(safeChap)
+        setModIdx(0)
+      })
+      .catch(() => setToc(null))
+      .finally(() => setTocLoading(false))
+  }, [subject, childId])
+
+  // Load module content whenever chapter/module index changes
+  useEffect(() => {
+    if (!toc) return
+    const chapter = toc.chapters[chapIdx]
+    if (!chapter) return
+    const mod = chapter.modules[modIdx]
+    if (!mod) return
+    setModLoading(true)
+    const bookKey = SUBJECT_BOOKS[subject]?.primary || ''
+    fetch(`${API_URL}/api/curriculum/openstax/${bookKey}/${mod.id}`)
+      .then(r => r.json())
+      .then((data: ModuleContent) => setModuleContent(data))
+      .catch(() => setModuleContent(null))
+      .finally(() => setModLoading(false))
+  }, [toc, chapIdx, modIdx, subject])
 
   // Canvas scratch pad — draw on touch/mouse
   function startDraw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
@@ -1975,6 +2051,35 @@ export default function BasicsPage() {
     }
   }
 
+  function goNextModule() {
+    if (!toc) return
+    const chapter = toc.chapters[chapIdx]
+    if (!chapter) return
+    setModuleContent(null)
+    if (modIdx < chapter.modules.length - 1) {
+      setModIdx(modIdx + 1)
+    } else if (chapIdx < toc.chapters.length - 1) {
+      setChapIdx(chapIdx + 1)
+      setModIdx(0)
+    }
+  }
+
+  function goPrevModule() {
+    if (!toc) return
+    setModuleContent(null)
+    if (modIdx > 0) {
+      setModIdx(modIdx - 1)
+    } else if (chapIdx > 0) {
+      const prevChap = toc.chapters[chapIdx - 1]
+      setChapIdx(chapIdx - 1)
+      setModIdx(prevChap.modules.length - 1)
+    }
+  }
+
+  const currentChapter = toc?.chapters[chapIdx]
+  const currentMod = currentChapter?.modules[modIdx]
+  const totalModsSoFar = toc ? toc.chapters.slice(0, chapIdx).reduce((s, c) => s + c.modules.length, 0) + modIdx + 1 : 0
+
   function goNext() {
     const nextSubject = SUBJECT_NEXT[subject]
     if (nextSubject) {
@@ -1988,7 +2093,7 @@ export default function BasicsPage() {
   const secs = secondsLeft % 60
   const progress = ((TOTAL_SECONDS - secondsLeft) / TOTAL_SECONDS) * 100
 
-  if (!lesson) {
+  if (!lesson && !toc && !tocLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-white text-center">
@@ -2034,17 +2139,26 @@ export default function BasicsPage() {
           </button>
           <div className="text-center">
             <h1 className="text-white font-bold">{SUBJECT_LABEL[subject]}</h1>
-            <p className="text-slate-500 text-xs">{lesson.title}</p>
-            {lessons.length > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-1">
-                <button onClick={goPrevLesson} disabled={lessonIdx === 0} className="text-slate-500 hover:text-white disabled:opacity-30">
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                </button>
-                <span className="text-slate-500 text-xs">{lessonIdx + 1} of {lessons.length}</span>
-                <button onClick={goNextLesson} disabled={lessonIdx >= lessons.length - 1} className="text-slate-500 hover:text-white disabled:opacity-30">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            {toc && currentMod ? (
+              <>
+                <p className="text-slate-400 text-xs mt-0.5 max-w-xs truncate">{currentChapter?.title}</p>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <button onClick={goPrevModule} disabled={chapIdx === 0 && modIdx === 0} className="text-slate-500 hover:text-white disabled:opacity-30">
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setShowToc(v => !v)}
+                    className="text-amber-400 text-xs font-semibold hover:underline"
+                  >
+                    {totalModsSoFar} / {toc.totalModules}
+                  </button>
+                  <button onClick={goNextModule} disabled={chapIdx >= toc.chapters.length - 1 && modIdx >= (currentChapter?.modules.length ?? 1) - 1} className="text-slate-500 hover:text-white disabled:opacity-30">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="text-slate-500 text-xs">{lesson?.title}</p>
             )}
           </div>
           <div className={`flex items-center gap-1.5 text-sm font-mono font-semibold ${secondsLeft < 300 ? 'text-amber-400' : 'text-slate-400'}`}>
@@ -2085,28 +2199,130 @@ export default function BasicsPage() {
           {/* TEACH */}
           {phase === 'teach' && (
             <div>
-              <div className="flex items-start justify-between gap-3 mb-5">
-                <h2 className="text-white text-xl font-bold">{lesson.title}</h2>
-                <button
-                  onClick={() => speakText(lesson.teach)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    ttsPlaying ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
-                  }`}
-                  title="Listen to this lesson"
-                >
-                  {ttsLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : ttsPlaying ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                  {ttsLoading ? 'Loading...' : ttsPlaying ? 'Stop' : 'Listen'}
-                </button>
-              </div>
-              <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-                <p className="text-slate-200 leading-relaxed whitespace-pre-line text-base">{lesson.teach}</p>
-              </div>
-              <button
-                onClick={() => setPhase('example')}
-                className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold flex items-center justify-center gap-2"
-              >
-                See an example <ArrowRight className="w-5 h-5" />
-              </button>
+              {/* ToC dropdown */}
+              {showToc && toc && (
+                <div className="mb-5 bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
+                    <span className="text-white font-bold text-sm">{toc.bookTitle}</span>
+                    <span className="text-amber-400 text-xs font-semibold">{toc.totalModules} modules</span>
+                  </div>
+                  <div className="overflow-y-auto" style={{ maxHeight: '320px' }}>
+                    {toc.chapters.map((ch, ci) => (
+                      <div key={ci} className="border-b border-slate-700/60 last:border-b-0">
+                        <button
+                          onClick={() => { setChapIdx(ci); setModIdx(0); setShowToc(false) }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-colors ${ci === chapIdx ? 'text-amber-400 bg-amber-950/20' : 'text-slate-400 hover:text-white hover:bg-slate-700/40'}`}
+                        >
+                          Ch {ci + 1} — {ch.title}
+                        </button>
+                        {ci === chapIdx && ch.modules.map((mod, mi) => (
+                          <button
+                            key={mi}
+                            onClick={() => { setModIdx(mi); setShowToc(false) }}
+                            className={`w-full text-left px-6 py-2 text-xs transition-colors border-t border-slate-700/30 ${mi === modIdx ? 'text-amber-300 bg-amber-950/30' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-700/30'}`}
+                          >
+                            {mi + 1}. {mod.title}
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dynamic OpenStax content */}
+              {moduleContent && !modLoading ? (
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-5">
+                    <div>
+                      <p className="text-amber-400/70 text-xs font-semibold uppercase tracking-wide mb-1">{SUBJECT_BOOKS[subject]?.label}</p>
+                      <h2 className="text-white text-xl font-bold">{moduleContent.title}</h2>
+                    </div>
+                    <button
+                      onClick={() => speakText([...moduleContent.learningOutcomes, ...moduleContent.paragraphs].join(' '))}
+                      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        ttsPlaying ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      {ttsLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : ttsPlaying ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      {ttsLoading ? '...' : ttsPlaying ? 'Stop' : 'Listen'}
+                    </button>
+                  </div>
+
+                  {moduleContent.learningOutcomes.length > 0 && (
+                    <div className="bg-amber-950/30 border border-amber-800/40 rounded-xl p-4 mb-4">
+                      <p className="text-amber-400 text-xs font-bold uppercase tracking-wide mb-2">Learning Objectives</p>
+                      <ul className="space-y-1">
+                        {moduleContent.learningOutcomes.map((lo, i) => (
+                          <li key={i} className="text-amber-100/80 text-sm flex gap-2">
+                            <span className="text-amber-500 flex-shrink-0">•</span>
+                            <span>{lo}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 space-y-4">
+                    {moduleContent.paragraphs.slice(0, 6).map((p, i) => (
+                      <p key={i} className="text-slate-200 leading-relaxed text-base">{p}</p>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={goPrevModule}
+                      disabled={chapIdx === 0 && modIdx === 0}
+                      className="flex-1 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-medium text-sm hover:border-slate-500 transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" /> Previous
+                    </button>
+                    <button
+                      onClick={() => setPhase('example')}
+                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold flex items-center justify-center gap-2 text-sm"
+                    >
+                      Practice <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={goNextModule}
+                      disabled={chapIdx >= (toc?.chapters.length ?? 1) - 1 && modIdx >= (currentChapter?.modules.length ?? 1) - 1}
+                      className="flex-1 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-medium text-sm hover:border-slate-500 transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                    >
+                      Next <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : modLoading || tocLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                  <p className="text-slate-400 text-sm">Loading {SUBJECT_BOOKS[subject]?.label}…</p>
+                </div>
+              ) : (
+                // Fallback: static lesson content
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-5">
+                    <h2 className="text-white text-xl font-bold">{lesson?.title}</h2>
+                    <button
+                      onClick={() => lesson && speakText(lesson.teach)}
+                      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        ttsPlaying ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      {ttsLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : ttsPlaying ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      {ttsPlaying ? 'Stop' : 'Listen'}
+                    </button>
+                  </div>
+                  <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+                    <p className="text-slate-200 leading-relaxed whitespace-pre-line text-base">{lesson?.teach}</p>
+                  </div>
+                  <button
+                    onClick={() => setPhase('example')}
+                    className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold flex items-center justify-center gap-2"
+                  >
+                    See an example <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

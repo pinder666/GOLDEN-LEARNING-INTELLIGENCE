@@ -678,6 +678,59 @@ const fs = require('fs');
 const path = require('path');
 const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 
+// ===============================================================
+// FULL BOOK CATALOG — all 17 OpenStax books in content-spine
+// ===============================================================
+const FULL_BOOK_CATALOG = {
+  'college-algebra':       'openstax_osbooks-college-algebra-bundle',
+  'biology':               'openstax_osbooks-biology-bundle',
+  'anatomy-physiology':    'openstax_osbooks-anatomy-physiology',
+  'physics':               'openstax_osbooks-physics',
+  'finance':               'openstax_osbooks-principles-finance',
+  'economics':             'openstax_osbooks-economics',
+  'entrepreneurship':      'openstax_osbooks-entrepreneurship',
+  'introduction-business': 'openstax_osbooks-introduction-business',
+  'business-ethics':       'openstax_osbooks-business-ethics',
+  'business-law':          'openstax_osbooks-business-law',
+  'american-government':   'osbooks-american-government',
+  'political-science':     'osbooks-political-science',
+  'philosophy':            'osbooks-philosophy',
+  'sociology':             'osbooks-sociology',
+  'psychology':            'osbooks-psychology',
+  'world-history':         'openstax_osbooks-world-history',
+  'writing-guide':         'openstax_osbooks-writing-guide',
+};
+
+function getCnxmlTitle(bookDir, moduleId) {
+  try {
+    const fp = path.join(__dirname, `../content-spine/${bookDir}/modules/${moduleId}/index.cnxml`);
+    const xml = fs.readFileSync(fp, 'utf8');
+    return (xml.match(/<md:title>([^<]+)<\/md:title>/) || [])[1] || moduleId;
+  } catch { return moduleId; }
+}
+
+function parseCollectionToc(bookDir) {
+  const collectionsDir = path.join(__dirname, `../content-spine/${bookDir}/collections`);
+  const files = fs.readdirSync(collectionsDir);
+  const xmlFile = files.find(f => f.endsWith('.collection.xml'));
+  if (!xmlFile) return null;
+  const xml = fs.readFileSync(path.join(collectionsDir, xmlFile), 'utf8');
+  const bookTitle = (xml.match(/<md:title>([^<]+)<\/md:title>/) || [])[1] || bookDir;
+  const chapters = [];
+  const scRe = /<col:subcollection>([\s\S]*?)<\/col:subcollection>/g;
+  let scMatch;
+  while ((scMatch = scRe.exec(xml)) !== null) {
+    const scXml = scMatch[1];
+    const chapterTitle = (scXml.match(/<md:title>([^<]+)<\/md:title>/) || [])[1] || 'Chapter';
+    const mods = [];
+    const modRe = /<col:module document="(m\d+)"\/>/g;
+    let modMatch;
+    while ((modMatch = modRe.exec(scXml)) !== null) mods.push(modMatch[1]);
+    if (mods.length) chapters.push({ title: chapterTitle, modules: mods });
+  }
+  return { bookTitle, chapters };
+}
+
 // Voice options - good natural voices for kids
 const VOICE_OPTIONS = [
   { id: 'en-US-AriaNeural', name: 'Aria', gender: 'Female', style: 'Friendly teacher' },
@@ -1272,17 +1325,8 @@ app.get('/api/curriculum/nasa-apod', async (req, res) => {
  */
 app.get('/api/curriculum/openstax/:book/:moduleId', (req, res) => {
   const { book, moduleId } = req.params;
-  const SAFE_BOOKS = {
-    'business-law': 'openstax_osbooks-business-law',
-    'american-government': 'osbooks-american-government',
-    'philosophy': 'osbooks-philosophy',
-    'economics': 'openstax_osbooks-economics',
-    'finance': 'openstax_osbooks-principles-finance',
-    'biology': 'openstax_osbooks-biology-bundle',
-    'physics': 'openstax_osbooks-physics',
-  };
-  const bookDir = SAFE_BOOKS[book];
-  if (!bookDir) return res.status(404).json({ error: 'Book not found' });
+  const bookDir = FULL_BOOK_CATALOG[book];
+  if (!bookDir) return res.status(404).json({ error: 'Book not found', available: Object.keys(FULL_BOOK_CATALOG) });
   if (!/^m\d+$/.test(moduleId)) return res.status(400).json({ error: 'Invalid module id' });
 
   const filePath = path.join(__dirname, `../content-spine/${bookDir}/modules/${moduleId}/index.cnxml`);
@@ -1317,21 +1361,81 @@ app.get('/api/curriculum/openstax/:book/:moduleId', (req, res) => {
  */
 app.get('/api/curriculum/openstax/:book/list', (req, res) => {
   const { book } = req.params;
-  const SAFE_BOOKS = {
-    'business-law': 'openstax_osbooks-business-law',
-    'american-government': 'osbooks-american-government',
-    'philosophy': 'osbooks-philosophy',
-    'economics': 'openstax_osbooks-economics',
-    'finance': 'openstax_osbooks-principles-finance',
-  };
-  const bookDir = SAFE_BOOKS[book];
-  if (!bookDir) return res.status(404).json({ error: 'Book not found' });
+  const bookDir = FULL_BOOK_CATALOG[book];
+  if (!bookDir) return res.status(404).json({ error: 'Book not found', available: Object.keys(FULL_BOOK_CATALOG) });
   try {
     const modulesDir = path.join(__dirname, `../content-spine/${bookDir}/modules`);
     const modules = fs.readdirSync(modulesDir).filter(d => /^m\d+$/.test(d));
     res.json({ book, modules });
   } catch (e) {
     res.status(500).json({ error: 'Could not list modules' });
+  }
+});
+
+/**
+ * GET /api/curriculum/books
+ * Lists all 17 OpenStax books with module counts.
+ */
+app.get('/api/curriculum/books', (req, res) => {
+  const result = {};
+  for (const [key, dir] of Object.entries(FULL_BOOK_CATALOG)) {
+    try {
+      const count = fs.readdirSync(path.join(__dirname, `../content-spine/${dir}/modules`))
+        .filter(d => /^m\d+$/.test(d)).length;
+      result[key] = { moduleCount: count };
+    } catch { result[key] = { moduleCount: 0 }; }
+  }
+  res.json(result);
+});
+
+/**
+ * GET /api/curriculum/toc/:book
+ * Full table of contents: chapters with ordered module titles.
+ * Powers the 5-year curriculum navigator.
+ */
+app.get('/api/curriculum/toc/:book', (req, res) => {
+  const bookDir = FULL_BOOK_CATALOG[req.params.book];
+  if (!bookDir) return res.status(404).json({ error: 'Book not found', available: Object.keys(FULL_BOOK_CATALOG) });
+  try {
+    const toc = parseCollectionToc(bookDir);
+    if (!toc) return res.status(404).json({ error: 'No collection XML found' });
+    const chapters = toc.chapters.map(ch => ({
+      title: ch.title,
+      modules: ch.modules.map(id => ({ id, title: getCnxmlTitle(bookDir, id) }))
+    }));
+    const totalModules = chapters.reduce((s, c) => s + c.modules.length, 0);
+    res.json({ book: req.params.book, bookTitle: toc.bookTitle, chapters, totalModules });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/**
+ * GET /api/curriculum/mathigon/:book
+ * Mathigon interactive math content (35 books).
+ */
+app.get('/api/curriculum/mathigon/:book', (req, res) => {
+  const MATHIGON_SAFE = [
+    'algebra','functions','quadratics','sequences','statistics','probability',
+    'circles','triangles','polygons','shapes','polyhedra','solids',
+    'combinatorics','logic','exponentials','transformations','vectors',
+    'matrices','complex','fractals','game-theory','graph-theory',
+    'basic-probability','divisibility','codes','chaos','non-euclidean-geometry',
+    'exploding-dots'
+  ];
+  const book = req.params.book;
+  if (!MATHIGON_SAFE.includes(book)) return res.status(404).json({ error: 'Not found', available: MATHIGON_SAFE });
+  const contentFile = path.join(__dirname, `../content-spine/mathigon_textbooks/content/${book}/content.md`);
+  try {
+    const content = fs.readFileSync(contentFile, 'utf8');
+    const sections = [];
+    const sRe = /^## (.+)$/gm;
+    let m;
+    while ((m = sRe.exec(content)) !== null) sections.push(m[1]);
+    const intro = content.split(/^##/m)[0].replace(/[#{}\[\]()`*_]/g, '').replace(/\s+/g, ' ').trim().slice(0, 600);
+    res.json({ book, sections, intro, totalSections: sections.length });
+  } catch (e) {
+    res.status(404).json({ error: 'Not found' });
   }
 });
 
