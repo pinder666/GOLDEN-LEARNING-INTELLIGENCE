@@ -1292,6 +1292,61 @@ app.get('/api/curriculum/word-problem', (req, res) => {
   res.json({ question: problem.question, steps, answer });
 });
 
+/**
+ * GET /api/curriculum/exam-prep?subject=math&grade=5&count=20
+ * Returns N random word problems for a timed test practice session.
+ */
+app.get('/api/curriculum/exam-prep', (req, res) => {
+  const subject = req.query.subject || 'math';
+  const grade = parseInt(req.query.grade) || 5;
+  const count = Math.min(parseInt(req.query.count) || 20, 50);
+
+  if (subject === 'math') {
+    const problems = loadGSM8K();
+    if (!problems.length) return res.status(503).json({ error: 'Problems unavailable' });
+    const seed = Math.floor(Date.now() / 1000) % problems.length;
+    const selected = [];
+    for (let i = 0; i < count; i++) {
+      const idx = (seed + i * 37 + grade * 113) % problems.length;
+      const p = problems[idx];
+      const lines = p.answer.split('\n');
+      const answer = (lines[lines.length - 1] || '').replace('#### ', '').trim();
+      const steps = lines.slice(0, -1).map(l => {
+        const parts = l.split(' ** ');
+        return { hint: parts[0] || '', solution: parts[1] || '' };
+      }).filter(s => s.hint);
+      selected.push({ id: idx, question: p.question, steps, answer });
+    }
+    return res.json({ subject, grade, count: selected.length, problems: selected });
+  }
+  res.json({ subject, grade, count: 0, problems: [], note: 'ELA prep coming soon' });
+});
+
+/**
+ * GET /api/progress/:childId
+ * Returns progress summary for parent report.
+ */
+app.get('/api/progress/:childId', async (req, res) => {
+  const { childId } = req.params;
+  try {
+    const { data: mastery } = await supabase
+      .from('child_standard_mastery')
+      .select('standard_id, mastery_level, state_standards(standard_code, description)')
+      .eq('child_id', childId)
+      .order('mastery_level', { ascending: true })
+      .limit(30);
+    const { data: rapport } = await supabase
+      .from('child_rapport')
+      .select('content, created_at')
+      .eq('child_id', childId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    res.json({ childId, mastery: mastery || [], rapport: rapport || [] });
+  } catch (e) {
+    res.json({ childId, mastery: [], rapport: [], error: e.message });
+  }
+});
+
 // ===============================================================
 // CURRICULUM: NASA Astronomy Picture of the Day
 // ===============================================================
