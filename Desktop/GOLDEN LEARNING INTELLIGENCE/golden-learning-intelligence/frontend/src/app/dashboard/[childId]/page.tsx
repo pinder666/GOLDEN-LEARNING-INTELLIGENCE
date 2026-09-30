@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale, Heart, Code2, Activity,
   CheckCircle2, Clock, Crown, Swords, Users, Zap, ArrowRight, Puzzle, Globe,
-  Lightbulb, Music, Wrench, Brain, Landmark, TreePine,
+  Lightbulb, Music, Wrench, Brain, Landmark, TreePine, BarChart3,
 } from 'lucide-react'
 
 const CHILD_INFO: Record<string, { name: string; age: number; grade: number; initial: string }> = {
@@ -60,8 +60,11 @@ const SCHOOL_WINGS = [
   { id: 'arts',      label: 'Arts & Culture',    icon: Music,     color: '#DB2777', desc: 'Visual arts · Culture',               path: (id: string) => `/basics/${id}/arts` },
   { id: 'library',   label: 'Learning Library',  icon: BookOpen,  color: '#3B82F6', desc: '35+ topics · auto-play',              path: (id: string) => `/learn/${id}` },
   { id: 'political', label: 'Political Science', icon: Landmark,  color: '#1D4ED8', desc: 'Government & Power',                  path: (id: string) => `/basics/${id}/political` },
-  { id: 'languages', label: 'Languages Wing',    icon: Globe,     color: '#0EA5E9', desc: 'French · Spanish · Mandarin · Latin', path: (id: string) => `/languages/${id}` },
-  { id: 'music',     label: 'Music Wing',        icon: Music,     color: '#8B5CF6', desc: 'Theory · History · Notation',         path: (id: string) => `/music/${id}` },
+  { id: 'languages',   label: 'Languages Wing',   icon: Globe,     color: '#0EA5E9', desc: 'French · Spanish · Mandarin · Latin', path: (id: string) => `/languages/${id}` },
+  { id: 'music',       label: 'Music Wing',       icon: Music,     color: '#8B5CF6', desc: 'Theory · History · Notation',         path: (id: string) => `/music/${id}` },
+  { id: 'brainlab',   label: 'Brain Lab',         icon: Zap,       color: '#F59E0B', desc: 'Reaction · Number flash · Math sprint', path: (id: string) => `/brain-lab/${id}` },
+  { id: 'testprep',   label: 'Test Prep',         icon: CheckCircle2, color: '#6366F1', desc: '20-min timed sessions · 8,500 problems', path: (id: string) => `/test-prep/${id}` },
+  { id: 'parentview', label: 'Parent Report',     icon: BarChart3, color: '#059669', desc: 'Daily progress · Mastery · Alerts',    path: (id: string) => `/parent/${id}` },
 ]
 
 function todayKey(childId: string) {
