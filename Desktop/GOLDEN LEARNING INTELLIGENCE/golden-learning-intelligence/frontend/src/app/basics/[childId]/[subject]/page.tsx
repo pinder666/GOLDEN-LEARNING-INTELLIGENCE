@@ -11,35 +11,57 @@ const CHILD_INFO: Record<string, { name: string; grade: number }> = {
   uni: { name: 'Uni', grade: 8 },
 }
 
-const SUBJECT_NEXT: Record<string, string> = {
-  math: 'reading',
-  reading: 'science',
-  science: 'ai',
-  ai: 'finance',
-  finance: 'law',
-  law: 'health',
-  health: null as any,
+const SUBJECT_NEXT: Record<string, string | null> = {
+  math:       'reading',
+  reading:    'science',
+  science:    'ai',
+  ai:         'finance',
+  finance:    'law',
+  law:        'health',
+  health:     null,
+  // Wing subjects — no forced chain
+  philosophy: null,
+  history:    null,
+  sociology:  null,
+  political:  null,
+  arduino:    null,
+  deeplearn:  null,
+  arts:       null,
 }
 
 const SUBJECT_LABEL: Record<string, string> = {
-  math: 'Math',
-  reading: 'Reading & Writing',
-  science: 'Science',
-  ai: 'AI Literacy',
-  finance: 'Finance Literacy',
-  law: 'Law & Rights',
-  health: 'Health & Body',
+  math:       'Mathematics',
+  reading:    'Reading & Writing',
+  science:    'Science',
+  ai:         'AI Literacy',
+  finance:    'Finance Literacy',
+  law:        'Law & Rights',
+  health:     'Health & Body',
+  philosophy: 'Philosophy',
+  history:    'World History',
+  sociology:  'Society & Poverty',
+  political:  'Political Science',
+  arduino:    'Arduino & Making',
+  deeplearn:  'Deep Learning & AI',
+  arts:       'Arts & Culture',
 }
 
 // Each subject maps to a full OpenStax book in the content-spine
 const SUBJECT_BOOKS: Record<string, { primary: string; label: string; secondary?: string }> = {
-  math:    { primary: 'college-algebra',    label: 'College Algebra' },
-  reading: { primary: 'writing-guide',      label: 'Writing Guide' },
-  science: { primary: 'biology',            label: 'Biology 2e', secondary: 'physics' },
-  ai:      { primary: 'introduction-business', label: 'Introduction to Business' },
-  finance: { primary: 'finance',            label: 'Principles of Finance 2e', secondary: 'economics' },
-  law:     { primary: 'business-law',       label: 'Business Law', secondary: 'american-government' },
-  health:  { primary: 'anatomy-physiology', label: 'Anatomy & Physiology', secondary: 'psychology' },
+  math:       { primary: 'college-algebra',       label: 'College Algebra' },
+  reading:    { primary: 'writing-guide',          label: 'Writing Guide' },
+  science:    { primary: 'biology',                label: 'Biology 2e', secondary: 'physics' },
+  ai:         { primary: 'introduction-business',  label: 'Introduction to Business' },
+  finance:    { primary: 'finance',                label: 'Principles of Finance 2e', secondary: 'economics' },
+  law:        { primary: 'business-law',           label: 'Business Law', secondary: 'american-government' },
+  health:     { primary: 'anatomy-physiology',     label: 'Anatomy & Physiology', secondary: 'psychology' },
+  philosophy: { primary: 'philosophy',             label: 'Introduction to Philosophy' },
+  history:    { primary: 'world-history',          label: 'World History' },
+  sociology:  { primary: 'sociology',              label: 'Introduction to Sociology', secondary: 'psychology' },
+  political:  { primary: 'political-science',      label: 'Introduction to Political Science', secondary: 'american-government' },
+  arduino:    { primary: 'introduction-business',  label: 'Intro to Business (Arduino coming)' },
+  deeplearn:  { primary: 'biology',                label: 'Biology (D2L deep-learn wire coming)' },
+  arts:       { primary: 'writing-guide',          label: 'Writing & Culture' },
 }
 
 // Starting chapter index per book per grade (0-indexed)
@@ -55,6 +77,10 @@ const GRADE_CHAPTER_START: Record<string, Record<number, number>> = {
   'american-government':   { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
   'anatomy-physiology':    { 5: 0, 6: 2, 7: 4, 8: 6, 9: 8,  10: 10 },
   'psychology':            { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
+  'philosophy':            { 5: 0, 6: 1, 7: 2, 8: 3, 9: 5,  10: 7  },
+  'world-history':         { 5: 0, 6: 2, 7: 5, 8: 8, 9: 11, 10: 14 },
+  'sociology':             { 5: 0, 6: 1, 7: 3, 8: 5, 9: 7,  10: 9  },
+  'political-science':     { 5: 0, 6: 1, 7: 2, 8: 3, 9: 4,  10: 5  },
 }
 
 interface TocModule { id: string; title: string }

@@ -5,95 +5,61 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale, Heart, Code2, Activity,
-  CheckCircle2, Clock,
-  Crown, Swords, Users, Zap, ArrowRight, Puzzle, ClipboardList, BarChart3,
+  CheckCircle2, Clock, Crown, Swords, Users, Zap, ArrowRight, Puzzle, Globe,
+  Lightbulb, Music, Wrench, Brain, Landmark, TreePine,
 } from 'lucide-react'
 
-const CHILD_INFO: Record<string, { name: string; age: number; grade: number; color: string }> = {
-  jus: { name: 'Jus', age: 11, grade: 5, color: 'from-yellow-400 to-amber-500' },
-  uni: { name: 'Uni', age: 13, grade: 8, color: 'from-blue-400 to-indigo-500' },
+const CHILD_INFO: Record<string, { name: string; age: number; grade: number; initial: string }> = {
+  jus: { name: 'Jus',  age: 11, grade: 5, initial: 'J' },
+  uni: { name: 'Uni',  age: 13, grade: 8, initial: 'U' },
 }
 
 const CLASSMATES = [
-  { name: 'Marcus', color: 'from-red-400 to-rose-500' },
-  { name: 'Sophia', color: 'from-purple-400 to-indigo-500' },
-  { name: 'Chen', color: 'from-blue-400 to-cyan-500' },
-  { name: 'Amara', color: 'from-green-400 to-emerald-500' },
-  { name: 'Raj', color: 'from-orange-400 to-amber-500' },
-  { name: 'Luna', color: 'from-pink-400 to-fuchsia-500' },
+  { name: 'Marcus', bg: '#EF4444' },
+  { name: 'Sophia', bg: '#8B5CF6' },
+  { name: 'Chen',   bg: '#3B82F6' },
+  { name: 'Amara',  bg: '#10B981' },
+  { name: 'Raj',    bg: '#F59E0B' },
+  { name: 'Luna',   bg: '#EC4899' },
 ]
 
-const MORNING_BLOCKS = [
-  {
-    id: 'math',
-    label: 'Math',
-    desc: 'Problem-solving & reasoning',
-    icon: Calculator,
-    color: 'from-blue-500 to-cyan-500',
-    minutes: 20,
-  },
-  {
-    id: 'reading',
-    label: 'Reading & Writing',
-    desc: 'Comprehension & expression',
-    icon: BookOpen,
-    color: 'from-amber-500 to-orange-500',
-    minutes: 20,
-  },
-  {
-    id: 'science',
-    label: 'Science',
-    desc: 'Concepts & inquiry',
-    icon: FlaskConical,
-    color: 'from-green-500 to-emerald-500',
-    minutes: 20,
-  },
-  {
-    id: 'ai',
-    label: 'AI Literacy',
-    desc: 'Prompting & verification',
-    icon: Cpu,
-    color: 'from-purple-500 to-violet-500',
-    minutes: 20,
-  },
-  {
-    id: 'finance',
-    label: 'Finance',
-    desc: 'Money, decisions & wealth',
-    icon: DollarSign,
-    color: 'from-emerald-500 to-teal-500',
-    minutes: 20,
-  },
-  {
-    id: 'law',
-    label: 'Law & Rights',
-    desc: 'Justice, contracts & your rights',
-    icon: Scale,
-    color: 'from-slate-500 to-zinc-600',
-    minutes: 20,
-  },
-  {
-    id: 'health',
-    label: 'Health & Body',
-    desc: 'Your body, food & sports science',
-    icon: Heart,
-    color: 'from-red-500 to-rose-500',
-    minutes: 20,
-  },
+const ACADEMIC_BLOCKS = [
+  { id: 'math',    label: 'Mathematics',       icon: Calculator,   color: '#3B82F6', minutes: 20 },
+  { id: 'reading', label: 'Reading & Writing', icon: BookOpen,     color: '#F59E0B', minutes: 20 },
+  { id: 'science', label: 'Science',           icon: FlaskConical, color: '#10B981', minutes: 20 },
+  { id: 'ai',      label: 'AI Literacy',       icon: Cpu,          color: '#8B5CF6', minutes: 20 },
+  { id: 'finance', label: 'Finance',           icon: DollarSign,   color: '#059669', minutes: 20 },
+  { id: 'law',     label: 'Law & Rights',      icon: Scale,        color: '#475569', minutes: 20 },
+  { id: 'health',  label: 'Health & Body',     icon: Heart,        color: '#EF4444', minutes: 20 },
 ]
 
 const HARKNESS_SESSIONS = [
-  { id: 'numbers', title: 'Numbers Room', desc: 'Math & Logic', color: 'from-blue-500 to-cyan-500' },
-  { id: 'library', title: 'The Library', desc: 'Literature & Ideas', color: 'from-amber-500 to-orange-500' },
-  { id: 'lab', title: 'The Lab', desc: 'Scientific Thinking', color: 'from-green-500 to-emerald-500' },
-  { id: 'opening', title: 'Open Forum', desc: 'Philosophy & Debate', color: 'from-purple-500 to-indigo-500' },
-  { id: 'ai', title: 'AI & The Future', desc: 'Machines & Minds', color: 'from-violet-500 to-fuchsia-500' },
-  { id: 'money', title: 'The Money Room', desc: 'Finance & Wealth', color: 'from-emerald-500 to-teal-500' },
-  { id: 'tok', title: 'Theory of Knowledge', desc: 'How do we know what we know?', color: 'from-rose-500 to-pink-600' },
-  { id: 'law', title: 'The Court Room', desc: 'Law, Rights & Justice', color: 'from-slate-500 to-zinc-600' },
-  { id: 'econ', title: 'The Market', desc: 'Economics, Investing & Trade', color: 'from-cyan-500 to-sky-600' },
-  { id: 'phil', title: 'The Agora', desc: 'Ethics & Philosophy of Mind', color: 'from-rose-400 to-pink-500' },
-  { id: 'body', title: 'The Body Lab', desc: 'Anatomy, Nutrition & Sports Science', color: 'from-red-500 to-rose-500' },
+  { id: 'numbers', title: 'Numbers Room',        desc: 'Math · Logic · Proof',           color: '#3B82F6' },
+  { id: 'library', title: 'The Library',         desc: 'Literature · Ideas',             color: '#F59E0B' },
+  { id: 'lab',     title: 'The Lab',             desc: 'Scientific Thinking',            color: '#10B981' },
+  { id: 'tok',     title: 'Theory of Knowledge', desc: 'How do we know what we know?',   color: '#EC4899' },
+  { id: 'opening', title: 'Open Forum',          desc: 'Philosophy · Debate',            color: '#8B5CF6' },
+  { id: 'ai',      title: 'AI & The Future',     desc: 'Machines · Minds · Ethics',      color: '#7C3AED' },
+  { id: 'money',   title: 'The Money Room',      desc: 'Finance · Wealth · Investing',   color: '#059669' },
+  { id: 'law',     title: 'The Court Room',      desc: 'Law · Rights · Justice',         color: '#475569' },
+  { id: 'econ',    title: 'The Market',          desc: 'Economics · Trade',              color: '#0EA5E9' },
+  { id: 'body',    title: 'The Body Lab',        desc: 'Anatomy · Nutrition · Sport',    color: '#EF4444' },
+  { id: 'phil',    title: 'The Agora',           desc: 'Ethics · Philosophy of Mind',    color: '#D97706' },
+]
+
+const SCHOOL_WINGS = [
+  { id: 'coding',    label: 'Coding Lab',        icon: Code2,     color: '#10B981', desc: 'freeCodeCamp · Blockly · TF.js',     path: (id: string) => `/coding/${id}` },
+  { id: 'chess',     label: 'Chess League',      icon: Swords,    color: '#475569', desc: 'Strategy · Tactics',                  path: (id: string) => `/chess/${id}` },
+  { id: 'puzzles',   label: 'Puzzle Room',       icon: Puzzle,    color: '#8B5CF6', desc: '41 logic games · MIT licensed',       path: (id: string) => `/puzzles/${id}` },
+  { id: 'tennis',    label: 'Tennis Wing',       icon: Activity,  color: '#F59E0B', desc: 'Reaction · Tactics · 3D Court',       path: (id: string) => `/tennis/${id}` },
+  { id: 'philosophy',label: 'Philosophy',        icon: Lightbulb, color: '#D97706', desc: 'OpenStax · 76 modules',               path: (id: string) => `/basics/${id}/philosophy` },
+  { id: 'history',   label: 'World History',     icon: Globe,     color: '#0EA5E9', desc: 'OpenStax · 162 modules',              path: (id: string) => `/basics/${id}/history` },
+  { id: 'sociology', label: 'Society & Poverty', icon: Users,     color: '#EC4899', desc: 'OpenStax Sociology · 96 modules',     path: (id: string) => `/basics/${id}/sociology` },
+  { id: 'arduino',   label: 'Arduino / Making',  icon: Wrench,    color: '#EF4444', desc: 'Electronics · Circuits · Build',      path: (id: string) => `/basics/${id}/arduino` },
+  { id: 'deeplearn', label: 'Deep Learning',     icon: Brain,     color: '#7C3AED', desc: 'D2L textbook · Neural nets · ML',     path: (id: string) => `/basics/${id}/deeplearn` },
+  { id: 'arts',      label: 'Arts & Culture',    icon: Music,     color: '#DB2777', desc: 'MIT · Stanford · Open access',        path: (id: string) => `/basics/${id}/arts` },
+  { id: 'library',   label: 'Learning Library',  icon: BookOpen,  color: '#3B82F6', desc: '35+ topics · auto-play',              path: (id: string) => `/learn/${id}` },
+  { id: 'political', label: 'Political Science', icon: Landmark,  color: '#1D4ED8', desc: 'OpenStax Government & Power',         path: (id: string) => `/basics/${id}/political` },
 ]
 
 function todayKey(childId: string) {
@@ -108,260 +74,310 @@ function greet(name: string) {
   return `Good evening, ${name}`
 }
 
+const cream   = '#F9F4EC'
+const navy    = '#1A3050'
+const navyMid = '#2A4A6B'
+const card    = '#FFFFFF'
+const border  = '#E8E0D4'
+
 export default function DashboardPage() {
   const params = useParams()
   const childId = params.childId as string
-  const child = CHILD_INFO[childId] || { name: 'Student', age: 12, grade: 6, color: 'from-yellow-400 to-amber-500' }
+  const child = CHILD_INFO[childId] || { name: 'Student', age: 12, grade: 6, initial: 'S' }
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  const today = days[new Date().getDay()]
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const now = new Date()
+  const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`
 
-  // Daily progress: { math: false, reading: false, science: false, ai: false }
-  const [progress, setProgress] = useState<Record<string, boolean>>({
-    math: false, reading: false, science: false, ai: false, finance: false, law: false, health: false,
-  })
+  const [progress, setProgress] = useState<Record<string, boolean>>(
+    Object.fromEntries(ACADEMIC_BLOCKS.map(b => [b.id, false]))
+  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const key = todayKey(childId)
-    const saved = localStorage.getItem(key)
+    const saved = localStorage.getItem(todayKey(childId))
     if (saved) {
       try { setProgress(JSON.parse(saved)) } catch { /* ignore */ }
     }
   }, [childId])
 
-  const allDone = MORNING_BLOCKS.every(b => progress[b.id])
-  const completedCount = MORNING_BLOCKS.filter(b => progress[b.id]).length
-
-  // First incomplete block is the active one
-  const activeBlockId = MORNING_BLOCKS.find(b => !progress[b.id])?.id || null
+  const completedCount = ACADEMIC_BLOCKS.filter(b => progress[b.id]).length
+  const allDone = completedCount === ACADEMIC_BLOCKS.length
+  const pct = Math.round((completedCount / ACADEMIC_BLOCKS.length) * 100)
+  const activeBlockId = ACADEMIC_BLOCKS.find(b => !progress[b.id])?.id || null
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {/* Header */}
-      <header className="border-b border-slate-800 px-6 py-5">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+    <div style={{ background: cream, height: '100vh', fontFamily: "'Nunito', sans-serif", color: navy, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+      {/* ── HEADER ─────────────────────────────────────────── */}
+      <header style={{
+        background: navy, color: '#fff', padding: '0 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: '58px', flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: '50%', background: '#F59E0B',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 900, fontSize: 15, color: navy,
+          }}>{child.initial}</div>
           <div>
-            <h1 className="text-2xl font-bold">{greet(child.name)}</h1>
-            <p className="text-slate-400 text-sm mt-0.5">{today} · Grade {child.grade}</p>
+            <div style={{ fontWeight: 800, fontSize: 15 }}>{greet(child.name)}</div>
+            <div style={{ fontSize: 11, opacity: 0.6 }}>Grade {child.grade} · Golden Learning Intelligence</div>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Progress dots */}
-            <div className="flex gap-1.5">
-              {MORNING_BLOCKS.map(b => (
-                <div
-                  key={b.id}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    progress[b.id] ? 'bg-green-400' : b.id === activeBlockId ? 'bg-amber-400' : 'bg-slate-700'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-slate-500">{completedCount}/7</span>
-            <Link href="/" className="text-xs text-slate-600 hover:text-slate-400 ml-2">sign out</Link>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            {ACADEMIC_BLOCKS.map(b => (
+              <div key={b.id} style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: progress[b.id] ? '#4ADE80' : b.id === activeBlockId ? '#FCD34D' : 'rgba(255,255,255,0.2)',
+              }} />
+            ))}
+            <span style={{ fontSize: 11, opacity: 0.55, marginLeft: 4 }}>{completedCount}/{ACADEMIC_BLOCKS.length}</span>
           </div>
+          <Link href="/" style={{ fontSize: 11, opacity: 0.45, color: '#fff', textDecoration: 'none' }}>sign out</Link>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+      {/* ── THREE EQUAL DEPARTMENTS + SIDEBAR ─────────────── */}
+      <div style={{
+        flex: 1,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr 172px',
+        gap: 14,
+        padding: '14px',
+        overflow: 'hidden',
+      }}>
 
-        {/* ── MORNING BLOCKS ──────────────────────────────── */}
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <Clock className="w-5 h-5 text-slate-400" />
-            <div>
-              <h2 className="font-bold text-white">Morning Work</h2>
-              <p className="text-xs text-slate-500">7 subjects · 20 minutes each · complete in order</p>
+        {/* ════════════════════════════════════
+            COLUMN 1 · ACADEMIC BLOCK
+        ════════════════════════════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+          {/* Column header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
+            padding: '8px 12px',
+          }}>
+            <div style={{ width: 26, height: 26, borderRadius: 7, background: navy, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Clock size={13} color="#fff" />
             </div>
-            {allDone && (
-              <div className="ml-auto flex items-center gap-1.5 text-green-400 text-xs font-semibold">
-                <CheckCircle2 className="w-4 h-4" />
-                All done
-              </div>
-            )}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>Academic Block</div>
+              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Complete in order · 20 min each</div>
+            </div>
+            {allDone && <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#10B981', fontSize: 10, fontWeight: 700 }}><CheckCircle2 size={12} />Done</div>}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {MORNING_BLOCKS.map((block, i) => {
+          {/* Subject list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1 }}>
+            {ACADEMIC_BLOCKS.map((block, i) => {
               const Icon = block.icon
               const done = progress[block.id]
               const isNext = block.id === activeBlockId
-
               return (
-                <Link key={block.id} href={`/basics/${childId}/${block.id}`}>
-                  <div className={`
-                    rounded-2xl p-4 transition-all h-full flex flex-col gap-3 relative overflow-hidden cursor-pointer
-                    ${done ? 'bg-green-950/40 border border-green-800/50 hover:border-green-600' :
-                      isNext ? 'bg-slate-800 border border-amber-500/50 shadow-lg shadow-amber-500/10 hover:border-amber-400' :
-                      'bg-slate-800/60 border border-slate-700 hover:border-slate-500'}
-                  `}>
-                    <span className="absolute top-2.5 right-3 text-xs font-mono text-slate-600">{i + 1}</span>
-
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${block.color}`}>
-                      {done
-                        ? <CheckCircle2 className="w-5 h-5 text-white" />
-                        : <Icon className="w-5 h-5 text-white" />}
+                <Link key={block.id} href={`/basics/${childId}/${block.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: done ? '#F0FDF4' : isNext ? '#FFFBEB' : card,
+                    border: `1.5px solid ${done ? '#86EFAC' : isNext ? '#FCD34D' : border}`,
+                    borderRadius: 12,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    cursor: 'pointer',
+                    boxShadow: isNext ? '0 2px 8px rgba(251,191,36,0.18)' : 'none',
+                  }}>
+                    <div style={{
+                      width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                      background: done ? '#DCFCE7' : `${block.color}18`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {done ? <CheckCircle2 size={17} color="#16A34A" /> : <Icon size={17} color={block.color} />}
                     </div>
-
-                    <div>
-                      <p className={`font-semibold text-sm ${done ? 'text-green-400' : 'text-white'}`}>
-                        {block.label}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-0.5 leading-tight">{block.desc}</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: done ? '#16A34A' : navy }}>{block.label}</div>
+                      <div style={{ fontSize: 10, opacity: 0.55, color: navyMid }}>
+                        {done ? 'Complete' : isNext ? '↑ Up next' : `${block.minutes} min`}
+                      </div>
                     </div>
-
-                    <div className="flex items-center gap-1 text-xs mt-auto">
-                      {done
-                        ? <span className="text-green-600">Complete</span>
-                        : <><Clock className="w-3 h-3 text-slate-500" /><span className="text-slate-500">{block.minutes} min</span><ArrowRight className="w-3 h-3 ml-auto text-slate-600" /></>}
-                    </div>
+                    <span style={{ fontSize: 10, opacity: 0.3, color: navyMid, flexShrink: 0 }}>{i + 1}</span>
+                    {!done && <ArrowRight size={13} color={isNext ? '#F59E0B' : navyMid} style={{ opacity: 0.5, flexShrink: 0 }} />}
                   </div>
                 </Link>
               )
             })}
           </div>
-        </section>
+        </div>
 
-        {/* ── HARKNESS TABLE ──────────────────────────────── */}
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center">
-              <Crown className="w-4 h-4 text-black" />
+        {/* ════════════════════════════════════
+            COLUMN 2 · HARKNESS TABLE
+        ════════════════════════════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+          {/* Column header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
+            padding: '8px 12px',
+          }}>
+            <div style={{ width: 26, height: 26, borderRadius: 7, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Crown size={13} color={navy} />
             </div>
             <div>
-              <h2 className="font-bold text-white">The Harkness Table</h2>
-              <p className="text-xs text-slate-500">
-                {completedCount > 0 ? `${completedCount}/6 morning subjects done` : 'Open — choose your session'}
-              </p>
+              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>Harkness Table</div>
+              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Open — choose any room</div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            {/* Joint table — featured */}
-            <Link href="/table">
-              <div className="rounded-2xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 p-5 flex items-center gap-4 hover:border-amber-400 transition-all cursor-pointer group">
-                <div className="flex -space-x-2 flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-bold border-2 border-slate-950">J</div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold border-2 border-slate-950">U</div>
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-amber-300 text-base">Joint Table</p>
-                  <p className="text-sm text-slate-400">Jus + Uni + AI classmates — discuss together</p>
-                </div>
-                <Users className="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform" />
+          {/* Joint table */}
+          <Link href="/table" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{
+              background: '#FFFBEB', border: `1.5px solid #FCD34D`,
+              borderRadius: 12, padding: '10px 12px',
+              display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+            }}>
+              <div style={{ display: 'flex' }}>
+                {['J','U'].map((l, i) => (
+                  <div key={l} style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: i === 0 ? '#F59E0B' : '#3B82F6',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, fontSize: 11, color: '#fff',
+                    border: '2px solid #FFFBEB',
+                    marginLeft: i > 0 ? -8 : 0,
+                  }}>{l}</div>
+                ))}
               </div>
-            </Link>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 12, color: '#92400E' }}>Joint Table</div>
+                <div style={{ fontSize: 10, color: '#A16207' }}>Jus + Uni + AI classmates</div>
+              </div>
+              <Users size={13} color="#F59E0B" />
+            </div>
+          </Link>
 
-            {/* Solo sessions */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {HARKNESS_SESSIONS.map(s => (
-                <Link key={s.id} href={`/session/${childId}/${s.id}`}>
-                  <div className="rounded-xl bg-slate-800/60 border border-slate-700 p-4 hover:border-slate-500 transition-all cursor-pointer">
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center mb-3`}>
-                      <Zap className="w-4 h-4 text-white" />
+          {/* Sessions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', flex: 1 }}>
+            {HARKNESS_SESSIONS.map(s => (
+              <Link key={s.id} href={`/session/${childId}/${s.id}`} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: card, border: `1.5px solid ${border}`,
+                  borderRadius: 11, padding: '8px 12px',
+                  display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer',
+                }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 12, color: navy }}>{s.title}</div>
+                    <div style={{ fontSize: 10, color: navyMid, opacity: 0.55 }}>{s.desc}</div>
+                  </div>
+                  <Zap size={11} color={s.color} style={{ opacity: 0.65, flexShrink: 0 }} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════
+            COLUMN 3 · SCHOOL WINGS
+        ════════════════════════════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+          {/* Column header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
+            padding: '8px 12px',
+          }}>
+            <div style={{ width: 26, height: 26, borderRadius: 7, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BookOpen size={13} color="#fff" />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>School Wings</div>
+              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Labs · Clubs · Open subjects</div>
+            </div>
+          </div>
+
+          {/* Wings grid */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr',
+            gap: 7, overflowY: 'auto', flex: 1, alignContent: 'start',
+          }}>
+            {SCHOOL_WINGS.map(wing => {
+              const Icon = wing.icon
+              return (
+                <Link key={wing.id} href={wing.path(childId)} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: card, border: `1.5px solid ${border}`,
+                    borderRadius: 11, padding: '9px 10px',
+                    cursor: 'pointer', height: '100%', boxSizing: 'border-box',
+                  }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      background: `${wing.color}18`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: 6,
+                    }}>
+                      <Icon size={14} color={wing.color} />
                     </div>
-                    <p className="font-semibold text-sm text-white">{s.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
+                    <div style={{ fontWeight: 700, fontSize: 11, color: navy, lineHeight: 1.3 }}>{wing.label}</div>
+                    <div style={{ fontSize: 9.5, color: navyMid, opacity: 0.55, marginTop: 2, lineHeight: 1.3 }}>{wing.desc}</div>
                   </div>
                 </Link>
-              ))}
-            </div>
+              )
+            })}
           </div>
-        </section>
-
-        {/* ── BOTTOM ROW ──────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-          {/* Puzzles */}
-          <Link href={`/puzzles/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-violet-500/50 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-3">
-                <Puzzle className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Puzzle Room</p>
-              <p className="text-xs text-slate-500 mt-0.5">41 logic games · MIT licensed</p>
-            </div>
-          </Link>
-
-          {/* Chess */}
-          <Link href={`/chess/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-slate-500 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center mb-3">
-                <Swords className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Chess League</p>
-              <p className="text-xs text-slate-500 mt-0.5">vs {childId === 'jus' ? 'Uni' : 'Jus'}</p>
-            </div>
-          </Link>
-
-          {/* Library */}
-          <Link href={`/learn/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-slate-500 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Learning Library</p>
-              <p className="text-xs text-slate-500 mt-0.5">35+ topics · auto-play lessons</p>
-            </div>
-          </Link>
-
-          {/* Coding Lab */}
-          <Link href={`/coding/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-green-500/50 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-3">
-                <Code2 className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Coding Lab</p>
-              <p className="text-xs text-slate-500 mt-0.5">Blockly · TF.js · Google AI</p>
-            </div>
-          </Link>
-
-          {/* Tennis Wing */}
-          <Link href={`/tennis/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-yellow-500/50 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mb-3">
-                <Activity className="w-5 h-5 text-black" />
-              </div>
-              <p className="font-bold text-white">Tennis Wing</p>
-              <p className="text-xs text-slate-500 mt-0.5">Reaction · Tactics · 3D Court</p>
-            </div>
-          </Link>
-
-          {/* Classmates */}
-          <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5">
-            <p className="font-bold text-white mb-3">Your Classmates</p>
-            <div className="flex -space-x-2 mb-2">
-              {CLASSMATES.map(c => (
-                <div key={c.name} className={`w-9 h-9 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white text-xs font-bold border-2 border-slate-800`}>
-                  {c.name[0]}
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-slate-500">{CLASSMATES.map(c => c.name).join(' · ')}</p>
-          </div>
-
-          {/* Test Prep */}
-          <Link href={`/test-prep/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-amber-500/50 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3">
-                <ClipboardList className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Test Prep</p>
-              <p className="text-xs text-slate-500 mt-0.5">20 min · state exam practice</p>
-            </div>
-          </Link>
-
-          {/* Parent Report */}
-          <Link href={`/parent/${childId}`}>
-            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-blue-500/50 transition-all cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <p className="font-bold text-white">Parent Report</p>
-              <p className="text-xs text-slate-500 mt-0.5">Daily progress & tracking</p>
-            </div>
-          </Link>
         </div>
-      </main>
+
+        {/* ════════════════════════════════════
+            SIDEBAR · DATE / PROGRESS / MATES
+        ════════════════════════════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+
+          <div style={{ background: navy, borderRadius: 12, padding: '12px 14px', color: '#fff', flexShrink: 0 }}>
+            <div style={{ fontSize: 10, opacity: 0.55, marginBottom: 3 }}>Today</div>
+            <div style={{ fontWeight: 800, fontSize: 12 }}>{dateStr}</div>
+            <div style={{ fontSize: 10, opacity: 0.6, marginTop: 2 }}>Grade {child.grade}</div>
+          </div>
+
+          <div style={{ background: card, border: `1.5px solid ${border}`, borderRadius: 12, padding: '11px 13px', flexShrink: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: 11, color: navy, marginBottom: 7 }}>Today&apos;s Progress</div>
+            <div style={{ background: '#EDE9E0', borderRadius: 99, height: 7, overflow: 'hidden', marginBottom: 5 }}>
+              <div style={{
+                height: '100%', borderRadius: 99, width: `${pct}%`,
+                background: allDone ? '#10B981' : '#3B82F6',
+                transition: 'width 0.4s ease',
+              }} />
+            </div>
+            <div style={{ fontSize: 10, color: navyMid, opacity: 0.65, marginBottom: 7 }}>{completedCount}/{ACADEMIC_BLOCKS.length} subjects</div>
+            {ACADEMIC_BLOCKS.map(b => (
+              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: progress[b.id] ? '#10B981' : '#E2D9CE', flexShrink: 0 }} />
+                <span style={{ fontSize: 9.5, color: progress[b.id] ? '#16A34A' : navyMid, opacity: progress[b.id] ? 1 : 0.5 }}>{b.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: card, border: `1.5px solid ${border}`, borderRadius: 12, padding: '11px 13px', flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: 11, color: navy, marginBottom: 9 }}>Classmates</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {CLASSMATES.map(c => (
+                <div key={c.name} style={{
+                  width: 30, height: 30, borderRadius: '50%', background: c.bg,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 800, fontSize: 11, color: '#fff',
+                  border: `2px solid ${cream}`,
+                }}>{c.name[0]}</div>
+              ))}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 9.5, color: navyMid, opacity: 0.55, lineHeight: 1.6 }}>
+              {CLASSMATES.map(c => c.name).join(' · ')}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
   )
 }
