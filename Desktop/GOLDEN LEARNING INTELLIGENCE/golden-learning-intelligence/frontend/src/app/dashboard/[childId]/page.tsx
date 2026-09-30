@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Calculator, BookOpen, FlaskConical, Cpu, DollarSign,
+  Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale,
   Lock, CheckCircle2, Clock, ChevronRight,
-  Crown, Swords, Users, Zap, ArrowRight,
+  Crown, Swords, Users, Zap, ArrowRight, Puzzle, TrendingUp,
 } from 'lucide-react'
 
 const CHILD_INFO: Record<string, { name: string; age: number; grade: number; color: string }> = {
@@ -64,6 +64,14 @@ const MORNING_BLOCKS = [
     color: 'from-emerald-500 to-teal-500',
     minutes: 20,
   },
+  {
+    id: 'law',
+    label: 'Law & Rights',
+    desc: 'Justice, contracts & your rights',
+    icon: Scale,
+    color: 'from-slate-500 to-zinc-600',
+    minutes: 20,
+  },
 ]
 
 const HARKNESS_SESSIONS = [
@@ -74,6 +82,9 @@ const HARKNESS_SESSIONS = [
   { id: 'ai', title: 'AI & The Future', desc: 'Machines & Minds', color: 'from-violet-500 to-fuchsia-500' },
   { id: 'money', title: 'The Money Room', desc: 'Finance & Wealth', color: 'from-emerald-500 to-teal-500' },
   { id: 'tok', title: 'Theory of Knowledge', desc: 'How do we know what we know?', color: 'from-rose-500 to-pink-600' },
+  { id: 'law', title: 'The Court Room', desc: 'Law, Rights & Justice', color: 'from-slate-500 to-zinc-600' },
+  { id: 'econ', title: 'The Market', desc: 'Economics, Investing & Trade', color: 'from-cyan-500 to-sky-600' },
+  { id: 'phil', title: 'The Agora', desc: 'Ethics & Philosophy of Mind', color: 'from-rose-400 to-pink-500' },
 ]
 
 function todayKey(childId: string) {
@@ -98,7 +109,7 @@ export default function DashboardPage() {
 
   // Daily progress: { math: false, reading: false, science: false, ai: false }
   const [progress, setProgress] = useState<Record<string, boolean>>({
-    math: false, reading: false, science: false, ai: false, finance: false,
+    math: false, reading: false, science: false, ai: false, finance: false, law: false,
   })
 
   useEffect(() => {
@@ -137,7 +148,7 @@ export default function DashboardPage() {
                 />
               ))}
             </div>
-            <span className="text-xs text-slate-500">{completedCount}/5</span>
+            <span className="text-xs text-slate-500">{completedCount}/6</span>
             <Link href="/" className="text-xs text-slate-600 hover:text-slate-400 ml-2">sign out</Link>
           </div>
         </div>
@@ -151,7 +162,7 @@ export default function DashboardPage() {
             <Clock className="w-5 h-5 text-slate-400" />
             <div>
               <h2 className="font-bold text-white">Morning Work</h2>
-              <p className="text-xs text-slate-500">5 subjects · 20 minutes each · complete in order</p>
+              <p className="text-xs text-slate-500">6 subjects · 20 minutes each · complete in order</p>
             </div>
             {allDone && (
               <div className="ml-auto flex items-center gap-1.5 text-green-400 text-xs font-semibold">
@@ -161,7 +172,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {MORNING_BLOCKS.map((block, i) => {
               const Icon = block.icon
               const done = progress[block.id]
@@ -228,7 +239,7 @@ export default function DashboardPage() {
             <div>
               <h2 className="font-bold text-white">The Harkness Table</h2>
               <p className="text-xs text-slate-500">
-                {allDone ? 'Open — choose your session' : `Complete morning work to unlock (${completedCount}/4 done)`}
+                {allDone ? 'Open — choose your session' : `Complete morning work to unlock (${completedCount}/6 done)`}
               </p>
             </div>
             {!allDone && <Lock className="w-4 h-4 text-slate-600 ml-auto" />}
@@ -284,7 +295,18 @@ export default function DashboardPage() {
         </section>
 
         {/* ── BOTTOM ROW ──────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Puzzles */}
+          <Link href={`/puzzles/${childId}`}>
+            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-violet-500/50 transition-all cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-3">
+                <Puzzle className="w-5 h-5 text-white" />
+              </div>
+              <p className="font-bold text-white">Puzzle Room</p>
+              <p className="text-xs text-slate-500 mt-0.5">41 logic games · MIT licensed</p>
+            </div>
+          </Link>
+
           {/* Chess */}
           <Link href={`/chess/${childId}`}>
             <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-slate-500 transition-all cursor-pointer">

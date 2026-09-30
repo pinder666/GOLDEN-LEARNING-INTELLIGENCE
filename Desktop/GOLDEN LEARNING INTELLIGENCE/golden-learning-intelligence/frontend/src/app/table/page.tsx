@@ -30,6 +30,10 @@ const TOPIC_OPTIONS = [
   { label: 'Right & Wrong', wingKey: 'the_forum', topic: 'Ethics and Decision-Making', keyConcept: 'Values and Consequences', globalContext: 'Fairness and Development' },
   { label: 'How the World Works', wingKey: 'the_forum', topic: 'History, Power, and Change', keyConcept: 'Cause and Effect', globalContext: 'Globalization and Sustainability' },
   { label: 'Money & Wealth', wingKey: 'the_forum', topic: 'Finance, Assets, and Wealth-Building', keyConcept: 'Compound Growth and Financial Independence', globalContext: 'Business and Economic Systems' },
+  { label: 'Contract Law & Your Rights', wingKey: 'the_forum', topic: 'Law, Contracts, and Consumer Rights', keyConcept: 'How Mortgages, Car Notes, and Student Loans Actually Work', globalContext: 'Governance and Civic Life' },
+  { label: 'Markets & Economics', wingKey: 'the_forum', topic: 'Economics, Supply & Demand, and Trade', keyConcept: 'How Wealth is Created and Distributed', globalContext: 'Business and Economic Systems' },
+  { label: 'Philosophy of Mind', wingKey: 'tok_room', topic: 'Ethics, Reality, and What Makes a Good Life', keyConcept: 'What Is Real, What Is Right, What Do We Owe Each Other', globalContext: 'Epistemology and Critical Thinking' },
+  { label: 'Investing & Markets', wingKey: 'the_forum', topic: 'Stock Market, Index Funds, and Financial Independence', keyConcept: 'How to Make Your Money Work While You Sleep', globalContext: 'Business and Economic Systems' },
   { label: 'Big Question of the Day', wingKey: 'the_forum', topic: 'Open Discussion', keyConcept: 'Critical Thinking', globalContext: 'Identities and Relationships' },
 ]
 

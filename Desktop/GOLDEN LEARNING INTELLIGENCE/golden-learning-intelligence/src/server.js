@@ -1195,6 +1195,146 @@ app.get('/api/chess/puzzle', (req, res) => {
   res.json({ puzzle });
 });
 
+// ===============================================================
+// CURRICULUM: GSM8K Word Problems (OpenAI Grade School Math)
+// ===============================================================
+
+let gsm8kCache = null;
+function loadGSM8K() {
+  if (gsm8kCache) return gsm8kCache;
+  const filePath = path.join(__dirname, '../content-spine/openai_grade-school-math/grade_school_math/data/train_socratic.jsonl');
+  try {
+    gsm8kCache = fs.readFileSync(filePath, 'utf8')
+      .split('\n').filter(Boolean).map(line => JSON.parse(line));
+    console.log(`✓ GSM8K loaded: ${gsm8kCache.length} word problems`);
+  } catch (e) {
+    console.warn('GSM8K not found:', e.message);
+    gsm8kCache = [];
+  }
+  return gsm8kCache;
+}
+
+/**
+ * GET /api/curriculum/word-problem?grade=5
+ * Returns a deterministic daily word problem from the GSM8K dataset.
+ */
+app.get('/api/curriculum/word-problem', (req, res) => {
+  const problems = loadGSM8K();
+  if (!problems.length) return res.status(503).json({ error: 'Problems unavailable' });
+
+  const grade = parseInt(req.query.grade) || 5;
+  const today = new Date();
+  const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const gradeOffset = grade === 8 ? Math.floor(problems.length / 2) : 0;
+  const idx = (daySeed + gradeOffset) % problems.length;
+  const problem = problems[idx];
+
+  const lines = problem.answer.split('\n');
+  const answer = (lines[lines.length - 1] || '').replace('#### ', '').trim();
+  const steps = lines.slice(0, -1).map(line => {
+    const parts = line.split(' ** ');
+    return { hint: parts[0] || '', solution: parts[1] || '' };
+  }).filter(s => s.hint);
+
+  res.json({ question: problem.question, steps, answer });
+});
+
+// ===============================================================
+// CURRICULUM: NASA Astronomy Picture of the Day
+// ===============================================================
+/**
+ * GET /api/curriculum/nasa-apod
+ * Proxies NASA APOD API.
+ */
+app.get('/api/curriculum/nasa-apod', async (req, res) => {
+  try {
+    const response = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+    if (!response.ok) throw new Error('NASA API returned ' + response.status);
+    const data = await response.json();
+    res.json({
+      title: data.title,
+      explanation: data.explanation ? data.explanation.slice(0, 600) + '...' : '',
+      url: data.url,
+      media_type: data.media_type,
+      date: data.date,
+    });
+  } catch (e) {
+    res.status(503).json({ error: 'NASA unavailable', message: e.message });
+  }
+});
+
+// ===============================================================
+// CURRICULUM: OpenStax CNXML parser
+// ===============================================================
+/**
+ * GET /api/curriculum/openstax/:book/:moduleId
+ * Parses a CNXML module and returns clean lesson content.
+ */
+app.get('/api/curriculum/openstax/:book/:moduleId', (req, res) => {
+  const { book, moduleId } = req.params;
+  const SAFE_BOOKS = {
+    'business-law': 'openstax_osbooks-business-law',
+    'american-government': 'osbooks-american-government',
+    'philosophy': 'osbooks-philosophy',
+    'economics': 'openstax_osbooks-economics',
+    'finance': 'openstax_osbooks-principles-finance',
+    'biology': 'openstax_osbooks-biology-bundle',
+    'physics': 'openstax_osbooks-physics',
+  };
+  const bookDir = SAFE_BOOKS[book];
+  if (!bookDir) return res.status(404).json({ error: 'Book not found' });
+  if (!/^m\d+$/.test(moduleId)) return res.status(400).json({ error: 'Invalid module id' });
+
+  const filePath = path.join(__dirname, `../content-spine/${bookDir}/modules/${moduleId}/index.cnxml`);
+  try {
+    const xml = fs.readFileSync(filePath, 'utf8');
+    const title = (xml.match(/<md:title>([^<]+)<\/md:title>/) || [])[1] || moduleId;
+    const paras = [];
+    const paraRe = /<para[^>]*>([\s\S]*?)<\/para>/g;
+    let m;
+    while ((m = paraRe.exec(xml)) !== null) {
+      const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (text.length > 40) paras.push(text);
+    }
+    const learningOutcomes = [];
+    const loRe = /<item[^>]*>([\s\S]*?)<\/item>/g;
+    const loSection = xml.match(/<section[^>]+class="learning-objectives"[^>]*>([\s\S]*?)<\/section>/);
+    if (loSection) {
+      while ((m = loRe.exec(loSection[1])) !== null) {
+        const lo = m[1].replace(/<[^>]+>/g, '').trim();
+        if (lo) learningOutcomes.push(lo);
+      }
+    }
+    res.json({ title, paragraphs: paras.slice(0, 10), learningOutcomes, book, moduleId });
+  } catch (e) {
+    res.status(404).json({ error: 'Module not found' });
+  }
+});
+
+/**
+ * GET /api/curriculum/openstax/:book/list
+ * Returns module IDs for a book.
+ */
+app.get('/api/curriculum/openstax/:book/list', (req, res) => {
+  const { book } = req.params;
+  const SAFE_BOOKS = {
+    'business-law': 'openstax_osbooks-business-law',
+    'american-government': 'osbooks-american-government',
+    'philosophy': 'osbooks-philosophy',
+    'economics': 'openstax_osbooks-economics',
+    'finance': 'openstax_osbooks-principles-finance',
+  };
+  const bookDir = SAFE_BOOKS[book];
+  if (!bookDir) return res.status(404).json({ error: 'Book not found' });
+  try {
+    const modulesDir = path.join(__dirname, `../content-spine/${bookDir}/modules`);
+    const modules = fs.readdirSync(modulesDir).filter(d => /^m\d+$/.test(d));
+    res.json({ book, modules });
+  } catch (e) {
+    res.status(500).json({ error: 'Could not list modules' });
+  }
+});
+
 const PORT = process.env.PORT || 4500;
 app.listen(PORT, () => {
   console.log(`

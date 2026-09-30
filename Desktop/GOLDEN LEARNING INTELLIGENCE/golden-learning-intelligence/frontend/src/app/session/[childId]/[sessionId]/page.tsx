@@ -86,6 +86,27 @@ const SESSION_META: Record<string, { title: string; topic: string; wingKey: stri
     keyConcept: 'Knowledge, Certainty, and the Limits of What We Can Know',
     globalContext: 'Epistemology and Critical Thinking',
   },
+  law: {
+    title: 'The Court Room',
+    topic: 'Law, Rights & Justice',
+    wingKey: 'the_forum',
+    keyConcept: 'How Laws Are Made, Rights You Hold, and How Contracts Work',
+    globalContext: 'Governance and Civic Life',
+  },
+  econ: {
+    title: 'The Market',
+    topic: 'Economics, Investing & Trade',
+    wingKey: 'the_forum',
+    keyConcept: 'Supply & Demand, Markets, and How Wealth is Created',
+    globalContext: 'Business and Economic Systems',
+  },
+  phil: {
+    title: 'The Agora',
+    topic: 'Ethics & Philosophy of Mind',
+    wingKey: 'tok_room',
+    keyConcept: 'What is Real, What is Right, and What Makes a Good Life',
+    globalContext: 'Epistemology and Critical Thinking',
+  },
 }
 
 interface Message {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ArrowRight, CheckCircle2, XCircle, Clock, ChevronRight, Lightbulb, Volume2, VolumeX, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2, XCircle, Clock, ChevronRight, Lightbulb, Volume2, VolumeX, Loader2, ExternalLink } from 'lucide-react'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4500'
 
@@ -16,7 +16,8 @@ const SUBJECT_NEXT: Record<string, string> = {
   reading: 'science',
   science: 'ai',
   ai: 'finance',
-  finance: null as any,
+  finance: 'law',
+  law: null as any,
 }
 
 const SUBJECT_LABEL: Record<string, string> = {
@@ -25,6 +26,7 @@ const SUBJECT_LABEL: Record<string, string> = {
   science: 'Science',
   ai: 'AI Literacy',
   finance: 'Finance Literacy',
+  law: 'Law & Rights',
 }
 
 function todayKey(childId: string) {
@@ -695,6 +697,185 @@ The financial trap most people fall into: earning more but also spending more �
       },
     ],
   },
+  law: {
+    5: [
+      {
+        title: 'Contracts Are Everywhere — and You Sign Them Every Day',
+        teach: `A CONTRACT is a legally binding agreement between two or more parties. You don't need a lawyer present. You don't need special paper. You just need four things:
+
+1. OFFER — "I will sell you this for $X"
+2. ACCEPTANCE — "Yes, I agree to those terms"
+3. CONSIDERATION — both sides exchange something of value (money, services, a promise)
+4. CAPACITY — both parties are old enough and mentally able to agree
+
+YOU SIGN CONTRACTS EVERY DAY without realizing it:
+  — Clicking "I Agree" on an app installs a contract. You've agreed to their terms.
+  — Buying something on Amazon is a contract.
+  — A babysitting job is a contract (verbal, but still real).
+
+THE MOST IMPORTANT THING NOBODY TELLS YOU:
+Minors (under 18) can VOID most contracts — the adult cannot. This is the law protecting you. If you sign a car purchase agreement at 16, you can cancel it. The dealer cannot cancel it just because you're young — only YOU get that right. Exception: contracts for necessities like food or medical care.
+
+READ BEFORE YOU SIGN. Every "I Agree" button you click has terms. Most include:
+  — Auto-renewal (keeps charging you after the free trial)
+  — Arbitration clauses (you give up your right to sue in court)
+  — Data collection rights (they can sell your information)
+
+The company read what they wrote. You should too.`,
+        example: {
+          problem: 'Marcus, 14, signs a one-year streaming subscription at $12/month. After 2 months he wants to cancel and get a refund. What are his rights?',
+          steps: [
+            'Marcus is a minor — contracts signed by minors are "voidable" by the minor',
+            'He can void the contract and seek a refund for unused months',
+            'The streaming company cannot hold him to the full year',
+            'He should notify them in writing (creates a record)',
+          ],
+          answer: 'Marcus can void the contract and request a refund — he is a minor and has the right to cancel.',
+        },
+        practice: {
+          problem: 'When you click "I Agree" on an app, what legal document have you just formed?',
+          hint: 'It has an offer, an acceptance, and consideration (your data/money for the service).',
+          answer: 'a contract',
+          acceptedAnswers: ['a contract', 'contract', 'terms of service contract', 'binding agreement'],
+        },
+      },
+      {
+        title: 'Consumer Rights: Laws That Protect You When Companies Don\'t',
+        teach: `Businesses have lawyers who write contracts in the company's favour. You need to know which laws protect you.
+
+KEY CONSUMER PROTECTION LAWS:
+
+TRUTH IN LENDING ACT (TILA):
+  Lenders MUST show you the ANNUAL PERCENTAGE RATE (APR) — not just the interest rate.
+  APR includes all fees. If a payday lender charges "$15 per $100," that's 390% APR.
+  You also have a 3-day right of rescission on home loans — you can cancel within 3 business days of signing.
+
+FAIR DEBT COLLECTION PRACTICES ACT (FDCPA):
+  Debt collectors CANNOT call before 8am or after 9pm.
+  They CANNOT threaten you, lie about amounts, or pretend to be government agencies.
+  You can send a "cease and desist" letter and they must stop calling.
+
+EQUAL CREDIT OPPORTUNITY ACT (ECOA):
+  Lenders cannot deny credit based on race, gender, religion, or national origin.
+
+THE CFPB (Consumer Financial Protection Bureau):
+  A government agency created in 2010 specifically to protect you from financial companies.
+  You can file complaints at consumerfinance.gov. Companies respond because they have to.
+
+CHARGEBACK RIGHTS:
+  If you paid by credit card and don't receive what you paid for, you can dispute with your card issuer. Under the Fair Credit Billing Act, the card company investigates and can reverse the charge.`,
+        example: {
+          problem: 'A debt collector calls Jus\'s family at 7am and says "Pay now or we\'ll have you arrested." Is this legal?',
+          steps: [
+            '7am is before 8am — calls before 8am violate FDCPA',
+            'Threatening arrest for a debt is also illegal under FDCPA',
+            'Debt collectors cannot have you arrested for not paying a civil debt',
+            'This family can report the collector to the CFPB and sue for damages',
+          ],
+          answer: 'Illegal on two counts: wrong time and false threat of arrest. Report to CFPB.',
+        },
+        practice: {
+          problem: 'What does APR stand for, and why does it matter more than the interest rate alone?',
+          hint: 'The A stands for Annual. The P stands for Percentage. The R stands for Rate. And it includes ALL costs.',
+          answer: 'annual percentage rate',
+          acceptedAnswers: ['annual percentage rate', 'apr', 'annual percent rate', 'annual percentage rate because it includes all fees'],
+        },
+      },
+    ],
+    8: [
+      {
+        title: 'The Mortgage Trap: What You\'re Really Signing',
+        teach: `A mortgage is not just a loan. It is a contract that gives the bank the right to take your house if you don't pay. Here is what most people don't understand until they're in one.
+
+THE REAL COST OF A MORTGAGE:
+  $300,000 home loan at 7% for 30 years:
+  Monthly payment = $1,996
+  Total paid over 30 years = $718,560
+  Interest paid = $418,560 — more than the house cost.
+
+WHY YOUR FIRST PAYMENTS ARE MOSTLY INTEREST:
+  This is AMORTIZATION. On month 1 of a $300,000 mortgage at 7%:
+  Interest portion: $1,750 (7% ÷ 12 months × $300,000)
+  Principal portion: $246
+  You are paying $1,750 in interest and $246 off the actual loan.
+  It takes about 20 years before your payment is more principal than interest.
+
+KEY TERMS IN EVERY MORTGAGE:
+  APR — includes all fees (must be disclosed by law — Truth in Lending Act)
+  PMI — Private Mortgage Insurance: if you put less than 20% down, you pay to insure the BANK against your default. Monthly cost: 0.5–1.5% of loan value.
+  ACCELERATION CLAUSE — if you miss payments, the bank can demand the ENTIRE remaining balance at once.
+  ESCROW — bank holds extra money for property taxes and insurance (they don't trust you to pay on time).
+
+RIGHT OF RESCISSION (Truth in Lending Act):
+  You have 3 BUSINESS DAYS after signing a home loan to cancel it, no penalty.
+  This right exists. Most people don't know it. It saved many people who were tricked.
+
+FORECLOSURE: if you stop paying, the bank forecloses — takes the house, sells it, keeps the proceeds. You lose equity, credit score, and home. This process takes months to years but is devastating.`,
+        example: {
+          problem: 'On a $200,000 mortgage at 6% for 30 years, month 1: how much of the $1,199 payment goes to interest vs. principal?',
+          steps: [
+            'Monthly interest = 6% ÷ 12 = 0.5% per month',
+            '0.5% × $200,000 = $1,000 in interest',
+            'Principal paid = $1,199 − $1,000 = $199',
+            'Month 1: $1,000 to bank (interest), $199 off the loan',
+          ],
+          answer: '$1,000 to interest, $199 to principal. You barely dented the loan.',
+        },
+        practice: {
+          problem: 'What is the name of the clause in a mortgage that allows the bank to demand the full remaining balance if you miss payments?',
+          hint: 'It "accelerates" the repayment timeline.',
+          answer: 'acceleration clause',
+          acceptedAnswers: ['acceleration clause', 'the acceleration clause', 'due on sale clause', 'accelerator clause'],
+        },
+      },
+      {
+        title: 'Car Notes and Student Loans: The Traps in the Fine Print',
+        teach: `These are the two contracts most young adults sign first. Both can chain you financially for years if you don't understand them.
+
+CAR NOTE (AUTO LOAN):
+  You buy a $32,000 car at 7% APR for 60 months (5 years).
+  Monthly payment: $633/month.
+  Total paid: $37,980.
+  You paid $5,980 in interest — plus the car lost 40% of its value in 3 years (depreciation).
+
+THE REAL TRAP: BEING UPSIDE DOWN.
+  After 18 months, your car is worth $19,000. You still owe $24,000. You owe more than the car is worth. You cannot sell it without paying the difference out of pocket. This is called being "underwater" or "upside down" on a loan.
+
+GAP INSURANCE: if your car is totalled, your regular insurance pays current value ($19,000). You still owe $24,000. GAP insurance covers the $5,000 gap. Without it, you owe $5,000 on a car you no longer have.
+
+STUDENT LOANS:
+  Two types: SUBSIDIZED (government pays interest while you're in school) and UNSUBSIDIZED (interest accrues from day one).
+  CAPITALIZED INTEREST: unpaid interest gets added to your principal. A $20,000 loan at 6% with no payments for 4 years becomes ~$25,300 — and now you owe interest on $25,300.
+
+INCOME-DRIVEN REPAYMENT (IDR): federal student loan option that caps payments at 5–10% of your discretionary income. Remaining balance forgiven after 20–25 years.
+
+DEFAULT: miss payments for 270 days on federal student loans → default.
+  Consequences: credit destroyed, wages garnished (government takes directly from paycheck), tax refunds seized, ineligible for more federal aid.
+  There is no bankruptcy escape for student loans. This is by law (11 U.S.C. §523).
+
+HOW TO PROTECT YOURSELF:
+  1. Calculate the TOTAL COST before signing, not just the monthly payment.
+  2. Read the Truth in Lending disclosure — it is legally required and tells you the full cost.
+  3. Never borrow more than one year's expected starting salary for college.`,
+        example: {
+          problem: 'Sophia takes a $15,000 unsubsidized student loan at 6% but makes no payments during 4 years of college. What does she owe when she graduates?',
+          steps: [
+            'Interest accrues: 6% × $15,000 = $900/year',
+            '4 years × $900 = $3,600 in unpaid interest',
+            'Capitalized interest: $3,600 added to principal → new balance = $18,600',
+            'Now she pays 6% interest on $18,600, not the original $15,000',
+          ],
+          answer: '$18,600 at graduation. The interest on interest makes it grow further from there.',
+        },
+        practice: {
+          problem: 'When unpaid interest is added to the loan principal so you pay interest on interest, what is this process called?',
+          hint: 'Think of the word "capital" — the interest becomes part of the capital.',
+          answer: 'capitalization',
+          acceptedAnswers: ['capitalization', 'capitalized interest', 'interest capitalization', 'capitalizing interest'],
+        },
+      },
+    ],
+  },
   ai: {
     5: [
       {
@@ -775,6 +956,13 @@ export default function BasicsPage() {
   const [ttsLoading, setTtsLoading] = useState(false)
   const [ttsPlaying, setTtsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [showScratchpad, setShowScratchpad] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const drawingRef = useRef(false)
+  const lastRef = useRef<{x: number; y: number} | null>(null)
+  const [wordProblem, setWordProblem] = useState<{question: string; steps: {hint: string; solution: string}[]; answer: string} | null>(null)
+  const [showWordProblem, setShowWordProblem] = useState(false)
+  const [showWPAnswer, setShowWPAnswer] = useState(false)
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -805,6 +993,50 @@ export default function BasicsPage() {
     } finally {
       setTtsLoading(false)
     }
+  }
+
+  // Fetch daily word problem for math
+  useEffect(() => {
+    if (subject !== 'math') return
+    fetch(`${API_URL}/api/curriculum/word-problem?grade=${grade}`)
+      .then(r => r.json())
+      .then(d => { if (d.question) setWordProblem(d) })
+      .catch(() => {})
+  }, [subject, grade])
+
+  // Canvas scratch pad — draw on touch/mouse
+  function startDraw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    drawingRef.current = true
+    const rect = canvas.getBoundingClientRect()
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.nativeEvent.offsetX
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.nativeEvent.offsetY
+    lastRef.current = { x, y }
+  }
+  function draw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
+    if (!drawingRef.current) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx || !lastRef.current) return
+    const rect = canvas.getBoundingClientRect()
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.nativeEvent.offsetX
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.nativeEvent.offsetY
+    ctx.strokeStyle = '#f59e0b'
+    ctx.lineWidth = 2.5
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    ctx.moveTo(lastRef.current.x, lastRef.current.y)
+    ctx.lineTo(x, y)
+    ctx.stroke()
+    lastRef.current = { x, y }
+  }
+  function endDraw() { drawingRef.current = false; lastRef.current = null }
+  function clearCanvas() {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height)
   }
 
   // 20-minute countdown
@@ -1070,6 +1302,108 @@ export default function BasicsPage() {
               </div>
             </div>
           )}
+
+
+          {/* ── PHET SCIENCE SIMULATIONS ───────────────────── */}
+          {subject === 'science' && (() => {
+            const PHET_MAP: Record<string, {name: string; sim: string}> = {
+              'Ecosystems: Energy Flow and What Happens When It Breaks': { name: 'Food Web', sim: 'food-web' },
+              'The Scientific Method: How We Know What We Know': { name: 'Projectile Motion', sim: 'projectile-motion' },
+              'Cells: What the Evidence Actually Tells Us': { name: 'Natural Selection', sim: 'natural-selection' },
+              'Climate Science: Reading the Data': { name: 'Greenhouse Effect', sim: 'greenhouse-effect' },
+            }
+            const phet = PHET_MAP[lesson.title]
+            if (!phet) return null
+            return (
+              <div className="mt-6">
+                <a
+                  href={`https://phet.colorado.edu/sims/html/${phet.sim}/latest/${phet.sim}_en.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-green-950/50 border border-green-800/50 text-green-300 text-sm font-semibold hover:border-green-600 transition-all"
+                >
+                  <span>PhET Simulation — {phet.name}</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <p className="text-xs text-slate-500 mt-1.5 pl-1">Opens in a new tab · Interactive · Free · University of Colorado Boulder</p>
+              </div>
+            )
+          })()}
+
+          {/* ── DAILY WORD PROBLEM (math only) ─────────────── */}
+          {subject === 'math' && wordProblem && (
+            <div className="mt-6">
+              <button
+                onClick={() => { setShowWordProblem(v => !v); setShowWPAnswer(false) }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-blue-950/50 border border-blue-800/50 text-blue-300 text-sm font-semibold hover:border-blue-600 transition-all"
+              >
+                <span>Daily Challenge — Word Problem</span>
+                <ChevronRight className={`w-4 h-4 transition-transform ${showWordProblem ? 'rotate-90' : ''}`} />
+              </button>
+              {showWordProblem && (
+                <div className="mt-3 bg-slate-800/60 border border-slate-700 rounded-2xl p-5 space-y-4">
+                  <p className="text-slate-100 text-sm leading-relaxed">{wordProblem.question}</p>
+                  {wordProblem.steps.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-slate-500 uppercase tracking-wide">Step-by-step hints</p>
+                      {wordProblem.steps.map((s, i) => (
+                        <div key={i} className="text-xs text-slate-400 bg-slate-900/60 rounded-lg px-3 py-2">
+                          <span className="text-amber-400 font-semibold">{s.hint}</span>
+                          {showWPAnswer && <span className="text-slate-300 ml-2">→ {s.solution}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setShowWPAnswer(v => !v)}
+                    className="text-xs text-amber-400 underline"
+                  >
+                    {showWPAnswer ? `Hide answer (${wordProblem.answer})` : 'Reveal answer'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── SCRATCH PAD ─────────────────────────────────── */}
+          <div className="mt-6">
+            <button
+              onClick={() => setShowScratchpad(v => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-400 text-sm font-semibold hover:text-slate-300 hover:border-slate-500 transition-all"
+            >
+              <span>Scratch Paper — draw your working</span>
+              <div className="flex items-center gap-2">
+                {showScratchpad && (
+                  <button
+                    onClick={e => { e.stopPropagation(); clearCanvas() }}
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+                <ChevronRight className={`w-4 h-4 transition-transform ${showScratchpad ? 'rotate-90' : ''}`} />
+              </div>
+            </button>
+            {showScratchpad && (
+              <div className="mt-2 rounded-xl overflow-hidden border border-slate-700">
+                <canvas
+                  ref={canvasRef}
+                  width={600}
+                  height={280}
+                  className="w-full bg-slate-900 touch-none cursor-crosshair"
+                  style={{ maxHeight: '280px' }}
+                  onMouseDown={startDraw}
+                  onMouseMove={draw}
+                  onMouseUp={endDraw}
+                  onMouseLeave={endDraw}
+                  onTouchStart={startDraw}
+                  onTouchMove={draw}
+                  onTouchEnd={endDraw}
+                />
+              </div>
+            )}
+          </div>
+
         </div>
       </main>
     </div>
