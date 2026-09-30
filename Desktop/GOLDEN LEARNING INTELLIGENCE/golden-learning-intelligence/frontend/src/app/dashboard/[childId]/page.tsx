@@ -3,69 +3,104 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import {
-  Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale, Heart, Code2, Activity,
-  CheckCircle2, Clock, Crown, Swords, Users, Zap, ArrowRight, Puzzle, Globe,
-  Lightbulb, Music, Wrench, Brain, Landmark, TreePine, BarChart3,
-} from 'lucide-react'
+import { CheckCircle2, ArrowRight } from 'lucide-react'
 
 const CHILD_INFO: Record<string, { name: string; age: number; grade: number; initial: string }> = {
   jus: { name: 'Jus',  age: 11, grade: 5, initial: 'J' },
   uni: { name: 'Uni',  age: 13, grade: 8, initial: 'U' },
 }
 
-const CLASSMATES = [
-  { name: 'Marcus', bg: '#EF4444' },
-  { name: 'Sophia', bg: '#8B5CF6' },
-  { name: 'Chen',   bg: '#3B82F6' },
-  { name: 'Amara',  bg: '#10B981' },
-  { name: 'Raj',    bg: '#F59E0B' },
-  { name: 'Luna',   bg: '#EC4899' },
-]
+type SlotType = 'academic' | 'language' | 'wing' | 'harkness' | 'break' | 'quiz' | 'free'
 
-const ACADEMIC_BLOCKS = [
-  { id: 'math',    label: 'Mathematics',       icon: Calculator,   color: '#3B82F6', minutes: 20 },
-  { id: 'reading', label: 'Reading & Writing', icon: BookOpen,     color: '#F59E0B', minutes: 20 },
-  { id: 'science', label: 'Science',           icon: FlaskConical, color: '#10B981', minutes: 20 },
-  { id: 'ai',      label: 'AI Literacy',       icon: Cpu,          color: '#8B5CF6', minutes: 20 },
-  { id: 'finance', label: 'Finance',           icon: DollarSign,   color: '#059669', minutes: 20 },
-  { id: 'law',     label: 'Law & Rights',      icon: Scale,        color: '#475569', minutes: 20 },
-  { id: 'health',  label: 'Health & Body',     icon: Heart,        color: '#EF4444', minutes: 20 },
-]
+interface Slot {
+  time: string
+  label: string
+  sub?: string
+  color: string
+  path: (id: string) => string
+  type: SlotType
+  key?: string
+}
 
-const HARKNESS_SESSIONS = [
-  { id: 'numbers', title: 'Numbers Room',        desc: 'Math · Logic · Proof',           color: '#3B82F6' },
-  { id: 'library', title: 'The Library',         desc: 'Literature · Ideas',             color: '#F59E0B' },
-  { id: 'lab',     title: 'The Lab',             desc: 'Scientific Thinking',            color: '#10B981' },
-  { id: 'tok',     title: 'Theory of Knowledge', desc: 'How do we know what we know?',   color: '#EC4899' },
-  { id: 'opening', title: 'Open Forum',          desc: 'Philosophy · Debate',            color: '#8B5CF6' },
-  { id: 'ai',      title: 'AI & The Future',     desc: 'Machines · Minds · Ethics',      color: '#7C3AED' },
-  { id: 'money',   title: 'The Money Room',      desc: 'Finance · Wealth · Investing',   color: '#059669' },
-  { id: 'law',     title: 'The Court Room',      desc: 'Law · Rights · Justice',         color: '#475569' },
-  { id: 'econ',    title: 'The Market',          desc: 'Economics · Trade',              color: '#0EA5E9' },
-  { id: 'body',    title: 'The Body Lab',        desc: 'Anatomy · Nutrition · Sport',    color: '#EF4444' },
-  { id: 'phil',    title: 'The Agora',           desc: 'Ethics · Philosophy of Mind',    color: '#D97706' },
-]
-
-const SCHOOL_WINGS = [
-  { id: 'coding',    label: 'Coding Lab',        icon: Code2,     color: '#10B981', desc: 'Block code · AI tools · JS',          path: (id: string) => `/coding/${id}` },
-  { id: 'chess',     label: 'Chess League',      icon: Swords,    color: '#475569', desc: 'Strategy · Tactics',                  path: (id: string) => `/chess/${id}` },
-  { id: 'puzzles',   label: 'Puzzle Room',       icon: Puzzle,    color: '#8B5CF6', desc: '41 logic games',                      path: (id: string) => `/puzzles/${id}` },
-  { id: 'tennis',    label: 'Tennis Wing',       icon: Activity,  color: '#F59E0B', desc: 'Reaction · Tactics · 3D Court',       path: (id: string) => `/tennis/${id}` },
-  { id: 'philosophy',label: 'Philosophy',        icon: Lightbulb, color: '#D97706', desc: '76 lessons',                          path: (id: string) => `/basics/${id}/philosophy` },
-  { id: 'history',   label: 'World History',     icon: Globe,     color: '#0EA5E9', desc: '162 lessons',                         path: (id: string) => `/basics/${id}/history` },
-  { id: 'sociology', label: 'Society & Poverty', icon: Users,     color: '#EC4899', desc: '96 lessons',                         path: (id: string) => `/basics/${id}/sociology` },
-  { id: 'arduino',   label: 'Arduino / Making',  icon: Wrench,    color: '#EF4444', desc: 'Electronics · Circuits · Build',      path: (id: string) => `/basics/${id}/arduino` },
-  { id: 'deeplearn', label: 'Deep Learning',     icon: Brain,     color: '#7C3AED', desc: 'Neural nets · Machine learning',      path: (id: string) => `/basics/${id}/deeplearn` },
-  { id: 'arts',      label: 'Arts & Culture',    icon: Music,     color: '#DB2777', desc: 'Visual arts · Culture',               path: (id: string) => `/basics/${id}/arts` },
-  { id: 'library',   label: 'Learning Library',  icon: BookOpen,  color: '#3B82F6', desc: '35+ topics · auto-play',              path: (id: string) => `/learn/${id}` },
-  { id: 'political', label: 'Political Science', icon: Landmark,  color: '#1D4ED8', desc: 'Government & Power',                  path: (id: string) => `/basics/${id}/political` },
-  { id: 'languages',   label: 'Languages Wing',   icon: Globe,     color: '#0EA5E9', desc: 'French · Spanish · Mandarin · Latin', path: (id: string) => `/languages/${id}` },
-  { id: 'music',       label: 'Music Wing',       icon: Music,     color: '#8B5CF6', desc: 'Theory · History · Notation',         path: (id: string) => `/music/${id}` },
-  { id: 'brainlab',   label: 'Brain Lab',         icon: Zap,       color: '#F59E0B', desc: 'Reaction · Number flash · Math sprint', path: (id: string) => `/brain-lab/${id}` },
-  { id: 'testprep',   label: 'Test Prep',         icon: CheckCircle2, color: '#6366F1', desc: '20-min timed sessions · 8,500 problems', path: (id: string) => `/test-prep/${id}` },
-  { id: 'parentview', label: 'Parent Report',     icon: BarChart3, color: '#059669', desc: 'Daily progress · Mastery · Alerts',    path: (id: string) => `/parent/${id}` },
-]
+const WEEKLY_SCHEDULE: Record<number, Slot[]> = {
+  1: [ // Monday
+    { time: '10:00', label: 'Mathematics',       color: '#3B82F6', path: id => `/basics/${id}/math`,        type: 'academic',  key: 'math'       },
+    { time: '10:20', label: 'Languages',         color: '#0EA5E9', path: id => `/languages/${id}`,          type: 'language',  key: 'languages'  },
+    { time: '10:40', label: 'World History',     color: '#0EA5E9', path: id => `/basics/${id}/history`,     type: 'wing',      key: 'history'    },
+    { time: '11:00', label: 'Break',             color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '11:10', label: 'Science',           color: '#10B981', path: id => `/basics/${id}/science`,     type: 'academic',  key: 'science'    },
+    { time: '11:30', label: 'Music — Theory',    color: '#8B5CF6', path: id => `/music/${id}`,              type: 'wing',      key: 'music'      },
+    { time: '11:50', label: 'Critical Thinking', color: '#EC4899', path: id => `/session/${id}`,            type: 'harkness',  key: 'harkness'   },
+    { time: '12:10', label: 'Lunch',             color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '12:40', label: 'Chess League',      color: '#475569', path: id => `/chess/${id}`,              type: 'wing',      key: 'chess'      },
+    { time: '1:00',  label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'     },
+    { time: '1:20',  label: 'CA State Quiz',     color: '#6366F1', path: id => `/test-prep/${id}`,          type: 'quiz',      key: 'testprep'   },
+  ],
+  2: [ // Tuesday
+    { time: '10:00', label: 'Finance',              color: '#059669', path: id => `/basics/${id}/finance`,   type: 'academic',  key: 'finance'    },
+    { time: '10:20', label: 'Coding Lab',           color: '#10B981', path: id => `/coding/${id}`,           type: 'wing',      key: 'coding'     },
+    { time: '10:40', label: 'Languages',            color: '#0EA5E9', path: id => `/languages/${id}`,        type: 'language',  key: 'languages'  },
+    { time: '11:00', label: 'Break',                color: '#6B7280', path: _ => '',                         type: 'break'                        },
+    { time: '11:10', label: 'Philosophy',           color: '#D97706', path: id => `/basics/${id}/philosophy`,type: 'wing',      key: 'philosophy' },
+    { time: '11:30', label: 'Brain Lab',            color: '#F59E0B', path: id => `/brain-lab/${id}`,        type: 'wing',      key: 'brainlab'   },
+    { time: '11:50', label: 'Debate: Money & Power',color: '#EC4899', path: id => `/session/${id}`,           type: 'harkness',  key: 'harkness'   },
+    { time: '12:10', label: 'Lunch',                color: '#6B7280', path: _ => '',                         type: 'break'                        },
+    { time: '12:40', label: 'AI Literacy',          color: '#8B5CF6', path: id => `/basics/${id}/ai`,        type: 'academic',  key: 'ai'         },
+    { time: '1:00',  label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'     },
+    { time: '1:20',  label: 'CA State Quiz',        color: '#6366F1', path: id => `/test-prep/${id}`,        type: 'quiz',      key: 'testprep'   },
+  ],
+  3: [ // Wednesday
+    { time: '10:00', label: 'Reading & Writing', color: '#F59E0B', path: id => `/basics/${id}/reading`,     type: 'academic',  key: 'reading'    },
+    { time: '10:20', label: 'Music — History',   color: '#8B5CF6', path: id => `/music/${id}`,              type: 'wing',      key: 'music'      },
+    { time: '10:40', label: 'Languages',         color: '#0EA5E9', path: id => `/languages/${id}`,          type: 'language',  key: 'languages'  },
+    { time: '11:00', label: 'Break',             color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '11:10', label: 'Science',           color: '#10B981', path: id => `/basics/${id}/science`,     type: 'academic',  key: 'science'    },
+    { time: '11:30', label: 'Arts & Culture',    color: '#DB2777', path: id => `/basics/${id}/arts`,        type: 'wing',      key: 'arts'       },
+    { time: '11:50', label: 'Open Forum',        color: '#EC4899', path: id => `/session/${id}`,            type: 'harkness',  key: 'harkness'   },
+    { time: '12:10', label: 'Lunch',             color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '12:40', label: 'Mathematics',       color: '#3B82F6', path: id => `/basics/${id}/math`,        type: 'academic',  key: 'math'       },
+    { time: '1:00',  label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'     },
+    { time: '1:20',  label: 'CA State Quiz',     color: '#6366F1', path: id => `/test-prep/${id}`,          type: 'quiz',      key: 'testprep'   },
+  ],
+  4: [ // Thursday
+    { time: '10:00', label: 'Law & Rights',       color: '#475569', path: id => `/basics/${id}/law`,         type: 'academic',  key: 'law'        },
+    { time: '10:20', label: 'Languages',          color: '#0EA5E9', path: id => `/languages/${id}`,          type: 'language',  key: 'languages'  },
+    { time: '10:40', label: 'Arduino / Making',   color: '#EF4444', path: id => `/basics/${id}/arduino`,     type: 'wing',      key: 'arduino'    },
+    { time: '11:00', label: 'Break',              color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '11:10', label: 'Deep Learning & AI', color: '#7C3AED', path: id => `/basics/${id}/deeplearn`,   type: 'wing',      key: 'deeplearn'  },
+    { time: '11:30', label: 'Society & Poverty',  color: '#EC4899', path: id => `/basics/${id}/sociology`,   type: 'wing',      key: 'sociology'  },
+    { time: '11:50', label: 'AI & The Future',    color: '#EC4899', path: id => `/session/${id}`,             type: 'harkness',  key: 'harkness'   },
+    { time: '12:10', label: 'Lunch',              color: '#6B7280', path: _ => '',                           type: 'break'                        },
+    { time: '12:40', label: 'Health & Body',      color: '#EF4444', path: id => `/basics/${id}/health`,      type: 'academic',  key: 'health'     },
+    { time: '1:00',  label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'     },
+    { time: '1:20',  label: 'CA State Quiz',      color: '#6366F1', path: id => `/test-prep/${id}`,           type: 'quiz',      key: 'testprep'   },
+  ],
+  5: [ // Friday — Test & Review Day
+    { time: '10:00', label: 'Word & Concept Test',    color: '#6366F1', path: id => `/test-prep/${id}`,         type: 'quiz',      key: 'testprep'   },
+    { time: '10:20', label: 'Word & Concept Test',    color: '#6366F1', path: id => `/test-prep/${id}`,         type: 'quiz',      key: 'testprep2'  },
+    { time: '10:40', label: 'CA State Practice',      color: '#6366F1', path: id => `/test-prep/${id}`,         type: 'quiz',      key: 'capractice' },
+    { time: '11:00', label: 'Break',                  color: '#6B7280', path: _ => '',                          type: 'break'                        },
+    { time: '11:10', label: 'Review: Mathematics',    color: '#3B82F6', path: id => `/basics/${id}/math`,       type: 'academic',  key: 'math'       },
+    { time: '11:30', label: 'Review: Science',        color: '#10B981', path: id => `/basics/${id}/science`,    type: 'academic',  key: 'science'    },
+    { time: '11:50', label: 'Review: Reading',        color: '#F59E0B', path: id => `/basics/${id}/reading`,    type: 'academic',  key: 'reading'    },
+    { time: '12:10', label: 'Lunch',                  color: '#6B7280', path: _ => '',                          type: 'break'                        },
+    { time: '12:40', label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'     },
+    { time: '1:00',  label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free2'    },
+    { time: '1:20',  label: 'CA State Quiz',          color: '#6366F1', path: id => `/test-prep/${id}`,          type: 'quiz',      key: 'testprep3'  },
+  ],
+  6: [ // Saturday
+    { time: '10:00', label: 'Languages',         color: '#0EA5E9', path: id => `/languages/${id}`,           type: 'language',  key: 'languages'  },
+    { time: '10:20', label: 'Music — History',   color: '#8B5CF6', path: id => `/music/${id}`,               type: 'wing',      key: 'music'      },
+    { time: '10:40', label: 'Arts & Culture',    color: '#DB2777', path: id => `/basics/${id}/arts`,         type: 'wing',      key: 'arts'       },
+    { time: '11:00', label: 'Break',             color: '#6B7280', path: _ => '',                            type: 'break'                        },
+    { time: '11:10', label: 'Philosophy',        color: '#D97706', path: id => `/basics/${id}/philosophy`,   type: 'wing',      key: 'philosophy' },
+    { time: '11:30', label: 'Free Choice', sub: 'Pick your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free'    },
+    { time: '11:50', label: 'CA State Quiz',     color: '#6366F1', path: id => `/test-prep/${id}`,           type: 'quiz',      key: 'testprep'   },
+  ],
+  0: [ // Sunday
+    { time: '10:00', label: 'Free Choice', sub: 'Your day, your lesson', color: '#6B7280', path: id => `/learn/${id}`, type: 'free', key: 'free' },
+  ],
+}
 
 function todayKey(childId: string) {
   const d = new Date()
@@ -79,25 +114,57 @@ function greet(name: string) {
   return `Good evening, ${name}`
 }
 
+function parseTimeToMinutes(t: string): number {
+  const [hStr, mStr] = t.split(':')
+  let h = parseInt(hStr)
+  const m = parseInt(mStr)
+  if (h >= 1 && h <= 9) h += 12
+  return h * 60 + m
+}
+
 const cream   = '#F9F4EC'
 const navy    = '#1A3050'
 const navyMid = '#2A4A6B'
 const card    = '#FFFFFF'
 const border  = '#E8E0D4'
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const MONTHS    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+const TYPE_LABELS: Record<SlotType, string> = {
+  academic: 'Academic',
+  language: 'Language',
+  wing: 'Wing',
+  harkness: 'Discussion',
+  break: '',
+  quiz: 'Quiz',
+  free: 'Your choice',
+}
+
+const DAY_TITLE: Record<number, string> = {
+  0: 'Sunday — Free Day',
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Test & Review — Friday',
+  6: 'Saturday',
+}
+
 export default function DashboardPage() {
   const params = useParams()
   const childId = params.childId as string
   const child = CHILD_INFO[childId] || { name: 'Student', age: 12, grade: 6, initial: 'S' }
 
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   const now = new Date()
-  const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`
+  const dayOfWeek = now.getDay()
+  const dateStr = `${DAY_NAMES[dayOfWeek]}, ${MONTHS[now.getMonth()]} ${now.getDate()}`
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
 
-  const [progress, setProgress] = useState<Record<string, boolean>>(
-    Object.fromEntries(ACADEMIC_BLOCKS.map(b => [b.id, false]))
-  )
+  const todaySlots = WEEKLY_SCHEDULE[dayOfWeek] || WEEKLY_SCHEDULE[1]
+  const slotMinutes = todaySlots.map(s => parseTimeToMinutes(s.time))
+
+  const [progress, setProgress] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -107,15 +174,33 @@ export default function DashboardPage() {
     }
   }, [childId])
 
-  const completedCount = ACADEMIC_BLOCKS.filter(b => progress[b.id]).length
-  const allDone = completedCount === ACADEMIC_BLOCKS.length
-  const pct = Math.round((completedCount / ACADEMIC_BLOCKS.length) * 100)
-  const activeBlockId = ACADEMIC_BLOCKS.find(b => !progress[b.id])?.id || null
+  // Active slot by clock
+  let activeIdx = -1
+  for (let i = 0; i < slotMinutes.length; i++) {
+    const end = i < slotMinutes.length - 1 ? slotMinutes[i + 1] : slotMinutes[i] + 20
+    if (currentMinutes >= slotMinutes[i] && currentMinutes < end) {
+      activeIdx = i
+      break
+    }
+  }
+
+  const beforeSchool = currentMinutes < slotMinutes[0]
+  const lastEnd = slotMinutes[slotMinutes.length - 1] + 20
+  const afterSchool = currentMinutes >= lastEnd
+
+  const completable = todaySlots.filter(s => s.type !== 'break' && s.key)
+  const completedToday = completable.filter(s => s.key && progress[s.key]).length
+  const pct = completable.length ? Math.round((completedToday / completable.length) * 100) : 0
+
+  function slotDuration(i: number): number {
+    if (i >= slotMinutes.length - 1) return 20
+    return slotMinutes[i + 1] - slotMinutes[i]
+  }
 
   return (
     <div style={{ background: cream, height: '100vh', fontFamily: "'Nunito', sans-serif", color: navy, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-      {/* ── HEADER ─────────────────────────────────────────── */}
+      {/* HEADER */}
       <header style={{
         background: navy, color: '#fff', padding: '0 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -133,255 +218,142 @@ export default function DashboardPage() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-            {ACADEMIC_BLOCKS.map(b => (
-              <div key={b.id} style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: progress[b.id] ? '#4ADE80' : b.id === activeBlockId ? '#FCD34D' : 'rgba(255,255,255,0.2)',
-              }} />
-            ))}
-            <span style={{ fontSize: 11, opacity: 0.55, marginLeft: 4 }}>{completedCount}/{ACADEMIC_BLOCKS.length}</span>
-          </div>
+          <div style={{ fontSize: 11, opacity: 0.7, fontWeight: 700 }}>{completedToday}/{completable.length} done</div>
           <Link href="/" style={{ fontSize: 11, opacity: 0.45, color: '#fff', textDecoration: 'none' }}>sign out</Link>
         </div>
       </header>
 
-      {/* ── THREE EQUAL DEPARTMENTS + SIDEBAR ─────────────── */}
+      {/* DAY STRIP + PROGRESS BAR */}
       <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr 172px',
-        gap: 14,
-        padding: '14px',
-        overflow: 'hidden',
+        background: card, borderBottom: `1px solid ${border}`,
+        padding: '9px 20px', flexShrink: 0,
+        display: 'flex', alignItems: 'center', gap: 14,
       }}>
-
-        {/* ════════════════════════════════════
-            COLUMN 1 · ACADEMIC BLOCK
-        ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
-          {/* Column header */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
-            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
-            padding: '8px 12px',
-          }}>
-            <div style={{ width: 26, height: 26, borderRadius: 7, background: navy, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={13} color="#fff" />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>Academic Block</div>
-              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Complete in order · 20 min each</div>
-            </div>
-            {allDone && <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#10B981', fontSize: 10, fontWeight: 700 }}><CheckCircle2 size={12} />Done</div>}
-          </div>
-
-          {/* Subject list */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, overflowY: 'auto', flex: 1 }}>
-            {ACADEMIC_BLOCKS.map((block, i) => {
-              const Icon = block.icon
-              const done = progress[block.id]
-              const isNext = block.id === activeBlockId
-              return (
-                <Link key={block.id} href={`/basics/${childId}/${block.id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{
-                    background: done ? '#F0FDF4' : isNext ? '#FFFBEB' : card,
-                    border: `1.5px solid ${done ? '#86EFAC' : isNext ? '#FCD34D' : border}`,
-                    borderRadius: 12,
-                    padding: '10px 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    cursor: 'pointer',
-                    boxShadow: isNext ? '0 2px 8px rgba(251,191,36,0.18)' : 'none',
-                  }}>
-                    <div style={{
-                      width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                      background: done ? '#DCFCE7' : `${block.color}18`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {done ? <CheckCircle2 size={17} color="#16A34A" /> : <Icon size={17} color={block.color} />}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 13, color: done ? '#16A34A' : navy }}>{block.label}</div>
-                      <div style={{ fontSize: 10, opacity: 0.55, color: navyMid }}>
-                        {done ? 'Complete' : isNext ? '↑ Up next' : `${block.minutes} min`}
-                      </div>
-                    </div>
-                    <span style={{ fontSize: 10, opacity: 0.3, color: navyMid, flexShrink: 0 }}>{i + 1}</span>
-                    {!done && <ArrowRight size={13} color={isNext ? '#F59E0B' : navyMid} style={{ opacity: 0.5, flexShrink: 0 }} />}
-                  </div>
-                </Link>
-              )
-            })}
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>{DAY_TITLE[dayOfWeek]} · {MONTHS[now.getMonth()]} {now.getDate()}</div>
+          <div style={{ fontSize: 10, color: navyMid, opacity: 0.6 }}>
+            {beforeSchool ? 'School starts at 10:00' : afterSchool ? 'School day complete' : `${completedToday} of ${completable.length} subjects complete`}
           </div>
         </div>
-
-        {/* ════════════════════════════════════
-            COLUMN 2 · HARKNESS TABLE
-        ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
-          {/* Column header */}
+        <div style={{ flex: 1, height: 6, background: '#EDE9E0', borderRadius: 99, overflow: 'hidden' }}>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
-            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
-            padding: '8px 12px',
-          }}>
-            <div style={{ width: 26, height: 26, borderRadius: 7, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Crown size={13} color={navy} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>Harkness Table</div>
-              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Open — choose any room</div>
-            </div>
-          </div>
-
-          {/* Joint table */}
-          <Link href="/table" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{
-              background: '#FFFBEB', border: `1.5px solid #FCD34D`,
-              borderRadius: 12, padding: '10px 12px',
-              display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-            }}>
-              <div style={{ display: 'flex' }}>
-                {['J','U'].map((l, i) => (
-                  <div key={l} style={{
-                    width: 28, height: 28, borderRadius: '50%',
-                    background: i === 0 ? '#F59E0B' : '#3B82F6',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800, fontSize: 11, color: '#fff',
-                    border: '2px solid #FFFBEB',
-                    marginLeft: i > 0 ? -8 : 0,
-                  }}>{l}</div>
-                ))}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 12, color: '#92400E' }}>Joint Table</div>
-                <div style={{ fontSize: 10, color: '#A16207' }}>Jus + Uni + AI classmates</div>
-              </div>
-              <Users size={13} color="#F59E0B" />
-            </div>
-          </Link>
-
-          {/* Sessions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', flex: 1 }}>
-            {HARKNESS_SESSIONS.map(s => (
-              <Link key={s.id} href={`/session/${childId}/${s.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  background: card, border: `1.5px solid ${border}`,
-                  borderRadius: 11, padding: '8px 12px',
-                  display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer',
-                }}>
-                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 12, color: navy }}>{s.title}</div>
-                    <div style={{ fontSize: 10, color: navyMid, opacity: 0.55 }}>{s.desc}</div>
-                  </div>
-                  <Zap size={11} color={s.color} style={{ opacity: 0.65, flexShrink: 0 }} />
-                </div>
-              </Link>
-            ))}
-          </div>
+            height: '100%', borderRadius: 99, width: `${pct}%`,
+            background: pct === 100 ? '#10B981' : '#3B82F6',
+            transition: 'width 0.5s ease',
+          }} />
         </div>
-
-        {/* ════════════════════════════════════
-            COLUMN 3 · SCHOOL WINGS
-        ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
-          {/* Column header */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
-            background: card, border: `1.5px solid ${border}`, borderRadius: 12,
-            padding: '8px 12px',
-          }}>
-            <div style={{ width: 26, height: 26, borderRadius: 7, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <BookOpen size={13} color="#fff" />
-            </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 13, color: navy }}>School Wings</div>
-              <div style={{ fontSize: 10, color: navyMid, opacity: 0.65 }}>Labs · Clubs · Open subjects</div>
-            </div>
-          </div>
-
-          {/* Wings grid */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: 7, overflowY: 'auto', flex: 1, alignContent: 'start',
-          }}>
-            {SCHOOL_WINGS.map(wing => {
-              const Icon = wing.icon
-              return (
-                <Link key={wing.id} href={wing.path(childId)} style={{ textDecoration: 'none' }}>
-                  <div style={{
-                    background: card, border: `1.5px solid ${border}`,
-                    borderRadius: 11, padding: '9px 10px',
-                    cursor: 'pointer', height: '100%', boxSizing: 'border-box',
-                  }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: 8,
-                      background: `${wing.color}18`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      marginBottom: 6,
-                    }}>
-                      <Icon size={14} color={wing.color} />
-                    </div>
-                    <div style={{ fontWeight: 700, fontSize: 11, color: navy, lineHeight: 1.3 }}>{wing.label}</div>
-                    <div style={{ fontSize: 9.5, color: navyMid, opacity: 0.55, marginTop: 2, lineHeight: 1.3 }}>{wing.desc}</div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: pct === 100 ? '#10B981' : navyMid, opacity: 0.8, flexShrink: 0 }}>
+          {pct}%
         </div>
+      </div>
 
-        {/* ════════════════════════════════════
-            SIDEBAR · DATE / PROGRESS / MATES
-        ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+      {/* SCHEDULE TIMELINE */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 20px' }}>
+        <div style={{ maxWidth: 580, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
 
-          <div style={{ background: navy, borderRadius: 12, padding: '12px 14px', color: '#fff', flexShrink: 0 }}>
-            <div style={{ fontSize: 10, opacity: 0.55, marginBottom: 3 }}>Today</div>
-            <div style={{ fontWeight: 800, fontSize: 12 }}>{dateStr}</div>
-            <div style={{ fontSize: 10, opacity: 0.6, marginTop: 2 }}>Grade {child.grade}</div>
-          </div>
+          {todaySlots.map((slot, i) => {
+            const isActive = i === activeIdx
+            const isDone = !!(slot.key && progress[slot.key])
+            const isBreak = slot.type === 'break'
+            const dur = slotDuration(i)
+            const isPast = !isActive && !isBreak && currentMinutes > slotMinutes[i] + dur
 
-          <div style={{ background: card, border: `1.5px solid ${border}`, borderRadius: 12, padding: '11px 13px', flexShrink: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 11, color: navy, marginBottom: 7 }}>Today&apos;s Progress</div>
-            <div style={{ background: '#EDE9E0', borderRadius: 99, height: 7, overflow: 'hidden', marginBottom: 5 }}>
+            const cardBg   = isBreak ? '#F5F0E8' : isDone ? '#F0FDF4' : card
+            const cardBorderColor = isBreak ? border : isDone ? '#86EFAC' : isActive ? slot.color : border
+            const leftColor = isBreak ? '#DDD4C0' : slot.color
+            const rowOpacity = isPast && !isDone ? 0.4 : 1
+
+            const rowContent = (
               <div style={{
-                height: '100%', borderRadius: 99, width: `${pct}%`,
-                background: allDone ? '#10B981' : '#3B82F6',
-                transition: 'width 0.4s ease',
-              }} />
-            </div>
-            <div style={{ fontSize: 10, color: navyMid, opacity: 0.65, marginBottom: 7 }}>{completedCount}/{ACADEMIC_BLOCKS.length} subjects</div>
-            {ACADEMIC_BLOCKS.map(b => (
-              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                <div style={{ width: 5, height: 5, borderRadius: '50%', background: progress[b.id] ? '#10B981' : '#E2D9CE', flexShrink: 0 }} />
-                <span style={{ fontSize: 9.5, color: progress[b.id] ? '#16A34A' : navyMid, opacity: progress[b.id] ? 1 : 0.5 }}>{b.label}</span>
+                background: cardBg,
+                border: `1.5px solid ${cardBorderColor}`,
+                borderLeft: `4px solid ${leftColor}`,
+                borderRadius: 10,
+                padding: isBreak ? '7px 14px 7px 12px' : '11px 14px 11px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                opacity: rowOpacity,
+                boxShadow: isActive ? '0 0 0 2px #F59E0B40, 0 2px 10px rgba(0,0,0,0.07)' : 'none',
+                cursor: isBreak ? 'default' : 'pointer',
+                transition: 'box-shadow 0.2s, border-color 0.2s',
+              }}>
+
+                {/* Time */}
+                <div style={{ width: 46, flexShrink: 0, textAlign: 'right' }}>
+                  <span style={{
+                    fontSize: isBreak ? 10 : 12,
+                    fontWeight: 700,
+                    color: isBreak ? navyMid : navy,
+                    opacity: isBreak ? 0.5 : 0.8,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}>{slot.time}</span>
+                </div>
+
+                {/* Subject name */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontWeight: isBreak ? 600 : 800,
+                    fontSize: isBreak ? 12 : 14,
+                    color: isBreak ? navyMid : isDone ? '#16A34A' : navy,
+                    opacity: isBreak ? 0.55 : 1,
+                    lineHeight: 1.2,
+                  }}>
+                    {slot.label}{slot.sub ? ` — ${slot.sub}` : ''}
+                  </div>
+                  {!isBreak && (
+                    <div style={{ fontSize: 10, color: navyMid, opacity: 0.5, marginTop: 2 }}>
+                      {isDone ? 'Complete ✓' : isActive ? '▸ Now' : TYPE_LABELS[slot.type]}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: duration or check */}
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {isDone ? (
+                    <CheckCircle2 size={17} color="#16A34A" />
+                  ) : isActive ? (
+                    <ArrowRight size={15} color={slot.color} />
+                  ) : !isBreak ? (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, color: navyMid, opacity: 0.45,
+                      background: '#EDE9E0', borderRadius: 6, padding: '2px 8px',
+                    }}>{dur} min</span>
+                  ) : null}
+                </div>
               </div>
-            ))}
-          </div>
+            )
 
-          <div style={{ background: card, border: `1.5px solid ${border}`, borderRadius: 12, padding: '11px 13px', flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 11, color: navy, marginBottom: 9 }}>Classmates</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {CLASSMATES.map(c => (
-                <div key={c.name} style={{
-                  width: 30, height: 30, borderRadius: '50%', background: c.bg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 800, fontSize: 11, color: '#fff',
-                  border: `2px solid ${cream}`,
-                }}>{c.name[0]}</div>
-              ))}
-            </div>
-            <div style={{ marginTop: 8, fontSize: 9.5, color: navyMid, opacity: 0.55, lineHeight: 1.6 }}>
-              {CLASSMATES.map(c => c.name).join(' · ')}
-            </div>
-          </div>
+            if (isBreak) {
+              return <div key={i}>{rowContent}</div>
+            }
+            return (
+              <Link key={i} href={slot.path(childId)} style={{ textDecoration: 'none', display: 'block' }}>
+                {rowContent}
+              </Link>
+            )
+          })}
 
+          {afterSchool && (
+            <div style={{
+              marginTop: 12, textAlign: 'center', padding: '16px 20px',
+              background: '#F0FDF4', border: '1.5px solid #86EFAC',
+              borderRadius: 12, color: '#16A34A', fontWeight: 800, fontSize: 14,
+            }}>
+              School day complete · {completedToday} of {completable.length} subjects done
+            </div>
+          )}
+
+          {beforeSchool && (
+            <div style={{
+              marginTop: 4, textAlign: 'center', padding: '10px 20px',
+              background: '#FFFBEB', border: '1.5px solid #FCD34D',
+              borderRadius: 10, color: '#92400E', fontWeight: 700, fontSize: 12, opacity: 0.8,
+            }}>
+              School starts at 10:00 — first up: {todaySlots.find(s => s.type !== 'break')?.label}
+            </div>
+          )}
         </div>
-
       </div>
     </div>
   )

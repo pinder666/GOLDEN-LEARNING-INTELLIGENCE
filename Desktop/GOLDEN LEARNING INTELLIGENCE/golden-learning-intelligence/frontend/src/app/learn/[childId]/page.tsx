@@ -1,175 +1,113 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, Play, Search } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4500'
-
-interface Topic {
-  id: string
-  title: string
-  description: string
+const CHILD_INFO: Record<string, { name: string; grade: number; initial: string }> = {
+  jus: { name: 'Jus', grade: 5, initial: 'J' },
+  uni: { name: 'Uni', grade: 8, initial: 'U' },
 }
 
-const CHILD_INFO: Record<string, { name: string; grade: number }> = {
-  jus: { name: 'Jus', grade: 5 },
-  uni: { name: 'Uni', grade: 8 },
-}
+const CATALOG = [
+  { label: 'Mathematics',       desc: 'Algebra · Numbers · Problem solving',       color: '#3B82F6', path: (id: string) => `/basics/${id}/math`        },
+  { label: 'Reading & Writing', desc: 'Essays · Literature · Composition',          color: '#F59E0B', path: (id: string) => `/basics/${id}/reading`     },
+  { label: 'Science',           desc: 'Biology · Physics · The natural world',      color: '#10B981', path: (id: string) => `/basics/${id}/science`     },
+  { label: 'Finance',           desc: 'Money · Investing · How markets work',       color: '#059669', path: (id: string) => `/basics/${id}/finance`     },
+  { label: 'Law & Rights',      desc: 'Justice · Courts · How laws are made',       color: '#475569', path: (id: string) => `/basics/${id}/law`         },
+  { label: 'AI Literacy',       desc: 'Machines · Neural nets · The future',        color: '#8B5CF6', path: (id: string) => `/basics/${id}/ai`          },
+  { label: 'Health & Body',     desc: 'Anatomy · Nutrition · Movement',             color: '#EF4444', path: (id: string) => `/basics/${id}/health`      },
+  { label: 'Languages',         desc: 'French · Spanish · German · Mandarin · Latin · Japanese', color: '#0EA5E9', path: (id: string) => `/languages/${id}` },
+  { label: 'Music',             desc: 'Theory · History · Notation · Ear training', color: '#8B5CF6', path: (id: string) => `/music/${id}`             },
+  { label: 'Chess League',      desc: 'Strategy · Tactics · Pattern recognition',   color: '#475569', path: (id: string) => `/chess/${id}`             },
+  { label: 'Coding Lab',        desc: 'Block code · JavaScript · AI tools',         color: '#10B981', path: (id: string) => `/coding/${id}`            },
+  { label: 'Brain Lab',         desc: 'Reaction speed · Number memory · Math sprint', color: '#F59E0B', path: (id: string) => `/brain-lab/${id}`      },
+  { label: 'Tennis Wing',       desc: 'Reaction · Tactics · 3D court',              color: '#F59E0B', path: (id: string) => `/tennis/${id}`            },
+  { label: 'Puzzle Room',       desc: '41 logic games',                             color: '#8B5CF6', path: (id: string) => `/puzzles/${id}`           },
+  { label: 'World History',     desc: '162 lessons across civilisations',           color: '#0EA5E9', path: (id: string) => `/basics/${id}/history`    },
+  { label: 'Philosophy',        desc: 'Ethics · Epistemology · Great thinkers',     color: '#D97706', path: (id: string) => `/basics/${id}/philosophy` },
+  { label: 'Society & Poverty', desc: 'Sociology · Power · Inequality',             color: '#EC4899', path: (id: string) => `/basics/${id}/sociology`  },
+  { label: 'Arts & Culture',    desc: 'Visual arts · Architecture · Culture',       color: '#DB2777', path: (id: string) => `/basics/${id}/arts`       },
+  { label: 'Political Science', desc: 'Government · Power · How countries work',    color: '#1D4ED8', path: (id: string) => `/basics/${id}/political`  },
+  { label: 'Arduino / Making',  desc: 'Electronics · Circuits · Build things',      color: '#EF4444', path: (id: string) => `/basics/${id}/arduino`    },
+  { label: 'Deep Learning',     desc: 'Neural networks · Machine learning',         color: '#7C3AED', path: (id: string) => `/basics/${id}/deeplearn`  },
+  { label: 'CA State Quiz',     desc: '20 minutes · 8,500 real problems',           color: '#6366F1', path: (id: string) => `/test-prep/${id}`         },
+]
 
-// Grade-appropriate topic recommendations
-const GRADE_RECOMMENDATIONS: Record<number, string[]> = {
-  5: ['divisibility', 'probability', 'polygons', 'statistics', 'basic-probability', 'shapes'],
-  6: ['sequences', 'divisibility', 'probability', 'statistics', 'triangles'],
-  7: ['triangles', 'circles', 'transformations', 'probability', 'statistics'],
-  8: ['functions', 'quadratics', 'linear-functions', 'circles', 'euclidean-geometry', 'graph-theory'],
-}
+const cream  = '#F9F4EC'
+const navy   = '#1A3050'
+const navyMid = '#2A4A6B'
+const card   = '#FFFFFF'
+const border = '#E8E0D4'
 
-export default function TopicBrowserPage() {
+export default function LearnPage() {
   const params = useParams()
+  const router = useRouter()
   const childId = params.childId as string
-  const child = CHILD_INFO[childId] || { name: 'Student', grade: 5 }
-
-  const [topics, setTopics] = useState<Topic[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [search, setSearch] = useState('')
-
-  useEffect(() => {
-    async function loadTopics() {
-      try {
-        const res = await fetch(`${API_URL}/api/curriculum/topics`)
-        if (!res.ok) throw new Error('Failed to load topics')
-        const data = await res.json()
-        setTopics(data.topics)
-      } catch (e) {
-        setError('Could not load topics. Make sure backend is running on port 4500.')
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadTopics()
-  }, [])
-
-  const recommendations = GRADE_RECOMMENDATIONS[child.grade] || []
-  const recommendedTopics = topics.filter(t => recommendations.includes(t.id))
-  const otherTopics = topics.filter(t => !recommendations.includes(t.id))
-
-  const filteredRecommended = recommendedTopics.filter(t =>
-    t.title.toLowerCase().includes(search.toLowerCase()) ||
-    t.description.toLowerCase().includes(search.toLowerCase())
-  )
-
-  const filteredOther = otherTopics.filter(t =>
-    t.title.toLowerCase().includes(search.toLowerCase()) ||
-    t.description.toLowerCase().includes(search.toLowerCase())
-  )
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading curriculum...</div>
-      </div>
-    )
-  }
+  const child = CHILD_INFO[childId] || { name: 'Student', grade: 5, initial: 'S' }
 
   return (
-    <div className="min-h-screen bg-black p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href={`/dashboard/${childId}`} className="flex items-center gap-2 text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back</span>
-          </Link>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Learning Library</h1>
-            <p className="text-gray-400">Grade {child.grade} · {topics.length} topics available</p>
-          </div>
-          <div className="w-20" />
+    <div style={{ background: cream, minHeight: '100vh', fontFamily: "'Nunito', sans-serif", color: navy, display: 'flex', flexDirection: 'column' }}>
+
+      {/* Header */}
+      <header style={{
+        background: navy, color: '#fff', padding: '0 20px',
+        display: 'flex', alignItems: 'center', gap: 14,
+        height: '58px', flexShrink: 0,
+      }}>
+        <button
+          onClick={() => router.push(`/dashboard/${childId}`)}
+          style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.6, padding: 0, display: 'flex', alignItems: 'center' }}
+        >
+          <ArrowLeft size={18} />
+        </button>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 15 }}>Free Choice</div>
+          <div style={{ fontSize: 11, opacity: 0.6 }}>What do you want to learn today?</div>
         </div>
+      </header>
 
-        {error && (
-          <div className="bg-red-900/50 border border-red-700 rounded-xl p-4 mb-6 text-red-300">
-            {error}
-          </div>
-        )}
-
-        {/* Search */}
-        <div className="relative mb-8">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search topics..."
-            className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500"
-          />
-        </div>
-
-        {/* Recommended for Grade */}
-        {filteredRecommended.length > 0 && (
-          <>
-            <h2 className="text-lg font-bold text-yellow-400 mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 bg-yellow-400 rounded-full" />
-              Recommended for Grade {child.grade}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {filteredRecommended.map(topic => (
-                <TopicCard key={topic.id} topic={topic} childId={childId} recommended />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* All Topics */}
-        <h2 className="text-lg font-bold text-gray-400 mb-4">All Topics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredOther.map(topic => (
-            <TopicCard key={topic.id} topic={topic} childId={childId} />
+      {/* Grid */}
+      <div style={{ flex: 1, padding: '16px 20px 24px', overflowY: 'auto' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: 12,
+          maxWidth: 900,
+          margin: '0 auto',
+        }}>
+          {CATALOG.map(item => (
+            <Link key={item.label} href={item.path(childId)} style={{ textDecoration: 'none' }}>
+              <div style={{
+                background: card,
+                border: `1.5px solid ${border}`,
+                borderLeft: `4px solid ${item.color}`,
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                height: '100%',
+                boxSizing: 'border-box',
+                transition: 'box-shadow 0.15s',
+              }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 9,
+                  background: `${item.color}18`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 10,
+                }}>
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: item.color }} />
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 13, color: navy, lineHeight: 1.3, marginBottom: 4 }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: 10.5, color: navyMid, opacity: 0.6, lineHeight: 1.4 }}>
+                  {item.desc}
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
-
-        {filteredRecommended.length === 0 && filteredOther.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No topics found matching "{search}"
-          </div>
-        )}
       </div>
     </div>
-  )
-}
-
-function TopicCard({ topic, childId, recommended }: { topic: Topic; childId: string; recommended?: boolean }) {
-  return (
-    <Link href={`/learn/${childId}/${topic.id}`}>
-      <div className={`
-        rounded-xl p-5 transition-all cursor-pointer
-        ${recommended
-          ? 'bg-gradient-to-br from-yellow-900/30 to-amber-900/30 border border-yellow-700/50 hover:border-yellow-500'
-          : 'bg-gray-900 border border-gray-800 hover:border-gray-600'
-        }
-      `}>
-        <div className="flex items-start gap-4">
-          <div className={`
-            w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0
-            ${recommended ? 'bg-yellow-500/20' : 'bg-gray-800'}
-          `}>
-            <BookOpen className={`w-6 h-6 ${recommended ? 'text-yellow-400' : 'text-gray-400'}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-white mb-1">{topic.title}</h3>
-            <p className="text-sm text-gray-400 line-clamp-2">{topic.description || 'Explore this topic'}</p>
-          </div>
-          <div className={`
-            w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-            ${recommended ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-white'}
-          `}>
-            <Play className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-    </Link>
   )
 }
