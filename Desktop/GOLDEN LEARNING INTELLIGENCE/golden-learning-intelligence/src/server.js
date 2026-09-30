@@ -1525,6 +1525,53 @@ app.get('/api/curriculum/nasa-mars', async (req, res) => {
   }
 });
 
+// ── LANGUAGE WING ────────────────────────────────────────────────────────────
+
+app.post('/api/language/vocab', async (req, res) => {
+  const { language, level, count = 10 } = req.body;
+  const prompt = `You are a language teacher for a ${level} level student learning ${language}. Generate ${count} vocabulary words appropriate for ${level} level. Return ONLY valid JSON with no markdown: {"words": [{"word": "...", "pronunciation": "...", "translation": "...", "example": "..."}]}`;
+  try {
+    const response = await callClaude(prompt, [], ANTHROPIC_API_KEY);
+    const json = JSON.parse(response.match(/\{[\s\S]*\}/)?.[0] || '{"words":[]}');
+    res.json(json);
+  } catch (e) { res.status(500).json({ words: [], error: e.message }); }
+});
+
+app.post('/api/language/grammar', async (req, res) => {
+  const { language, level, topic } = req.body;
+  const prompt = `You are a language teacher. Explain the grammar concept "${topic}" in ${language} for a ${level} level student. Keep it clear and give 3 examples with translations. Return ONLY valid JSON: {"explanation": "...", "examples": [{"${language}": "...", "english": "..."}], "tip": "..."}`;
+  try {
+    const response = await callClaude(prompt, [], ANTHROPIC_API_KEY);
+    const json = JSON.parse(response.match(/\{[\s\S]*\}/)?.[0] || '{"explanation":"","examples":[],"tip":""}');
+    res.json(json);
+  } catch (e) { res.status(500).json({ explanation: '', examples: [], tip: '', error: e.message }); }
+});
+
+app.post('/api/language/chat', async (req, res) => {
+  const { language, userMessage, history = [], level } = req.body;
+  const systemPrompt = `You are a warm, encouraging ${language} language tutor for a ${level} level student (age 11-14). ALWAYS respond in ${language} first, then the English translation in parentheses on a new line. Correct mistakes gently and teach one new thing per exchange. Keep responses to 2-3 sentences.`;
+  const messages = [
+    ...history.slice(-6).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
+    { role: 'user', content: userMessage }
+  ];
+  try {
+    const response = await callClaude(systemPrompt, messages, ANTHROPIC_API_KEY);
+    res.json({ reply: response, language });
+  } catch (e) { res.status(500).json({ reply: 'Connection error', error: e.message }); }
+});
+
+// ── MUSIC WING ────────────────────────────────────────────────────────────────
+
+app.post('/api/music/lesson', async (req, res) => {
+  const { topic, childName, grade } = req.body;
+  const systemPrompt = `You are a serious music theory teacher at the level of Eton or the Royal Academy. Teach ${childName} (Grade ${grade}) the concept: "${topic}". Be precise, use proper terminology, and include an ABC notation example where relevant. Return ONLY valid JSON: {"title":"...","explanation":"...","abc":"...","exercises":["...","...","..."],"historyNote":"..."}`;
+  try {
+    const response = await callClaude(systemPrompt, [], ANTHROPIC_API_KEY);
+    const json = JSON.parse(response.match(/\{[\s\S]*\}/)?.[0] || '{"title":"","explanation":"","abc":"","exercises":[],"historyNote":""}');
+    res.json(json);
+  } catch (e) { res.status(500).json({ title: topic, explanation: 'Connection error', abc: '', exercises: [], historyNote: '', error: e.message }); }
+});
+
 const PORT = process.env.PORT || 4500;
 app.listen(PORT, () => {
   console.log(`
