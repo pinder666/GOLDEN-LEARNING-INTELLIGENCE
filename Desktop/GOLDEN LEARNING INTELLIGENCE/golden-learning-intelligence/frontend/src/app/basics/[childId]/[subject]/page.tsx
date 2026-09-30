@@ -489,6 +489,79 @@ The hardest part: accepting data that proves your hypothesis wrong. That's not f
           acceptedAnswers: ['one', 'one variable', 'only one', 'they changed two variables', 'you should only change one variable'],
         },
       },
+      {
+        title: 'Forces, Motion, and Newton\'s Three Laws',
+        teach: `Everything that moves — or doesn't move — is explained by THREE laws Newton figured out in 1687. They still work perfectly for anything you can see or touch.
+
+LAW 1 — INERTIA: An object at rest stays at rest. An object in motion stays in motion at the same speed and direction — UNLESS an outside force acts on it.
+  Why does a car skid on ice? Less friction = less outside force = the car keeps going its original direction.
+  Why do you lurch forward when a bus stops? Your body wants to keep moving forward while the bus stops under you.
+
+LAW 2 — FORCE: Force = Mass × Acceleration (F = ma)
+  More force → more acceleration.
+  More mass → less acceleration from the same force.
+  A bowling ball and a ping pong ball thrown with the same force have very different speeds.
+
+LAW 3 — ACTION/REACTION: Every action has an equal and opposite reaction.
+  A rocket pushes gas downward → gas pushes the rocket upward.
+  You push the ground with your feet → the ground pushes you forward.
+
+These three laws describe planets, cars, sports, and everyday life equally. Newton didn't know about atoms or quantum physics — but his laws work for everything at human scale.`,
+        example: {
+          problem: 'A 1,000kg car and a 100kg motorcycle have the same engine applying 10,000 N of force. Which accelerates faster? How much faster?',
+          steps: [
+            'F = ma → a = F/m',
+            'Car: a = 10,000 / 1,000 = 10 m/s²',
+            'Motorcycle: a = 10,000 / 100 = 100 m/s²',
+            'The motorcycle accelerates 10x faster — same force, 10x less mass',
+          ],
+          answer: 'The motorcycle: 100 m/s² vs 10 m/s². 10 times faster because it has 10 times less mass.',
+        },
+        practice: {
+          problem: 'A rocket launches by burning fuel and pushing exhaust gases downward. According to Newton\'s Third Law, what happens to the rocket?',
+          hint: 'Every action (gases pushed down) has an equal and opposite reaction.',
+          answer: 'the rocket is pushed upward',
+          acceptedAnswers: ['the rocket is pushed upward', 'rocket goes up', 'it goes up', 'it launches up', 'it accelerates upward'],
+        },
+      },
+      {
+        title: 'Chemistry: Atoms, Elements, and the Periodic Table',
+        teach: `Everything — your body, the air, this screen — is made of atoms. Understanding atoms is understanding the universe's building blocks.
+
+ATOM:
+— Protons (+ charge) and neutrons in the NUCLEUS (centre)
+— Electrons (- charge) orbiting in shells around the nucleus
+— The number of protons = the ATOMIC NUMBER = which element it is
+  1 proton = Hydrogen. 6 protons = Carbon. 79 protons = Gold.
+
+THE PERIODIC TABLE:
+— Organizes all 118 known elements by atomic number
+— Elements in the same COLUMN (group) have similar properties because they have the same number of electrons in their outer shell
+— Outer shell electrons are what determine chemistry — they're what bonds form with
+
+CHEMICAL BONDS:
+— COVALENT: atoms share electrons (water H₂O — oxygen and hydrogen share electrons)
+— IONIC: one atom gives electrons to another (table salt NaCl — sodium gives an electron to chlorine, creating + and - charges that attract)
+
+WHY IT MATTERS:
+Your entire biology is chemistry. DNA is a molecule. Proteins are molecules. Every thought is electrochemical signals made of atoms. Understanding atoms = understanding life.`,
+        example: {
+          problem: 'Carbon has 6 protons. Nitrogen has 7. Silicon has 14. What do these numbers tell you?',
+          steps: [
+            'The number of protons = the atomic number = which element it is',
+            'Carbon: 6 protons → atomic number 6 → it IS carbon, always',
+            'Nitrogen: 7 protons → any atom with 7 protons is nitrogen — no exceptions',
+            'This is why nuclear reactions can transmute elements: change the proton count, change the element',
+          ],
+          answer: 'Each element is defined by its proton count. Carbon always has 6, nitrogen always 7, silicon always 14.',
+        },
+        practice: {
+          problem: 'What subatomic particle determines which element an atom is?',
+          hint: 'It\'s in the nucleus. It has a positive charge.',
+          answer: 'proton',
+          acceptedAnswers: ['proton', 'protons', 'the proton', 'number of protons'],
+        },
+      },
     ],
     8: [
       {
@@ -558,6 +631,81 @@ Critical thinkers separate: what the data shows vs what policy to adopt.`,
           acceptedAnswers: ['cherry picking', 'cherry-picking', 'cherry pick', 'cherry-pick', 'confirmation bias', 'selective evidence'],
         },
       },
+      {
+        title: 'Genetics: DNA, Inheritance, and Why You Are You',
+        teach: `You are made of approximately 37 trillion cells. In almost every cell's nucleus is a complete copy of your genome — 3 billion base pairs of DNA, organized into 23 pairs of chromosomes.
+
+DNA STRUCTURE:
+— Double helix: two strands wrapped around each other
+— Made of four bases: A (adenine), T (thymine), G (guanine), C (cytosine)
+— A always pairs with T. G always pairs with C.
+— The sequence of these bases is the code — instructions for building proteins
+
+THE GENE:
+A gene is a stretch of DNA that codes for a protein. Humans have ~20,000 genes. Proteins do everything: build your body, carry oxygen (hemoglobin), defend against viruses (antibodies), control metabolism.
+
+INHERITANCE (Mendel's laws):
+— You inherit ONE chromosome from each parent for each pair
+— DOMINANT allele: one copy is enough to express the trait
+— RECESSIVE allele: need two copies to express it
+— If you have one dominant and one recessive: you're a CARRIER — you don't show the trait but can pass it on
+
+MUTATION:
+A change in the DNA sequence. Most are silent or neutral. Some are harmful. A few are beneficial — these are the raw material of evolution. Cancer is caused by mutations in genes controlling cell division.`,
+        example: {
+          problem: 'Brown eyes (B) is dominant over blue eyes (b). One parent has genotype Bb. The other has genotype bb. What fraction of children will have blue eyes?',
+          steps: [
+            'Cross Bb × bb: possible children are Bb, Bb, bb, bb',
+            'bb genotype = blue eyes (recessive, two copies needed)',
+            '2 out of 4 children have genotype bb = 50% chance of blue eyes',
+          ],
+          answer: '50% of children will have blue eyes (bb genotype).',
+        },
+        practice: {
+          problem: 'In genetics, what do you call someone who has one recessive allele and can pass a trait to offspring without showing it themselves?',
+          hint: 'They "carry" the gene but don\'t express it.',
+          answer: 'carrier',
+          acceptedAnswers: ['carrier', 'a carrier', 'genetic carrier'],
+        },
+      },
+      {
+        title: 'Physics: Energy, Thermodynamics, and Why Perpetual Motion Is Impossible',
+        teach: `Energy cannot be created or destroyed — only converted from one form to another. This is the First Law of Thermodynamics. It sounds simple. The implications are enormous.
+
+FORMS OF ENERGY:
+— Kinetic (motion), Potential (stored/position), Thermal (heat), Chemical (food/fuel), Electrical, Nuclear
+— All are the same thing in different forms. They convert between each other.
+  Burning food: chemical → thermal + kinetic (muscle movement)
+  Hydroelectric dam: potential (water height) → kinetic (falling) → electrical
+
+THE SECOND LAW — ENTROPY:
+Every energy conversion wastes some energy as low-quality heat. The universe tends toward disorder.
+
+WHY PERPETUAL MOTION IS IMPOSSIBLE:
+Every machine loses energy to heat through friction and other losses. To run forever, it would need to create energy from nothing — violating the First Law. Every perpetual motion claim in history has been fraud or error. The laws of thermodynamics have zero known exceptions.
+
+EFFICIENCY:
+Car engine: ~25% (75% is waste heat)
+Electric motor: ~90%
+Human body: ~25% at converting food to mechanical work
+The efficiency gap drives all energy research — waste heat is wasted money.`,
+        example: {
+          problem: 'A phone battery stores chemical energy. Trace the energy conversions when you play a video.',
+          steps: [
+            'Chemical energy in battery → electrical energy (discharge)',
+            'Electrical → light (screen pixels emit photons)',
+            'Electrical → kinetic energy (vibrating speaker = sound)',
+            'Some electrical → heat (lost as inefficiency — phone warms up)',
+          ],
+          answer: 'Chemical → Electrical → Light + Sound + Heat. Energy is lost as heat at every step (entropy).',
+        },
+        practice: {
+          problem: 'What law of thermodynamics states that energy cannot be created or destroyed, only converted from one form to another?',
+          hint: 'It\'s the FIRST law.',
+          answer: 'first law of thermodynamics',
+          acceptedAnswers: ['first law of thermodynamics', 'the first law', 'first law', 'law of conservation of energy'],
+        },
+      },
     ],
   },
   finance: {
@@ -617,6 +765,86 @@ The three-bucket system: for every $10 you earn, put $3 in savings, $1 in giving
           hint: 'Can you safely live without it?',
           answer: 'need',
           acceptedAnswers: ['need', 'a need', 'needs'],
+        },
+      },
+      {
+        title: 'Entrepreneurship: How Businesses Are Born',
+        teach: `A business doesn't start with money. It starts with seeing a PROBLEM and figuring out how to solve it in a way people will pay for.
+
+The formula:
+PROBLEM → SOLUTION → VALUE → BUSINESS
+
+Examples:
+— Travis Kalanick couldn't get a taxi in Paris in 2008. That was the seed of Uber.
+— Sara Blakely cut the feet off her pantyhose to wear under white trousers. That was the seed of Spanx (a billion-dollar company).
+— A 12-year-old sells cookies on Saturdays in a neighborhood where nobody offers fresh baked goods → small business.
+
+THREE TYPES OF BUSINESS:
+1. SERVICE: You sell your time and skill (lawn mowing, tutoring, design)
+2. PRODUCT: You make or buy something and sell it for more than you paid (handmade jewelry, reselling sneakers)
+3. DIGITAL: You create once and sell many times (app, course, ebook)
+
+PROFIT = Revenue − Costs
+Revenue: all money that comes IN
+Costs: all money that goes OUT (materials, tools, advertising, your time)
+If revenue > costs = profit. If costs > revenue = loss.
+
+The most common mistake: forgetting to count your OWN TIME as a cost. If it takes 2 hours to make something you sell for $5, and you could earn $10/hour doing something else, you're actually losing money.`,
+        example: {
+          problem: 'Jus makes bracelets. Materials cost $2 each. She sells each for $8. She makes 5 per hour. How much does she earn per hour?',
+          steps: [
+            'Revenue per bracelet: $8',
+            'Cost per bracelet: $2 (materials)',
+            'Profit per bracelet: $8 - $2 = $6',
+            '5 bracelets/hour × $6 = $30/hour profit',
+          ],
+          answer: '$30/hour — a solid business if she has customers.',
+        },
+        practice: {
+          problem: 'A business earns $1,200 in sales but spends $900 on materials and $150 on advertising. What is the profit?',
+          hint: 'Profit = Revenue minus ALL costs.',
+          answer: '150',
+          acceptedAnswers: ['150', '$150', '150 dollars'],
+        },
+      },
+      {
+        title: 'Banking: What Banks Actually Do With Your Money',
+        teach: `When you put money in a bank, they don't put it in a vault. They LEND IT OUT to other people and charge interest — paying you a fraction of that interest as your "savings rate."
+
+HOW BANKS MAKE MONEY:
+— They pay you 0.5% interest on savings
+— They lend your money to someone else at 7% (mortgage), 20% (credit card), or 400% (payday loan)
+— The difference is their profit: called the NET INTEREST MARGIN
+
+FRACTIONAL RESERVE BANKING:
+Banks only keep a fraction of deposits on hand. They can lend out the rest. This means:
+— A $1,000 deposit can support $10,000 in loans
+— Banks create money through lending — every loan creates new money in the system
+
+TYPES OF ACCOUNTS:
+CHECKING: For spending. Lower interest. Easy access. Debit card connected.
+SAVINGS: For storing. Higher interest. Some withdrawal limits.
+CD (Certificate of Deposit): Lock money in for 6-60 months for higher interest.
+
+FDIC INSURANCE (USA):
+Your deposits are insured up to $250,000 by the federal government. If the bank fails, you get your money back. This is why bank runs are less common today.
+
+TYPICAL RATES TO KNOW:
+Savings: 0.5–5% | Credit card: 18–29% | Payday loan: 300–400% APR | Federal student loan: 5–8%`,
+        example: {
+          problem: 'A bank holds $100,000 in deposits and lends 90% out at 6% while paying depositors 1%. What is the bank\'s annual profit?',
+          steps: [
+            'Loans: $90,000 × 6% = $5,400 in interest income',
+            'Paid to depositors: $100,000 × 1% = $1,000',
+            'Net profit: $5,400 - $1,000 = $4,400',
+          ],
+          answer: '$4,400 — the bank earns 6% on your money and pays you back 1%.',
+        },
+        practice: {
+          problem: 'What government agency insures US bank deposits up to $250,000 so you don\'t lose money if a bank fails?',
+          hint: 'Four letters. Created after the Great Depression bank failures.',
+          answer: 'fdic',
+          acceptedAnswers: ['fdic', 'the fdic', 'federal deposit insurance corporation'],
         },
       },
     ],
@@ -876,6 +1104,81 @@ HOW TO PROTECT YOURSELF:
           acceptedAnswers: ['capitalization', 'capitalized interest', 'interest capitalization', 'capitalizing interest'],
         },
       },
+      {
+        title: 'The Stock Market: What You\'re Actually Buying',
+        teach: `When you buy a stock, you buy a tiny OWNERSHIP STAKE in a company. If the company grows, your stake becomes more valuable. If it shrinks, so does yours.
+
+HOW THE MARKET WORKS:
+— Companies sell shares via an IPO (Initial Public Offering) to raise capital
+— After that, shares trade between investors on exchanges (NYSE, NASDAQ)
+— Stock prices are driven by: earnings, growth expectations, interest rates, and sentiment
+
+KEY TERMS:
+P/E RATIO (Price-to-Earnings): How much you pay per $1 of earnings. P/E of 20 means you pay $20 for $1/year of profit. Higher = market expects growth.
+DIVIDEND: Some companies pay shareholders a portion of profits quarterly.
+INDEX FUND: Buys a slice of every stock in an index (like the S&P 500 — 500 largest US companies). Automatically diversified.
+DIVERSIFICATION: Spread across many companies — if one fails, you don't lose everything.
+
+THE EVIDENCE ON STOCK PICKING:
+90%+ of professional fund managers underperform the S&P 500 index over 10+ years after fees. The evidence strongly favors low-cost index funds for most investors.`,
+        example: {
+          problem: 'You invest $1,000 in a company with a P/E ratio of 50. The market average P/E is 20. What does this tell you?',
+          steps: [
+            'P/E of 50: you\'re paying $50 for every $1 of current earnings',
+            'Market average is $20 per $1 of earnings — you\'re paying a big premium',
+            'High P/E means investors expect the company to grow earnings significantly',
+            'If growth doesn\'t materialize, the price can drop sharply',
+          ],
+          answer: 'The market expects high future growth. If growth disappoints, the stock can fall sharply.',
+        },
+        practice: {
+          problem: 'What is the name for a fund that automatically buys a piece of every company in a market index like the S&P 500?',
+          hint: 'Two words: "index" and a word for a collection of investments.',
+          answer: 'index fund',
+          acceptedAnswers: ['index fund', 'an index fund', 'index funds', 'etf', 'index etf'],
+        },
+      },
+      {
+        title: 'Taxes: The System You\'ll Live In',
+        teach: `Taxes are not optional. Understanding the system determines how much of your earnings you actually keep.
+
+PROGRESSIVE TAX (US system):
+Higher earners pay a higher percentage. But brackets work in steps:
+  — You pay 10% on the first $11,000
+  — 12% on the next $33,000
+  — 22% on the next chunk, etc.
+Your MARGINAL rate is the rate on your last dollar. Your EFFECTIVE rate is the percentage of total income you actually pay — always lower than your marginal rate.
+
+COMMON MISTAKE: "If I earn more I'll move to a higher bracket and pay more overall."
+WRONG. You only pay the higher rate on income ABOVE the threshold. Earning more always leaves you with more after-tax income.
+
+CAPITAL GAINS TAX:
+  — Short-term (held < 1 year): taxed as ordinary income (up to 37%)
+  — Long-term (held > 1 year): 0%, 15%, or 20%
+  — Wealthy investors hold assets for years to pay 15-20% instead of 37%
+
+W-2 vs. 1099:
+  — W-2 (employee): taxes withheld automatically
+  — 1099 (contractor): you pay ALL taxes yourself including 15.3% self-employment tax
+
+DEDUCTIONS reduce taxable income. CREDITS reduce your actual tax bill. Credits are better.`,
+        example: {
+          problem: 'First $11,000 taxed at 10%. Next $33,000 at 12%. If you earn $30,000, what do you actually owe?',
+          steps: [
+            'First $11,000 × 10% = $1,100',
+            'Remaining $19,000 × 12% = $2,280',
+            'Total: $1,100 + $2,280 = $3,380',
+            'Effective rate: $3,380 / $30,000 = 11.3% — not 12%',
+          ],
+          answer: '$3,380 total. Effective rate 11.3% because lower brackets apply first.',
+        },
+        practice: {
+          problem: 'An investor holds a stock for 14 months and sells it for $10,000 profit. Is this short-term or long-term capital gains, and which is taxed at a lower rate?',
+          hint: 'Key: did they hold it more or less than one year?',
+          answer: 'long-term capital gain, taxed at a lower rate',
+          acceptedAnswers: ['long-term', 'long term', 'long-term capital gain', 'long term capital gain', 'long-term, lower rate'],
+        },
+      },
     ],
   },
   health: {
@@ -959,6 +1262,84 @@ What modern nutrition science agrees on: high-fiber, whole plant foods reduce in
           hint: 'It is slightly alkaline — between 7.3 and 7.5.',
           answer: '7.35 to 7.45',
           acceptedAnswers: ['7.35 to 7.45', '7.35-7.45', '7.4', 'between 7.35 and 7.45', '7.35–7.45', 'slightly alkaline'],
+        },
+      },
+      {
+        title: 'Reading Nutrition Labels: The Hidden Information',
+        teach: `Every packaged food has a nutrition facts label. It's a legal document — companies must tell the truth on it. But it's designed so most people don't understand it.
+
+SERVING SIZE TRAP:
+The entire label is based on ONE SERVING. A "single" bag of chips often contains 2.5 servings. Multiply everything by 2.5 to get what you actually ate.
+
+WHAT TO LOOK FOR:
+FIBER: Helps digestion, slows sugar absorption. Goal: 25-38g/day. Look for 3g+ per serving.
+
+ADDED SUGAR vs NATURAL SUGAR: Natural sugar in fruit comes with fiber that slows absorption. Added sugar (in cereal, sauces, drinks) spikes blood sugar and causes energy crashes.
+Daily limit: 25g for adults. Many children's cereals have 20g in ONE bowl.
+
+SODIUM: High sodium raises blood pressure over time. Limit: under 2,300mg/day. One fast food meal can have 2,000mg.
+
+INGREDIENT ORDER: Listed from MOST to LEAST by weight. If sugar is first or second, it's the main component.
+
+DR. SEBI'S PRINCIPLE: Food is either building you or breaking you down. Alkaline, whole foods have more minerals, more fiber, less processing. The more processed, the less it resembles real food.`,
+        example: {
+          problem: 'A "healthy" granola bar shows: 8g sugar, 150 calories per serving. But the bag contains 3 servings. What are the real numbers for the whole bag?',
+          steps: [
+            '8g sugar × 3 servings = 24g sugar (a full day\'s limit)',
+            '150 calories × 3 = 450 calories',
+            'The "healthy" bar contains a day\'s worth of added sugar',
+            'This is the serving size trap — always check how many servings you\'re actually eating',
+          ],
+          answer: '24g sugar, 450 calories for the whole bag. The serving size trap makes it look much healthier than it is.',
+        },
+        practice: {
+          problem: 'On a food label, ingredients are listed from most to least by weight. If a cereal lists "sugar" as the second ingredient, what does this mean?',
+          hint: 'Second ingredient = second largest component by weight.',
+          answer: 'sugar is one of the main ingredients',
+          acceptedAnswers: ['sugar is one of the main ingredients', 'mostly sugar', 'sugar is near the top', 'it is mostly sugar'],
+        },
+      },
+      {
+        title: 'Exercise Science: Why Your Body Changes When You Train',
+        teach: `Exercise works through a simple principle: STRESS → RECOVERY → ADAPTATION.
+
+1. You stress the body (a hard workout)
+2. The body is briefly weaker (muscles have micro-tears)
+3. During rest and sleep, the body repairs and overbuilds (SUPERCOMPENSATION)
+4. You are now slightly stronger, faster, or fitter than before
+
+Skip step 3 (rest) and you don't improve — you break down. This is overtraining.
+
+TYPES OF TRAINING AND WHAT EACH BUILDS:
+CARDIOVASCULAR: Running, cycling, swimming.
+  — Builds heart efficiency (elite athletes have resting heart rate of 35-40 bpm vs. 60-80 normal)
+  — Increases mitochondria density (more energy factories in each muscle cell)
+
+STRENGTH: Resistance training. Builds muscle fiber size and neural efficiency.
+
+PLYOMETRIC: Explosive movements (jumps, sprints). Builds fast-twitch muscle fibers — power.
+
+ENERGY SYSTEMS:
+ATP-PCr (0–10 sec): Sprinting, jumping — immediate explosive energy
+Glycolytic (10 sec–2 min): 400m run, basketball — fast energy from glucose
+Aerobic (2+ min): Marathon, cycling — slow but sustainable
+
+A tennis player or soccer player needs all three energy systems.`,
+        example: {
+          problem: 'An athlete runs a 10km race Monday and does a heavy leg workout Wednesday. Thursday her legs feel worse than Monday. Why?',
+          steps: [
+            'Monday race stressed cardiovascular and leg muscles',
+            'Recovery requires 48+ hours after hard efforts',
+            'Wednesday workout added more stress before recovery completed',
+            'Thursday: still in the fatigue phase before supercompensation — the adaptation hasn\'t happened yet',
+          ],
+          answer: 'Insufficient recovery. The body needs 48+ hours to repair and adapt. Training on tired muscles extends breakdown without triggering growth.',
+        },
+        practice: {
+          problem: 'After a hard workout, when does the body actually become stronger — during the workout or during the rest period after?',
+          hint: 'The workout creates the stress. The _____ is when adaptation happens.',
+          answer: 'rest',
+          acceptedAnswers: ['rest', 'recovery', 'rest and recovery', 'during rest', 'during sleep', 'after the workout'],
         },
       },
     ],
@@ -1061,6 +1442,93 @@ You don't need to agree with every claim to benefit from the diet. Eat real food
           acceptedAnswers: ['92 minerals', '92 of 102 minerals', 'minerals', 'ninety-two minerals', '92 of the 102 minerals the body needs'],
         },
       },
+      {
+        title: 'Hormones and the Teenage Body: What\'s Actually Happening',
+        teach: `Hormones are chemical messengers that travel through the bloodstream and tell organs what to do. During adolescence, the hormonal changes are among the most significant your body will experience.
+
+KEY HORMONES:
+TESTOSTERONE (both sexes, different amounts):
+— Drives muscle growth, bone density, competitive drive
+— Increases 10-30x in males during puberty
+— Builds fast-twitch muscle fibers (explains the strength surge in teenage boys)
+
+ESTROGEN (primarily females):
+— Drives bone density (peaks at ~25), body fat distribution, reproductive development
+— Affects mood via serotonin regulation
+
+GROWTH HORMONE:
+— Secreted during DEEP SLEEP — teenagers need 9 hours, not 7
+— Cut sleep → cut growth hormone → cut muscle development and height potential
+
+CORTISOL (stress hormone):
+— Short bursts: useful for emergency response
+— Chronic high cortisol: breaks down muscle (catabolic), deposits abdominal fat, impairs memory
+— Chronic stress = chronically elevated cortisol = physically damaging
+
+INSULIN:
+— Released when blood sugar rises; tells cells to take in glucose
+— Chronic sugar overconsumption → cells become insulin-resistant → risk of type 2 diabetes
+— Dietary patterns set in adolescence affect insulin sensitivity for decades
+
+THE DR. SEBI LENS: Most processed foods trigger large insulin spikes and inflammatory responses. Whole alkaline foods produce gentler metabolic responses supporting hormonal balance.`,
+        example: {
+          problem: 'An athlete sleeps 5 hours instead of 9 the night before training. What physiological consequences are they dealing with?',
+          steps: [
+            'Growth hormone is primarily secreted in deep sleep — 5 hours cuts deep sleep by >50%',
+            'Less growth hormone → less protein synthesis → muscles repair more slowly',
+            'Sleep deprivation raises cortisol → catabolic (breaks down muscle)',
+            'Reduced cognitive performance → slower reaction time, worse decision-making',
+          ],
+          answer: 'Reduced growth hormone (less recovery), elevated cortisol (muscle breakdown), impaired cognition. Sleep is not optional for athletes.',
+        },
+        practice: {
+          problem: 'What hormone is primarily secreted during deep sleep and is critical for muscle growth and recovery in athletes?',
+          hint: 'Two words. It literally promotes growth.',
+          answer: 'growth hormone',
+          acceptedAnswers: ['growth hormone', 'hgh', 'human growth hormone', 'gh'],
+        },
+      },
+      {
+        title: 'Sports Nutrition: What Elite Athletes Actually Eat',
+        teach: `Nutrition for sport is not about eating less. It is about fueling performance and optimizing recovery.
+
+MACRONUTRIENTS AND SPORT:
+CARBOHYDRATES: Primary fuel for exercise above 60% max heart rate (most sports).
+  — Stored as glycogen in liver and muscles (~500g max)
+  — Depleted glycogen = "hitting the wall" — performance collapse
+  — Load carbs 2-3 days before a long event (carbohydrate loading)
+
+PROTEIN: Building material, not primarily fuel.
+  — Athletes need 1.6-2.2g per kg of bodyweight per day (2x the standard recommendation)
+  — Timing matters: 20-40g within 30 minutes post-exercise starts repair faster
+
+FAT: Essential for hormone production and fat-soluble vitamins (A, D, E, K).
+  — Never eliminate fat. Very low-fat diets impair testosterone and estrogen production.
+
+HYDRATION:
+  — 2% drop in bodyweight through sweat → performance drops 5-8%
+  — Thirst is a LAGGING indicator — you're already slightly dehydrated when you feel thirsty
+  — Pre-hydrate, don't just react to thirst
+
+MINERAL-RICH FOODS FOR ATHLETES:
+Dark leafy greens, avocado, quinoa, sea moss — minerals are critical for muscle contraction, nerve firing, and oxygen transport. This is where Dr. Sebi's framework aligns directly with sports science: processed foods deplete mineral stores that athletes specifically need.`,
+        example: {
+          problem: 'A football player has a match in 3 days. What nutrition strategy optimizes their performance?',
+          steps: [
+            '3 days out: begin carbohydrate loading — increase complex carbs to max glycogen stores',
+            '2 days out: maintain high carbs, reduce training intensity (preserve the glycogen)',
+            '1 day out: high carbs, rest or light training, ensure full hydration',
+            'Match day: meal 3-4 hours before (carbs + protein, low fat for easy digestion); water in the hours before',
+          ],
+          answer: 'Carbohydrate loading over 3 days, progressive hydration, pre-match meal 3-4 hours before.',
+        },
+        practice: {
+          problem: 'Why is protein not primarily used as fuel during exercise, and what is its main role for athletes?',
+          hint: 'Think about what happens to muscles after training — they need to be ___.',
+          answer: 'to repair and build muscle',
+          acceptedAnswers: ['to repair and build muscle', 'muscle repair', 'building muscle', 'it builds muscle', 'repair', 'building material'],
+        },
+      },
     ],
   },
   ai: {
@@ -1090,6 +1558,107 @@ A good prompt tells the AI exactly what you need and what you already know.`,
           acceptedAnswers: ['verify it', 'check it', 'look it up', 'verify', 'fact check', 'fact-check', 'research it', 'check another source'],
         },
       },
+      {
+        title: 'Machine Learning: Teaching Computers with Examples',
+        teach: `Machine learning is how AI gets "smart." Instead of a programmer writing rules like "if a photo has these pixels, it's a cat," a machine learning system looks at thousands of cat photos and figures out the patterns itself.
+
+Three types of ML:
+
+SUPERVISED LEARNING: You show the computer examples WITH labels.
+  — 10,000 photos labeled "cat" or "not cat"
+  — The computer finds patterns that predict the label
+  — This is how spam filters work, how Netflix recommends shows, how doctors use AI to detect tumours
+
+UNSUPERVISED LEARNING: No labels. The computer finds patterns on its own.
+  — Spotify clusters millions of songs by sound similarity — it doesn't know genres, it discovers groups
+  — Used in customer segmentation, fraud detection
+
+REINFORCEMENT LEARNING: The computer learns by trial and error, getting rewards for good actions.
+  — AlphaGo learned to beat the world chess and Go champions this way
+  — Self-driving cars and robots use this
+
+The key insight: these systems don't "understand" — they find statistical patterns. They can be fooled by data they've never seen, by intentional manipulation, or when the world changes in ways their training didn't cover.`,
+        example: {
+          problem: 'An AI spam filter was trained on emails from 2020. In 2024, scammers change their tactics. What happens to the AI, and what does this tell us about machine learning?',
+          steps: [
+            'The AI learned patterns from 2020 spam — those patterns are "frozen" in the model',
+            'New tactics don\'t match the old patterns → spam gets through',
+            'The model needs to be retrained on new examples',
+            'This is why all ML systems need continuous updating — the world changes but the model doesn\'t automatically adapt',
+          ],
+          answer: 'The AI fails on new patterns it was never trained on. ML models require regular retraining as the world changes.',
+        },
+        practice: {
+          problem: 'What type of machine learning would you use to train a spam detector if you already have 50,000 labeled examples of "spam" and "not spam"?',
+          hint: 'You have examples WITH labels telling the system the right answer.',
+          answer: 'supervised learning',
+          acceptedAnswers: ['supervised learning', 'supervised', 'supervised ml'],
+        },
+      },
+      {
+        title: 'AI Bias: When the Training Data Is Wrong',
+        teach: `AI systems learn from data. If the data has bias — the AI will too. And because AI sounds confident and scientific, the bias is harder to see.
+
+REAL EXAMPLES:
+— Amazon built an AI hiring tool trained on 10 years of resumes. 10 years of resumes were mostly men (tech was male-dominated). The AI learned to prefer male candidates and penalized resumes containing the word "women's." Amazon scrapped it in 2018.
+— Facial recognition software trained mostly on light-skinned faces has error rates of 0.8% on white men — but up to 34.7% on dark-skinned women (MIT research, 2018).
+— A medical risk algorithm used "money spent on healthcare" as a proxy for "health need." Black patients had less money spent on them (historical discrimination) → the AI systematically underestimated their health needs.
+
+HOW BIAS ENTERS:
+1. Historical data contains historical discrimination — AI learns and continues it
+2. Who collects the data (whose photos, whose language, whose world?)
+3. What gets measured vs. what actually matters
+
+THE HARD TRUTH: AI doesn't have morality. It optimizes for what you measure. You have to design for fairness explicitly — it won't happen by accident.`,
+        example: {
+          problem: 'A company uses AI to screen job applicants, trained on 10 years of their own hiring data. The company previously hired almost no women for technical roles. What is the likely outcome and why?',
+          steps: [
+            'The AI learns from past hiring decisions: "these applicants were hired"',
+            'Past hiring was biased toward men → the AI learns to prefer male-associated signals',
+            'Future applications from women get lower scores — even when equally qualified',
+            'The historical bias is now automated and happens at scale, invisibly',
+          ],
+          answer: 'The AI perpetuates gender bias from the historical data, systematically scoring women lower.',
+        },
+        practice: {
+          problem: 'When an AI system is trained on biased historical data and makes decisions that reflect that bias, what is this called?',
+          hint: 'The prejudice from the past data gets learned and "locked in" to the system.',
+          answer: 'ai bias',
+          acceptedAnswers: ['ai bias', 'algorithmic bias', 'bias', 'data bias', 'trained bias'],
+        },
+      },
+      {
+        title: 'Prompt Engineering: Getting AI to Actually Help You',
+        teach: `AI is a tool. Like any tool, using it well requires skill. The skill is called PROMPT ENGINEERING — writing instructions that get the AI to do exactly what you need.
+
+THE SIX THINGS A GOOD PROMPT INCLUDES:
+
+1. ROLE — tell the AI what expert to be: "Act as a high school chemistry teacher..."
+2. CONTEXT — what does the AI need to know? "I am writing an essay arguing that..."
+3. TASK — exactly what you want done: "Write," "Explain," "Critique," "Summarize"
+4. FORMAT — how should the answer look? "In a bulleted list," "As a table comparing..."
+5. CONSTRAINTS — what to avoid: "Use no jargon," "Keep it under 200 words"
+6. EXAMPLES — what a good result looks like
+
+The difference between a beginner and an expert is not which AI they use. It's how well they communicate with it.
+
+CHAIN OF THOUGHT: For complex problems, add "Think step by step." This forces the AI to show its reasoning — which makes mistakes visible and easier to catch.`,
+        example: {
+          problem: 'Compare: Prompt A: "Help me with my essay." vs Prompt B: "I am a Grade 8 student writing a persuasive essay arguing that social media should be regulated. Rewrite my conclusion in 2 paragraphs with a call to action, without introducing any new arguments." Which is better and why?',
+          steps: [
+            'Prompt A gives the AI nothing to work with — it will produce something generic',
+            'Prompt B specifies: grade level, topic, task (rewrite conclusion), format (2 paragraphs), technique (call to action), constraint (no new arguments)',
+            'The AI can produce something specific and useful from Prompt B',
+          ],
+          answer: 'Prompt B — it specifies context, task, format, and constraints. The more specific the instruction, the more useful the output.',
+        },
+        practice: {
+          problem: 'What phrase can you add to a prompt to make an AI show its reasoning step by step, making it easier to spot mistakes?',
+          hint: 'It\'s a four-word instruction about how to think.',
+          answer: 'think step by step',
+          acceptedAnswers: ['think step by step', 'chain of thought', 'step by step', 'show your reasoning'],
+        },
+      },
     ],
     8: [
       {
@@ -1115,6 +1684,118 @@ Three important things to understand:
           acceptedAnswers: ['hallucination', 'hallucinating', 'ai hallucination', 'hallucinate'],
         },
       },
+      {
+        title: 'Neural Networks: How the Machine Actually Thinks',
+        teach: `A neural network is a mathematical system loosely inspired by the brain. It doesn't work like the brain — but the analogy helps.
+
+STRUCTURE:
+- INPUT LAYER: receives data (pixels of an image, words in a sentence)
+- HIDDEN LAYERS: millions of mathematical transformations (weights × inputs + biases)
+- OUTPUT LAYER: produces a prediction (this is a cat / this word comes next)
+
+HOW TRAINING WORKS:
+1. Feed an input, get an output
+2. Calculate how wrong (the "loss function")
+3. Backpropagate — work backward through the network, adjusting weights to reduce the error
+4. Repeat millions of times
+
+After enough iterations, the weights encode patterns that generalize to new inputs.
+
+TRANSFORMERS (the architecture behind ChatGPT, Claude, Gemini):
+Add "attention mechanisms" — the model learns to pay different amounts of attention to different parts of the input. "The bank by the river" vs "the bank I deposit money in" — attention figures out which "bank" is meant from context.
+
+THE KEY: these are not intelligent. They are extremely sophisticated curve-fitters — mathematical functions that map inputs to outputs based on training data. Remarkable. Not magic.`,
+        example: {
+          problem: 'A neural network trained to detect cancer in X-rays gets 97% accuracy on the test set but performs worse in a real hospital. What might explain this?',
+          steps: [
+            'Training and test data came from one hospital with one scanner type',
+            'Different scanner brands produce slightly different images — the network learned scanner-specific artifacts, not cancer features',
+            'This is "distribution shift" — real-world data differs from training data',
+            'Fix: train on diverse data from many sources and test on data matching real deployment',
+          ],
+          answer: 'Distribution shift — the model learned features specific to training data, not generalizable cancer features.',
+        },
+        practice: {
+          problem: 'In neural network training, what is the process called where error is propagated backward through the network to adjust weights and reduce mistakes?',
+          hint: 'The error "propagates backward" through the layers.',
+          answer: 'backpropagation',
+          acceptedAnswers: ['backpropagation', 'backprop', 'back propagation', 'back-propagation'],
+        },
+      },
+      {
+        title: 'The Business of AI: Who Builds It and Why',
+        teach: `AI is not neutral technology. It is built by companies with commercial interests. Understanding who builds AI and why tells you whose interests it serves.
+
+THE MAJOR PLAYERS:
+— OpenAI (GPT/ChatGPT): started as nonprofit, now majority-controlled by Microsoft ($13B invested). Revenue: subscriptions + API fees.
+— Google (Gemini): has the data moat (Gmail, Search, YouTube). Every search query trains the model.
+— Anthropic (Claude): founded by ex-OpenAI researchers. Amazon invested $4B. Positions as "AI safety" focused.
+— Meta (Llama): gives away model weights free. Strategy: commoditize AI market so competitors can't charge, while Meta's moat is the social graph.
+
+WHY THIS MATTERS:
+— These models reflect their training data and choices of who curated it
+— Commercial models optimize for engagement and revenue — not necessarily truth
+— The "free" AI tools you use are paid for by your data and behavior
+— Open source models can be inspected; closed models cannot
+
+THE REGULATION QUESTION:
+EU AI Act (2024) classifies AI systems by risk level — high-risk uses (hiring, credit, medical) require transparency and human oversight. The US has executive orders but no comprehensive law yet.`,
+        example: {
+          problem: 'A company deploys an "objective AI" hiring tool. Investigation reveals it was trained on resume data where 85% of hires were from 5 elite universities. What is the risk?',
+          steps: [
+            'The model learned to prefer signals from those 5 universities',
+            'Candidates from other schools are systematically underscored regardless of ability',
+            'EU AI Act: hiring tools are high-risk → must be audited for bias with human oversight',
+            'US: Equal Employment Opportunity laws may apply if protected groups are affected',
+          ],
+          answer: 'Systemic bias against non-elite school graduates. EU AI Act requires auditing high-risk AI; EEOC laws may apply.',
+        },
+        practice: {
+          problem: 'What is the name of the EU regulation passed in 2024 that classifies AI by risk level and requires human oversight for high-risk applications like hiring and credit decisions?',
+          hint: 'Two words followed by "Act."',
+          answer: 'eu ai act',
+          acceptedAnswers: ['eu ai act', 'the eu ai act', 'european ai act', 'ai act', 'artificial intelligence act'],
+        },
+      },
+      {
+        title: 'Building with AI: APIs and What\'s Actually Possible',
+        teach: `You don't have to wait for a company to build what you need. You can use AI APIs to build your own tools.
+
+HOW AN AI API WORKS:
+You send text (a "prompt") to a URL over HTTPS. The model processes it and sends back text (a "completion"). That's it. The complexity is in what you build around it.
+
+WHAT YOU CAN BUILD:
+— A study assistant that quizzes you on your own notes
+— A code explainer that takes code and explains every line
+— An essay reviewer that gives a grade and specific feedback
+— A homework helper that walks through problems step by step (not just gives answers)
+
+KEY CONCEPTS:
+SYSTEM PROMPT: secret instructions you give the AI before the user talks to it. "You are a tutor. You never give direct answers — only hints."
+CONTEXT WINDOW: how much text the model can "see" at once. Larger = more expensive.
+TEMPERATURE: how creative/random the response is. 0 = very predictable, 1 = very varied. Use low temperature for facts, higher for creative writing.
+
+MODELS (as of 2025):
+— Claude Sonnet / Opus (Anthropic) — reasoning, safety
+— GPT-4o (OpenAI) — general purpose
+— Gemini (Google) — multimodal, long context
+— Llama 3 (Meta) — open source, can run locally`,
+        example: {
+          problem: 'You want to build a study tool where users paste their notes and the AI generates quiz questions. What three components do you need?',
+          steps: [
+            '1. A system prompt: "You are a quiz generator. Given study notes, create 5 multiple choice questions testing key concepts."',
+            '2. A user input: a text box where users paste their notes',
+            '3. An API call combining system prompt + user notes → returns questions',
+          ],
+          answer: 'System prompt defining quiz behavior + user input for notes + API call to the LLM.',
+        },
+        practice: {
+          problem: 'In an AI API, what is the name for the hidden instructions included before the user\'s message that shape how the AI behaves — like "You are a tutor, never give direct answers"?',
+          hint: 'Two words: it sets up the "system" of behavior.',
+          answer: 'system prompt',
+          acceptedAnswers: ['system prompt', 'the system prompt', 'system message'],
+        },
+      },
     ],
   },
 }
@@ -1132,9 +1813,10 @@ export default function BasicsPage() {
 
   const grade = child.grade <= 5 ? 5 : 8
   const lessons = LESSONS[subject]?.[grade] || LESSONS[subject]?.[5] || []
-  const lesson = lessons[0] // one lesson per subject for now
 
   const [phase, setPhase] = useState<'teach' | 'example' | 'practice' | 'done'>('teach')
+  const [lessonIdx, setLessonIdx] = useState(0)
+  const lesson = lessons[lessonIdx] || lessons[0]
   const [answer, setAnswer] = useState('')
   const [answered, setAnswered] = useState<'correct' | 'wrong' | null>(null)
   const [showHint, setShowHint] = useState(false)
@@ -1275,6 +1957,24 @@ export default function BasicsPage() {
     }
   }
 
+  function goNextLesson() {
+    if (lessonIdx < lessons.length - 1) {
+      setLessonIdx(lessonIdx + 1)
+      setPhase('teach')
+      setAnswer('')
+      setAnswered(null)
+    }
+  }
+
+  function goPrevLesson() {
+    if (lessonIdx > 0) {
+      setLessonIdx(lessonIdx - 1)
+      setPhase('teach')
+      setAnswer('')
+      setAnswered(null)
+    }
+  }
+
   function goNext() {
     const nextSubject = SUBJECT_NEXT[subject]
     if (nextSubject) {
@@ -1335,6 +2035,17 @@ export default function BasicsPage() {
           <div className="text-center">
             <h1 className="text-white font-bold">{SUBJECT_LABEL[subject]}</h1>
             <p className="text-slate-500 text-xs">{lesson.title}</p>
+            {lessons.length > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-1">
+                <button onClick={goPrevLesson} disabled={lessonIdx === 0} className="text-slate-500 hover:text-white disabled:opacity-30">
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-slate-500 text-xs">{lessonIdx + 1} of {lessons.length}</span>
+                <button onClick={goNextLesson} disabled={lessonIdx >= lessons.length - 1} className="text-slate-500 hover:text-white disabled:opacity-30">
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
           <div className={`flex items-center gap-1.5 text-sm font-mono font-semibold ${secondsLeft < 300 ? 'text-amber-400' : 'text-slate-400'}`}>
             <Clock className="w-4 h-4" />
