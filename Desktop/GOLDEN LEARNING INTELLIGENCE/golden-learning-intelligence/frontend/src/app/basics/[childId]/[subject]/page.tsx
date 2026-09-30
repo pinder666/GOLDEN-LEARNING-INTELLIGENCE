@@ -1900,6 +1900,11 @@ export default function BasicsPage() {
   const [moduleContent, setModuleContent] = useState<ModuleContent | null>(null)
   const [modLoading, setModLoading] = useState(false)
   const [showToc, setShowToc] = useState(false)
+  const [readDone, setReadDone] = useState(false)
+  const [exampleDone, setExampleDone] = useState(false)
+  const [practiceDone, setPracticeDone] = useState(false)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<string>('')
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -2055,6 +2060,7 @@ export default function BasicsPage() {
     const correct = lesson.practice.acceptedAnswers.some(a => norm(a) === input)
     setAnswered(correct ? 'correct' : 'wrong')
     if (correct) {
+      setPracticeDone(true)
       setTimeout(() => completeSubject(), 1200)
     }
   }
@@ -2106,6 +2112,33 @@ export default function BasicsPage() {
   const currentMod = currentChapter?.modules[modIdx]
   const totalModsSoFar = toc ? toc.chapters.slice(0, chapIdx).reduce((s, c) => s + c.modules.length, 0) + modIdx + 1 : 0
 
+  async function analyzeProgress() {
+    setAnalyzing(true)
+    setAnalysisResult('')
+    try {
+      const progressKey = `daily_${childId}_${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`
+      const dailyProgress = JSON.parse(localStorage.getItem(progressKey) || '{}')
+      const res = await fetch(`${API_URL}/api/analyze-progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          childId,
+          subject,
+          grade,
+          modulesViewed: totalModsSoFar,
+          completedSubjects: Object.entries(dailyProgress).filter(([,v]) => v).map(([k]) => k),
+          practiceCorrect: answered === 'correct',
+        }),
+      })
+      const data = await res.json()
+      setAnalysisResult(data.analysis || 'Unable to generate analysis.')
+    } catch {
+      setAnalysisResult('Analysis unavailable right now.')
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
   function goNext() {
     const nextSubject = SUBJECT_NEXT[subject]
     if (nextSubject) {
@@ -2151,44 +2184,80 @@ export default function BasicsPage() {
           {nextSubject ? `Start ${SUBJECT_LABEL[nextSubject]}` : 'Open the Harkness table'}
           <ArrowRight className="w-5 h-5" />
         </button>
+        <div className="mt-6 w-full max-w-md">
+          <button
+            onClick={analyzeProgress}
+            disabled={analyzing}
+            className="w-full py-3 rounded-xl bg-slate-800 border border-slate-700 text-amber-400 font-semibold text-sm hover:border-amber-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {analyzing ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</> : '⟡ Analyze my progress'}
+          </button>
+          {analysisResult && (
+            <div className="mt-4 bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-slate-200 text-sm leading-relaxed whitespace-pre-line text-left">
+              {analysisResult}
+            </div>
+          )}
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Minimal strip: back · progress bar · timer */}
+      {/* Header: back · subject · lesson title · timer */}
       <header className="border-b border-slate-800 px-4 py-2">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <button onClick={() => router.push(`/dashboard/${childId}`)} className="text-slate-500 hover:text-white flex-shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-amber-400 transition-all duration-1000"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="flex-1 min-w-0">
+            <p className="text-amber-400 text-xs font-bold uppercase tracking-wide leading-none">{SUBJECT_LABEL[subject]}</p>
+            <p className="text-slate-300 text-sm font-semibold truncate mt-0.5">
+              {toc && currentMod ? `${totalModsSoFar}. ${currentMod.title}` : lesson?.title || ''}
+            </p>
           </div>
           <div className={`flex-shrink-0 flex items-center gap-1 text-xs font-mono font-semibold ${secondsLeft < 300 ? 'text-amber-400' : 'text-slate-500'}`}>
             <Clock className="w-3.5 h-3.5" />
             {minutes}:{secs.toString().padStart(2, '0')}
           </div>
         </div>
+        {/* Timer bar */}
+        <div className="max-w-2xl mx-auto mt-1.5 h-1 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-full bg-amber-400 transition-all duration-1000" style={{ width: `${progress}%` }} />
+        </div>
         {/* Phase tabs */}
         <div className="max-w-2xl mx-auto flex mt-2 gap-1">
           {(['teach', 'example', 'practice'] as const).map(p => (
             <button
               key={p}
-              onClick={() => setPhase(p)}
+              onClick={() => {
+                if (p === 'example') setReadDone(true)
+                if (p === 'practice') { setReadDone(true); setExampleDone(true) }
+                setPhase(p)
+              }}
               className={`flex-1 py-1 rounded text-xs font-semibold transition-all ${
-                phase === p
-                  ? 'bg-amber-500 text-black'
-                  : 'bg-slate-800 text-slate-500 hover:text-slate-300'
+                phase === p ? 'bg-amber-500 text-black' : 'bg-slate-800 text-slate-500 hover:text-slate-300'
               }`}
             >
               {p === 'teach' ? 'Learn' : p === 'example' ? 'Example' : 'Practice'}
             </button>
           ))}
+        </div>
+        {/* Completion checklist */}
+        <div className="max-w-2xl mx-auto mt-2 flex items-center gap-3 px-1">
+          {[
+            { label: 'Read', done: readDone },
+            { label: 'Example', done: exampleDone },
+            { label: 'Practice', done: practiceDone },
+          ].map(step => (
+            <div key={step.label} className={`flex items-center gap-1 text-xs font-medium ${step.done ? 'text-green-400' : 'text-slate-600'}`}>
+              <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-green-500 border-green-500' : 'border-slate-600'}`}>
+                {step.done && <span className="text-black text-[8px] font-bold">✓</span>}
+              </span>
+              {step.label}
+            </div>
+          ))}
+          <span className="text-slate-700 text-xs ml-auto">Complete all 3 to advance</span>
         </div>
       </header>
 
@@ -2274,17 +2343,32 @@ export default function BasicsPage() {
                       <ArrowLeft className="w-4 h-4" /> Previous
                     </button>
                     <button
-                      onClick={() => setPhase('example')}
+                      onClick={() => { setReadDone(true); setPhase('example') }}
                       className="flex-1 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold flex items-center justify-center gap-2 text-sm"
                     >
                       Practice <ArrowRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={goNextModule}
-                      disabled={chapIdx >= (toc?.chapters.length ?? 1) - 1 && modIdx >= (currentChapter?.modules.length ?? 1) - 1}
-                      className="flex-1 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-medium text-sm hover:border-slate-500 transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                      onClick={() => {
+                        if (readDone && exampleDone && practiceDone) {
+                          goNextModule()
+                          setReadDone(false)
+                          setExampleDone(false)
+                          setPracticeDone(false)
+                        }
+                      }}
+                      disabled={
+                        ((!readDone || !exampleDone || !practiceDone) && !timerDone) ||
+                        (chapIdx >= (toc?.chapters.length ?? 1) - 1 && modIdx >= (currentChapter?.modules.length ?? 1) - 1)
+                      }
+                      title={readDone && exampleDone && practiceDone ? '' : 'Complete Read, Example, and Practice first'}
+                      className={`flex-1 py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+                        (readDone && exampleDone && practiceDone) || timerDone
+                          ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold'
+                          : 'bg-slate-800 border border-slate-700 text-slate-500 cursor-not-allowed'
+                      }`}
                     >
-                      Next <ArrowRight className="w-4 h-4" />
+                      {(readDone && exampleDone && practiceDone) || timerDone ? 'Next' : 'Finish lesson first'} <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -2350,7 +2434,7 @@ export default function BasicsPage() {
                 <p className="text-green-400 font-semibold text-sm">Answer: {lesson.example.answer}</p>
               </div>
               <button
-                onClick={() => setPhase('practice')}
+                onClick={() => { setExampleDone(true); setPhase('practice') }}
                 className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold flex items-center justify-center gap-2"
               >
                 Try it yourself <ArrowRight className="w-5 h-5" />

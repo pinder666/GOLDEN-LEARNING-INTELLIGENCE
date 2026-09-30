@@ -1572,6 +1572,18 @@ app.post('/api/music/lesson', async (req, res) => {
   } catch (e) { res.status(500).json({ title: topic, explanation: 'Connection error', abc: '', exercises: [], historyNote: '', error: e.message }); }
 });
 
+app.post('/api/analyze-progress', async (req, res) => {
+  const { childId, subject, grade, modulesViewed, completedSubjects, practiceCorrect } = req.body;
+  try {
+    const systemPrompt = `You are a learning coach analyzing a child's study session. Be encouraging, specific, and actionable. Format your response in 3 sections: STRENGTHS, AREAS TO WORK ON, and NEXT STEPS. Keep it under 200 words total. No bullet points — use short paragraphs.`;
+    const userMsg = `Child: ${childId}, Grade ${grade}. Subject studied: ${subject}. Modules read today: ${modulesViewed}. Practice question: ${practiceCorrect ? 'answered correctly' : 'needs more work'}. Subjects completed today: ${(completedSubjects || []).join(', ') || 'none yet'}. Give a focused learning analysis.`;
+    const response = await callClaude(systemPrompt, [{ role: 'user', content: userMsg }], ANTHROPIC_API_KEY);
+    res.json({ analysis: response });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 4500;
 app.listen(PORT, () => {
   console.log(`
