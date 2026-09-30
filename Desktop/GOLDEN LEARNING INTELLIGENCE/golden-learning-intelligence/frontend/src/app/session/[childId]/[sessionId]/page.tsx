@@ -107,6 +107,13 @@ const SESSION_META: Record<string, { title: string; topic: string; wingKey: stri
     keyConcept: 'What is Real, What is Right, and What Makes a Good Life',
     globalContext: 'Epistemology and Critical Thinking',
   },
+  body: {
+    title: 'The Body Lab',
+    topic: 'Human Biology, Nutrition & Sports Science',
+    wingKey: 'the_lab',
+    keyConcept: 'How the Body Works, What It Needs, and How to Optimize It',
+    globalContext: 'Health, Wellness and Human Performance',
+  },
 }
 
 interface Message {

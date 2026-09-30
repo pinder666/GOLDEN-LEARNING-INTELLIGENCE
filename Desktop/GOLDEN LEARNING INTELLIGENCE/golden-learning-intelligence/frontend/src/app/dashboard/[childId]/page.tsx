@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale,
+  Calculator, BookOpen, FlaskConical, Cpu, DollarSign, Scale, Heart, Code2,
   CheckCircle2, Clock,
   Crown, Swords, Users, Zap, ArrowRight, Puzzle,
 } from 'lucide-react'
@@ -72,6 +72,14 @@ const MORNING_BLOCKS = [
     color: 'from-slate-500 to-zinc-600',
     minutes: 20,
   },
+  {
+    id: 'health',
+    label: 'Health & Body',
+    desc: 'Your body, food & sports science',
+    icon: Heart,
+    color: 'from-red-500 to-rose-500',
+    minutes: 20,
+  },
 ]
 
 const HARKNESS_SESSIONS = [
@@ -85,6 +93,7 @@ const HARKNESS_SESSIONS = [
   { id: 'law', title: 'The Court Room', desc: 'Law, Rights & Justice', color: 'from-slate-500 to-zinc-600' },
   { id: 'econ', title: 'The Market', desc: 'Economics, Investing & Trade', color: 'from-cyan-500 to-sky-600' },
   { id: 'phil', title: 'The Agora', desc: 'Ethics & Philosophy of Mind', color: 'from-rose-400 to-pink-500' },
+  { id: 'body', title: 'The Body Lab', desc: 'Anatomy, Nutrition & Sports Science', color: 'from-red-500 to-rose-500' },
 ]
 
 function todayKey(childId: string) {
@@ -109,7 +118,7 @@ export default function DashboardPage() {
 
   // Daily progress: { math: false, reading: false, science: false, ai: false }
   const [progress, setProgress] = useState<Record<string, boolean>>({
-    math: false, reading: false, science: false, ai: false, finance: false, law: false,
+    math: false, reading: false, science: false, ai: false, finance: false, law: false, health: false,
   })
 
   useEffect(() => {
@@ -148,7 +157,7 @@ export default function DashboardPage() {
                 />
               ))}
             </div>
-            <span className="text-xs text-slate-500">{completedCount}/6</span>
+            <span className="text-xs text-slate-500">{completedCount}/7</span>
             <Link href="/" className="text-xs text-slate-600 hover:text-slate-400 ml-2">sign out</Link>
           </div>
         </div>
@@ -162,7 +171,7 @@ export default function DashboardPage() {
             <Clock className="w-5 h-5 text-slate-400" />
             <div>
               <h2 className="font-bold text-white">Morning Work</h2>
-              <p className="text-xs text-slate-500">6 subjects · 20 minutes each · complete in order</p>
+              <p className="text-xs text-slate-500">7 subjects · 20 minutes each · complete in order</p>
             </div>
             {allDone && (
               <div className="ml-auto flex items-center gap-1.5 text-green-400 text-xs font-semibold">
@@ -172,7 +181,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {MORNING_BLOCKS.map((block, i) => {
               const Icon = block.icon
               const done = progress[block.id]
@@ -261,7 +270,7 @@ export default function DashboardPage() {
         </section>
 
         {/* ── BOTTOM ROW ──────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {/* Puzzles */}
           <Link href={`/puzzles/${childId}`}>
             <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-violet-500/50 transition-all cursor-pointer">
@@ -292,6 +301,17 @@ export default function DashboardPage() {
               </div>
               <p className="font-bold text-white">Learning Library</p>
               <p className="text-xs text-slate-500 mt-0.5">35+ topics · auto-play lessons</p>
+            </div>
+          </Link>
+
+          {/* Coding Lab */}
+          <Link href={`/coding/${childId}`}>
+            <div className="rounded-2xl bg-slate-800/60 border border-slate-700 p-5 hover:border-green-500/50 transition-all cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-3">
+                <Code2 className="w-5 h-5 text-white" />
+              </div>
+              <p className="font-bold text-white">Coding Lab</p>
+              <p className="text-xs text-slate-500 mt-0.5">Blockly · TF.js · Google AI</p>
             </div>
           </Link>
 

@@ -1335,6 +1335,37 @@ app.get('/api/curriculum/openstax/:book/list', (req, res) => {
   }
 });
 
+/**
+ * GET /api/curriculum/nasa-mars
+ * Returns today's Mars Rover photo from NASA API.
+ */
+app.get('/api/curriculum/nasa-mars', async (req, res) => {
+  const NASA_KEY = process.env.NASA_API_KEY || 'DEMO_KEY';
+  try {
+    const https = require('https');
+    const url = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/latest_photos?api_key=${NASA_KEY}`;
+    https.get(url, (apiRes) => {
+      let data = '';
+      apiRes.on('data', chunk => { data += chunk; });
+      apiRes.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          const photos = (parsed.latest_photos || []).filter(p => p.camera.name === 'NAVCAM').slice(0, 6);
+          if (!photos.length) return res.json({ photos: [], rover: 'Curiosity', sol: null });
+          res.json({
+            photos: photos.map(p => ({ id: p.id, url: p.img_src, camera: p.camera.full_name, sol: p.sol, date: p.earth_date })),
+            rover: photos[0].rover.name,
+            sol: photos[0].sol,
+            totalPhotos: parsed.latest_photos?.length || 0,
+          });
+        } catch { res.status(500).json({ error: 'Parse error' }); }
+      });
+    }).on('error', () => res.status(503).json({ error: 'NASA API unavailable' }));
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 const PORT = process.env.PORT || 4500;
 app.listen(PORT, () => {
   console.log(`

@@ -17,7 +17,8 @@ const SUBJECT_NEXT: Record<string, string> = {
   science: 'ai',
   ai: 'finance',
   finance: 'law',
-  law: null as any,
+  law: 'health',
+  health: null as any,
 }
 
 const SUBJECT_LABEL: Record<string, string> = {
@@ -27,6 +28,7 @@ const SUBJECT_LABEL: Record<string, string> = {
   ai: 'AI Literacy',
   finance: 'Finance Literacy',
   law: 'Law & Rights',
+  health: 'Health & Body',
 }
 
 function todayKey(childId: string) {
@@ -876,6 +878,191 @@ HOW TO PROTECT YOURSELF:
       },
     ],
   },
+  health: {
+    5: [
+      {
+        title: 'Your Electric Body — 7 Systems, All Connected',
+        teach: `Your body is not just flesh and bone. Dr. Sebi (Alfredo Bowman), the Honduran-born healer, called it the "electric body" — and he was right. Your neurons fire electrical signals at 70 millivolts. Your heart generates 1.5 watts of electricity with every beat. You ARE electric.
+
+Seven systems make everything work:
+
+SKELETAL (206 bones): Your frame. Stores minerals (calcium, phosphorus). Protects organs. Red blood cells are MADE inside your bones.
+
+MUSCULAR (600+ muscles): Movement, posture, pumping blood. Muscles only pull — they never push. That's why they work in pairs (bicep pulls, tricep extends).
+
+CIRCULATORY: Your heart pumps 2,000 gallons of blood every day. Blood carries oxygen, nutrients, and removes waste. 60,000 miles of blood vessels in your body.
+
+DIGESTIVE: Breaks food into nutrients your cells can use. Your gut has more neurons than your spinal cord — scientists call it the "second brain."
+
+RESPIRATORY: Every breath pulls in oxygen, expels carbon dioxide. You take 20,000 breaths a day without thinking.
+
+NERVOUS: Your brain and spinal cord. Processes everything you sense, feel, and think. Sends signals at 268 mph.
+
+IMMUNE: Your army. White blood cells identify and destroy pathogens. What you eat determines how strong this army is.
+
+ALL 7 SYSTEMS ARE CONNECTED. What you eat becomes your blood. Your blood feeds every cell in every system. Food is not just energy — it is INFORMATION that tells your body how to operate.`,
+        example: {
+          problem: 'If you eat only processed food with no real minerals for a year, which systems would suffer first?',
+          steps: [
+            'Digestive: first contact — cannot extract nutrients that aren\'t there',
+            'Circulatory: blood becomes nutrient-deficient, carries less oxygen',
+            'Immune: army weakens — white blood cells need minerals to function',
+            'Skeletal: bones begin pulling their own calcium to compensate',
+            'Everything degrades — all systems depend on the same blood supply',
+          ],
+          answer: 'All systems degrade, starting with immune and digestive. The body is one system, not seven separate ones.',
+        },
+        practice: {
+          problem: 'Red blood cells are produced inside which system of the body?',
+          hint: 'Think about what bones store and produce inside the marrow.',
+          answer: 'skeletal',
+          acceptedAnswers: ['skeletal', 'skeletal system', 'bones', 'the skeletal system', 'bone marrow'],
+        },
+      },
+      {
+        title: 'Food Is Information — The Alkaline Way',
+        teach: `Every food you eat sends a message to your body. The question is: what message?
+
+YOUR BODY'S pH:
+Blood pH is 7.35–7.45 — slightly alkaline. Your body works extremely hard to keep it in this range. If it drops below 7.0 or above 7.8, you die. Your body FIGHTS to stay alkaline.
+
+DR. SEBI'S INSIGHT:
+Dr. Sebi taught that disease cannot thrive in a truly alkaline body. He built an "African Bio-Mineral Balance" approach: feed the body the electric, mineral-rich foods it was designed for.
+
+ALKALINE FOODS (what he called "electric"):
+  — Leafy greens: kale, collard greens, dandelion greens
+  — Fruits: mango, banana, elderberries, soursop, sea grapes
+  — Grains: spelt, kamut, teff, quinoa, wild rice, amaranth
+  — Seeds: hemp seeds, sesame seeds
+  — Sea vegetables: sea moss (contains 92 of the 102 minerals your body needs), bladderwrack
+  — Natural sweetener: pure agave, date sugar
+  — Oils: avocado oil, grape seed oil, hemp oil, coconut oil
+
+WHAT HE CALLED "DEAD FOOD":
+Processed, microwaved, preserved — food with no living enzymes, no real minerals. These foods require your body to use its own mineral reserves just to digest them. They take more than they give.
+
+THE MUCUS THEORY:
+Dr. Sebi taught that mucus is the root of all disease. Acidic, processed foods cause the body to produce excess mucus to protect itself. That mucus coats the intestinal walls, blocks absorption, clogs airways, and creates the conditions where disease can live.
+
+What modern nutrition science agrees on: high-fiber, whole plant foods reduce inflammation, support the gut microbiome, and lower chronic disease risk. The minerals in sea vegetables (iodine, iron, zinc, bromide) are essential for thyroid and immune function. The exact pH claim is debated — but the food choices themselves are sound.`,
+        example: {
+          problem: 'Which option is more aligned with Dr. Sebi\'s electric food list: (A) brown rice, spinach, hemp seeds, or (B) white bread, processed cheese, and soda?',
+          steps: [
+            'A: Brown rice = whole grain, spinach = alkaline leafy green, hemp seeds = approved seed — all real, mineral-rich foods',
+            'B: White bread = stripped hybrid grain, processed cheese = acidic, soda = acidic + high sugar — none on Dr. Sebi\'s list',
+            'Option A: electric food. Option B: dead food.',
+          ],
+          answer: 'Option A — all three are whole, mineral-dense, alkaline-forming foods.',
+        },
+        practice: {
+          problem: 'What is the natural pH range of healthy human blood?',
+          hint: 'It is slightly alkaline — between 7.3 and 7.5.',
+          answer: '7.35 to 7.45',
+          acceptedAnswers: ['7.35 to 7.45', '7.35-7.45', '7.4', 'between 7.35 and 7.45', '7.35–7.45', 'slightly alkaline'],
+        },
+      },
+    ],
+    8: [
+      {
+        title: 'Sports Science: How You Actually Get Stronger',
+        teach: `Getting stronger is not magic. It is a biological process. Understanding it means you can train smarter than anyone who just "works hard."
+
+HOW MUSCLE GROWTH WORKS (HYPERTROPHY):
+1. You apply stress (heavy resistance or intense effort)
+2. Muscle fibers develop microscopic tears
+3. Satellite cells rush in and repair the damage
+4. They rebuild the fibers THICKER — more cross-bridge proteins (actin and myosin)
+5. You are now stronger than before
+
+This is called SUPERCOMPENSATION. Your body doesn't just repair damage — it overcompensates so the same stress is easier next time.
+
+THE ATP ENERGY SYSTEMS (what fuels your muscles):
+  ATP-PC SYSTEM (0–10 seconds): Explosive power. 100m sprint, vertical jump, max weightlift. Creatine phosphate powers this. No oxygen needed.
+  ANAEROBIC GLYCOLYSIS (10 sec – 2 min): 400m run, fast basketball. Glucose without oxygen. Produces lactic acid (the burn).
+  AEROBIC SYSTEM (2+ min): Long runs, cycling, swimming. Oxygen + glucose/fat. Sustainable. Built through consistent cardio training.
+
+PROGRESSIVE OVERLOAD — the single most important training law:
+  To keep getting stronger, you must progressively increase the demand. If you always lift the same weight, you plateau. Add weight, reps, sets, or reduce rest time — force the body to adapt.
+
+RECOVERY IS WHERE YOU GROW (not during training):
+  Training breaks down muscle. Sleep and rest is where it rebuilds.
+  90% of growth hormone is released during deep sleep.
+  Under 6 hours of sleep = CATABOLISM — your body breaks muscle down for energy.
+  Goal: 8–10 hours for athletes. Non-negotiable.
+
+NUTRITION TIMING:
+  PROTEIN: 0.7–1g per pound of bodyweight daily. Within 2 hours of training.
+  CARBS: replenish glycogen before training (fuel for the anaerobic systems).
+  HYDRATION: even 2% dehydration reduces strength output by 10%.`,
+        example: {
+          problem: 'Uni trains hard every day for 2 weeks, sleeping 5 hours a night, and gets WEAKER. Why?',
+          steps: [
+            'Training creates damage — muscle fibers are torn down',
+            'Under 6 hours sleep = insufficient growth hormone release',
+            'Without proper repair, the damage accumulates — called overtraining',
+            'With no recovery window, supercompensation never happens',
+            'The body breaks down muscle (catabolism) to fuel activity instead',
+          ],
+          answer: 'Insufficient sleep prevents repair. Training tears down; sleep rebuilds. No sleep = no growth, only damage.',
+        },
+        practice: {
+          problem: 'What is the term for the process where the body repairs muscle fibers bigger and stronger after training stress?',
+          hint: 'It starts with "super" — the body over-repairs to handle the same stress more easily next time.',
+          answer: 'supercompensation',
+          acceptedAnswers: ['supercompensation', 'super compensation', 'hypertrophy', 'muscle hypertrophy', 'muscle adaptation'],
+        },
+      },
+      {
+        title: "Dr. Sebi's Blueprint — The Science of Eating for Your Body",
+        teach: `Dr. Sebi spent decades studying traditional African, South American, and indigenous healing. His model: the human body is an electric organism, and disease is the disruption of that electricity through toxins, acidic foods, and mineral deficiency.
+
+THE AFRICAN BIO-MINERAL BALANCE:
+Dr. Sebi believed people of African descent are specifically adapted to mineral-rich, alkaline, plant-based diets — foods that existed before colonialism changed what we ate. He pointed to chronic disease rates in communities that moved away from traditional whole-food diets as evidence.
+
+DR. SEBI'S FOUR FOOD CATEGORIES:
+  LIVE: Raw fruits and vegetables. Maximum enzyme content. The body barely has to work.
+  RAW: Unprocessed whole foods. Minimal cooking.
+  COOKED: Lightly cooked vegetables, grains. Some enzymes lost but minerals remain.
+  DEAD: Processed, microwaved, preserved. No enzymes, stripped minerals, chemical additives.
+
+KEY APPROVED FOODS (from his published nutritional guide):
+  GRAINS: Spelt, kamut, teff, quinoa, wild rice, amaranth, fonio
+  VEGETABLES: Kale, collard greens, watercress, dandelion greens, bell peppers, mushrooms
+  FRUITS: Mango, banana, elderberries, soursop, sea grapes, berries, apples, pears
+  NUTS/SEEDS: Brazil nuts, hemp seeds, walnuts, sesame seeds
+  SEA PLANTS: Sea moss (92 minerals), bladderwrack, nori
+  HERBS: Burdock root, elderberry, sarsaparilla, soursop leaves
+
+THE SCIENCE THAT ALIGNS:
+  • Anti-inflammatory diet studies show plant-based, whole-food diets reduce heart disease, diabetes, and cancer risk significantly (Harvard, Oxford, WHO)
+  • Sea moss: iron, iodine, zinc, calcium, magnesium, B vitamins — legitimate nutritional density
+  • Gut microbiome research: high-fiber prebiotic foods (exactly what Dr. Sebi approved) feed beneficial bacteria → better immunity, mood, and cognition
+  • Polyphenols in dark leafy greens protect mitochondria — the energy factories of cells
+
+WHAT SCIENCE DEBATES:
+  The specific "blood pH changes based on food" claim — blood pH is tightly regulated by the lungs and kidneys regardless of what you eat. But the FOOD CHOICES Dr. Sebi recommends are well-supported by mainstream nutrition science independently.
+
+THE BOTTOM LINE:
+You don't need to agree with every claim to benefit from the diet. Eat real food. Eat plants. Cut processed. Increase minerals. That part has overwhelming evidence.`,
+        example: {
+          problem: 'Evaluate: "Dr. Sebi says eating meat lowers blood pH and causes disease. My blood pH never changes, so his whole theory is wrong." Is this a good counter-argument?',
+          steps: [
+            'TRUE: Blood pH does not significantly change based on diet — the body regulates it tightly',
+            'But the conclusion is a straw man — rejecting one mechanism does not disprove the whole dietary recommendation',
+            'The foods Dr. Sebi recommends (plants, sea veg, whole grains) ARE independently supported by nutrition science',
+            'The argument throws away a good diet because one mechanistic claim is overstated',
+          ],
+          answer: 'Partly right (on pH), but the conclusion is a logical error — rejecting one mechanism doesn\'t invalidate the entire dietary framework.',
+        },
+        practice: {
+          problem: 'What does sea moss contain that makes it one of the most mineral-dense foods on Dr. Sebi\'s approved list?',
+          hint: 'It is said to contain 92 of the 102 minerals the human body needs.',
+          answer: '92 minerals',
+          acceptedAnswers: ['92 minerals', '92 of 102 minerals', 'minerals', 'ninety-two minerals', '92 of the 102 minerals the body needs'],
+        },
+      },
+    ],
+  },
   ai: {
     5: [
       {
@@ -963,6 +1150,8 @@ export default function BasicsPage() {
   const [wordProblem, setWordProblem] = useState<{question: string; steps: {hint: string; solution: string}[]; answer: string} | null>(null)
   const [showWordProblem, setShowWordProblem] = useState(false)
   const [showWPAnswer, setShowWPAnswer] = useState(false)
+  const [marsPhotos, setMarsPhotos] = useState<{url: string; camera: string; sol: number; date: string}[]>([])
+  const [showMars, setShowMars] = useState(false)
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -1003,6 +1192,15 @@ export default function BasicsPage() {
       .then(d => { if (d.question) setWordProblem(d) })
       .catch(() => {})
   }, [subject, grade])
+
+  // Fetch Mars photos for science
+  useEffect(() => {
+    if (subject !== 'science') return
+    fetch(`${API_URL}/api/curriculum/nasa-mars`)
+      .then(r => r.json())
+      .then(d => { if (d.photos?.length) setMarsPhotos(d.photos.slice(0, 4)) })
+      .catch(() => {})
+  }, [subject])
 
   // Canvas scratch pad — draw on touch/mouse
   function startDraw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
@@ -1329,6 +1527,88 @@ export default function BasicsPage() {
               </div>
             )
           })()}
+
+          {/* ── NASA MARS PHOTOS (science only) ─────────────── */}
+          {subject === 'science' && marsPhotos.length > 0 && (
+            <div className="mt-6">
+              <button
+                onClick={() => setShowMars(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-orange-950/50 border border-orange-800/50 text-orange-300 text-sm font-semibold hover:border-orange-600 transition-all"
+              >
+                <span>Mars Live — Curiosity Rover Photos</span>
+                <ChevronRight className={`w-4 h-4 transition-transform ${showMars ? 'rotate-90' : ''}`} />
+              </button>
+              {showMars && (
+                <div className="mt-3 space-y-3">
+                  <p className="text-xs text-slate-500 pl-1">Real photos from the Martian surface · NASA Open API · Sol {marsPhotos[0]?.sol} ({marsPhotos[0]?.date})</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {marsPhotos.map((p, i) => (
+                      <div key={i} className="rounded-xl overflow-hidden border border-slate-700">
+                        <img src={p.url} alt={p.camera} className="w-full h-32 object-cover" loading="lazy" />
+                        <p className="text-xs text-slate-500 px-2 py-1.5">{p.camera}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── GOOGLE AI TOOLS (ai subject only) ─────────────── */}
+          {subject === 'ai' && (
+            <div className="mt-6 space-y-2">
+              <p className="text-xs text-slate-500 uppercase tracking-wide pl-1 mb-3">Google Open Source AI Tools</p>
+              {[
+                { name: 'Teachable Machine', desc: 'Train your own AI model — no code needed', url: 'https://teachablemachine.withgoogle.com/', color: 'text-blue-300 border-blue-800/50 bg-blue-950/50 hover:border-blue-600' },
+                { name: 'TensorFlow Playground', desc: 'See a neural network learn in real time', url: 'https://playground.tensorflow.org/', color: 'text-orange-300 border-orange-800/50 bg-orange-950/50 hover:border-orange-600' },
+                { name: 'Blockly Games', desc: 'Learn coding logic through visual programming', url: 'https://blockly.games/', color: 'text-green-300 border-green-800/50 bg-green-950/50 hover:border-green-600' },
+                { name: 'Quick, Draw!', desc: 'Google AI recognizes your doodles in real time', url: 'https://quickdraw.withgoogle.com/', color: 'text-purple-300 border-purple-800/50 bg-purple-950/50 hover:border-purple-600' },
+              ].map(tool => (
+                <a
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center justify-between w-full px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${tool.color}`}
+                >
+                  <div>
+                    <p>{tool.name}</p>
+                    <p className="text-xs text-slate-400 font-normal">{tool.desc}</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 flex-shrink-0 ml-3" />
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* ── DR. SEBI FOOD LIST REFERENCE (health only) ─────── */}
+          {subject === 'health' && (
+            <div className="mt-6">
+              <details className="group">
+                <summary className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-red-950/50 border border-red-800/50 text-red-300 text-sm font-semibold hover:border-red-600 transition-all cursor-pointer list-none">
+                  <span>Dr. Sebi Approved Food List — Quick Reference</span>
+                  <ChevronRight className="w-4 h-4 group-open:rotate-90 transition-transform" />
+                </summary>
+                <div className="mt-3 bg-slate-800/60 border border-slate-700 rounded-2xl p-5 space-y-4 text-sm">
+                  {[
+                    { cat: 'Grains', items: 'Spelt · Kamut · Teff · Quinoa · Wild rice · Amaranth · Fonio' },
+                    { cat: 'Vegetables', items: 'Kale · Collard greens · Watercress · Dandelion · Bell peppers · Mushrooms · Avocado · Okra' },
+                    { cat: 'Fruits', items: 'Mango · Banana · Elderberries · Soursop · Sea grapes · Apples · Pears · Berries' },
+                    { cat: 'Nuts & Seeds', items: 'Brazil nuts · Hemp seeds · Walnuts · Sesame seeds · Raw almonds' },
+                    { cat: 'Sea Plants', items: 'Sea moss (92 minerals) · Bladderwrack · Nori · Dulse' },
+                    { cat: 'Oils', items: 'Avocado oil · Grape seed oil · Hemp oil · Coconut oil (raw)' },
+                    { cat: 'Sweeteners', items: 'Pure agave nectar · Date sugar · Coconut sugar' },
+                  ].map(({ cat, items }) => (
+                    <div key={cat}>
+                      <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{cat}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed">{items}</p>
+                    </div>
+                  ))}
+                  <p className="text-xs text-slate-600 border-t border-slate-700 pt-3">Source: Dr. Sebi's Nutritional Guide (public domain) · Minerals from OpenStax Anatomy & Physiology (CC BY)</p>
+                </div>
+              </details>
+            </div>
+          )}
 
           {/* ── DAILY WORD PROBLEM (math only) ─────────────── */}
           {subject === 'math' && wordProblem && (
