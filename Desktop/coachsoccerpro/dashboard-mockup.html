@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoachSoccerPro Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ALL STYLES SCOPED TO .csp-mockup — safe to embed anywhere */
+    .csp-mockup { font-family: 'Inter', sans-serif; }
+    .csp-mockup * { margin: 0; padding: 0; box-sizing: border-box; }
+    .csp-mockup .csp-wrap {
+      background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
+      color: #fff;
+      display: flex;
+      height: 500px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .csp-mockup .csp-sidebar {
+      width: 180px;
+      background: linear-gradient(180deg, rgba(15,12,41,0.95) 0%, rgba(36,36,62,0.95) 100%);
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .csp-mockup .csp-logo {
+      text-align: center;
+      padding: 6px 0 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 6px;
+    }
+    .csp-mockup .csp-logo-text {
+      font-size: 12px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #f97316, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .csp-mockup .csp-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      margin: 1px 0;
+      border-radius: 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+    }
+    .csp-mockup .csp-nav.active {
+      background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(249,115,22,0.1));
+      color: #fff;
+    }
+    .csp-mockup .csp-nav-icon {
+      width: 20px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .csp-mockup .csp-nav.active .csp-nav-icon { background: #f97316; }
+    .csp-mockup .csp-main {
+      flex: 1;
+      padding: 12px 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .csp-mockup .csp-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .csp-mockup .csp-topbar h1 { font-size: 16px; font-weight: 700; }
+    .csp-mockup .csp-topbar p { font-size: 10px; color: rgba(255,255,255,0.5); }
+    .csp-mockup .csp-topbar-right { display: flex; align-items: center; gap: 10px; }
+    .csp-mockup .csp-lang {
+      display: flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 2px;
+    }
+    .csp-mockup .csp-lang-btn {
+      padding: 3px 10px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 10px;
+      font-family: inherit;
+    }
+    .csp-mockup .csp-lang-btn.active { background: #f97316; color: #000; }
+    .csp-mockup .csp-mia {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .csp-mockup .csp-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .csp-mockup .csp-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .csp-mockup .csp-stat {
+      background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .csp-mockup .csp-stat-label {
+      font-size: 9px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .csp-mockup .csp-stat-value { font-size: 22px; font-weight: 700; }
+    .csp-mockup .csp-stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .csp-mockup .csp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .csp-mockup .csp-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .csp-mockup .csp-card-title { font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+    .csp-mockup .csp-event {
+      background: rgba(45, 206, 137, 0.15);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .csp-mockup .csp-event-emoji { font-size: 20px; }
+    .csp-mockup .csp-event-title { font-size: 11px; font-weight: 600; }
+    .csp-mockup .csp-event-time { font-size: 9px; color: rgba(255,255,255,0.5); }
+    .csp-mockup .csp-ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .csp-mockup .csp-ai-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #7928CA, #FF0080);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .csp-mockup .csp-ai-text { font-size: 10px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+    .csp-mockup .csp-btn {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      width: fit-content;
+    }
+    .csp-mockup .csp-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .csp-mockup .csp-action {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .csp-mockup .csp-action-emoji { font-size: 16px; margin-bottom: 4px; }
+    .csp-mockup .csp-action-label { font-size: 9px; color: rgba(255,255,255,0.8); }
+  </style>
+</head>
+<body>
+  <!-- EMBED THIS DIV — all styles scoped to .csp-mockup -->
+  <div class="csp-mockup">
+    <div class="csp-wrap">
+      <!-- Sidebar -->
+      <div class="csp-sidebar">
+        <div class="csp-logo">
+          <div class="csp-logo-text">CoachSoccerPro</div>
+        </div>
+        <div class="csp-nav active"><div class="csp-nav-icon">&#127968;</div><span data-i18n="nav.dashboard">Dashboard</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128101;</div><span data-i18n="nav.roster">Roster</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#127909;</div><span data-i18n="nav.media">Media</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128197;</div><span data-i18n="nav.calendar">Calendar</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128172;</div><span data-i18n="nav.messages">Messages</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#127942;</div><span data-i18n="nav.badges">Badges</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128170;</div><span data-i18n="nav.prohabits">Pro Habits</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#127941;</div><span data-i18n="nav.leaderboard">Leaderboard</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128179;</div><span data-i18n="nav.payments">Payments</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#127903;</div><span data-i18n="nav.seats">Seats</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128218;</div><span data-i18n="nav.drills">Drill Library</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#128203;</div><span data-i18n="nav.mydrills">My Drills</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#129518;</div><span data-i18n="nav.tactics">Tactics Board</span></div>
+        <div class="csp-nav"><div class="csp-nav-icon">&#127979;</div><span data-i18n="nav.classroom">Classroom</span></div>
+      </div>
+
+      <!-- Main -->
+      <div class="csp-main">
+        <div class="csp-topbar">
+          <div>
+            <h1 data-i18n="greeting">Good afternoon, Coach.</h1>
+            <p>Thunder FC &bull; U12</p>
+          </div>
+          <div class="csp-topbar-right">
+            <div class="csp-mia">&#127908;</div>
+            <div class="csp-lang">
+              <button class="csp-lang-btn active">EN</button>
+              <button class="csp-lang-btn">ES</button>
+            </div>
+            <button class="csp-icon-btn">&#128266;</button>
+            <button class="csp-icon-btn">&#128276;</button>
+          </div>
+        </div>
+
+        <div class="csp-stats">
+          <div class="csp-stat">
+            <div><div class="csp-stat-label" data-i18n="stats.players">Players</div><div class="csp-stat-value">18</div></div>
+            <div class="csp-stat-icon">&#128101;</div>
+          </div>
+          <div class="csp-stat">
+            <div><div class="csp-stat-label" data-i18n="stats.events">Events This Week</div><div class="csp-stat-value">3</div></div>
+            <div class="csp-stat-icon">&#128197;</div>
+          </div>
+          <div class="csp-stat">
+            <div><div class="csp-stat-label" data-i18n="stats.payments">Pending Payments</div><div class="csp-stat-value">2</div></div>
+            <div class="csp-stat-icon">&#128179;</div>
+          </div>
+        </div>
+
+        <div class="csp-grid">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="csp-card">
+              <div class="csp-card-title" data-i18n="next.title">Next Event</div>
+              <div class="csp-event">
+                <div class="csp-event-emoji">&#127939;</div>
+                <div>
+                  <div class="csp-event-title" data-i18n="next.practice">Practice</div>
+                  <div class="csp-event-time" data-i18n="next.time">Tomorrow @ 4:30 PM</div>
+                  <div class="csp-event-time">&#128205; Main Field</div>
+                </div>
+              </div>
+            </div>
+            <div class="csp-card" style="flex: 1;">
+              <div class="csp-ai-header">
+                <div class="csp-ai-icon">&#129302;</div>
+                <div class="csp-card-title" style="margin: 0;" data-i18n="ai.title">AI Assistant</div>
+              </div>
+              <div class="csp-ai-text" data-i18n="ai.insight">All players are up to date!</div>
+              <button class="csp-btn" data-i18n="ai.send">Send Message</button>
+            </div>
+          </div>
+          <div class="csp-card">
+            <div class="csp-card-title" data-i18n="actions.title">Quick Actions</div>
+            <div class="csp-actions">
+              <div class="csp-action"><div class="csp-action-emoji">&#128172;</div><div class="csp-action-label" data-i18n="actions.message">Message</div></div>
+              <div class="csp-action"><div class="csp-action-emoji">&#128203;</div><div class="csp-action-label" data-i18n="actions.attendance">Attendance</div></div>
+              <div class="csp-action"><div class="csp-action-emoji">&#127942;</div><div class="csp-action-label" data-i18n="actions.badges">Badges</div></div>
+              <div class="csp-action"><div class="csp-action-emoji">&#128101;</div><div class="csp-action-label" data-i18n="actions.roster">Roster</div></div>
+              <div class="csp-action"><div class="csp-action-emoji">&#128197;</div><div class="csp-action-label" data-i18n="actions.calendar">Calendar</div></div>
+              <div class="csp-action"><div class="csp-action-emoji">&#128179;</div><div class="csp-action-label" data-i18n="actions.payments">Payments</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

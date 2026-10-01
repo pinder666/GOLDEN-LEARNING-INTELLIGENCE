@@ -201,7 +201,7 @@ function CoachDashboard() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
+      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
         {/* Welcome Header — the ONE mic lives in the top navbar (the agent). */}
         <VuiBox mb={2} display="flex" justifyContent="space-between" alignItems="flex-start">
           <VuiBox>
@@ -248,7 +248,7 @@ function CoachDashboard() {
         </Grid>
 
         {/* Main Content - 2 equal columns */}
-        <Grid container spacing={2} sx={{ flex: 1 }}>
+        <Grid container spacing={2} sx={{ flex: 1, overflow: "hidden" }}>
           {/* Left Column */}
           <Grid item xs={12} lg={6} sx={{ display: "flex", flexDirection: "column" }}>
             {/* Next Event */}
@@ -439,10 +439,7 @@ function CoachDashboard() {
           </Grid>
         </Grid>
 
-        {/* Footer pushed to bottom */}
-        <VuiBox mt="auto" pt={3}>
-          <Footer />
-        </VuiBox>
+{/* Footer removed — dashboard fits one screen, no scroll */}
       </VuiBox>
     </DashboardLayout>
   );

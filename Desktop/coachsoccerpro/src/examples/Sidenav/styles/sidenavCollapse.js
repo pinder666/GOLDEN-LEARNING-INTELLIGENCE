@@ -30,8 +30,8 @@ function collapseItem(theme, ownerState) {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    padding: `${pxToRem(10.8)} ${pxToRem(12.8)} ${pxToRem(10.8)} ${pxToRem(16)}`,
-    margin: `0 ${pxToRem(16)}`,
+    padding: `${pxToRem(4)} ${pxToRem(8)} ${pxToRem(4)} ${pxToRem(10)}`,
+    margin: `0 ${pxToRem(6)}`,
     borderRadius: borderRadius.lg,
     cursor: "pointer",
     userSelect: "none",
@@ -70,8 +70,8 @@ function collapseIconBox(theme, ownerState) {
 
       return sidenav.button;
     },
-    minWidth: pxToRem(32),
-    minHeight: pxToRem(32),
+    minWidth: pxToRem(22),
+    minHeight: pxToRem(22),
     borderRadius: borderRadius.button,
     display: "grid",
     placeItems: "center",
@@ -131,12 +131,12 @@ function collapseText(theme, ownerState) {
   const { pxToRem } = functions;
 
   return {
-    marginLeft: pxToRem(12.8),
+    marginLeft: pxToRem(8),
 
     [breakpoints.up("xl")]: {
       opacity: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : 1,
       maxWidth: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : "100%",
-      marginLeft: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : pxToRem(12.8),
+      marginLeft: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : pxToRem(8),
       transition: transitions.create(["opacity", "margin"], {
         easing: transitions.easing.easeInOut,
         duration: transitions.duration.standard,
@@ -145,8 +145,8 @@ function collapseText(theme, ownerState) {
 
     "& span": {
       fontWeight: active ? fontWeightMedium : fontWeightRegular,
-      fontSize: size.sm,
-      lineHeight: 0,
+      fontSize: size.xs,
+      lineHeight: 1,
     },
   };
 }

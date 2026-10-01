@@ -206,57 +206,40 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
 	return (
 		<SidenavRoot {...rest} variant='permanent' ownerState={{ miniSidenav, transparentSidenav }}>
-			<Scrollbars
-				autoHide
-				autoHideTimeout={1000}
-				renderThumbVertical={renderThumb}
-				renderTrackVertical={window.location.href.includes('rtl') ? renderTrackRTL : renderTrack}
-				renderView={window.location.href.includes('rtl') ? renderViewRTL : renderView}>
-				<VuiBox
-					display='flex'
-					sx={{ flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-					<VuiBox pt={3} pb={1} px={4} textAlign='center'>
-						<VuiBox
-							display={{ xs: 'block', xl: 'none' }}
-							position='absolute'
-							top={0}
-							right={0}
-							p={1.625}
-							onClick={closeSidenav}
-							sx={{ cursor: 'pointer' }}>
-							<VuiTypography variant='h6' color='white'>
-								<Icon sx={{ fontWeight: 'bold' }}>close</Icon>
-							</VuiTypography>
-						</VuiBox>
-						<VuiBox component={NavLink} to='/' display='flex' alignItems='center'>
+			{/* No scroll on sidebar — everything fits on one screen */}
+			<VuiBox
+				display='flex'
+				sx={{ flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+				<VuiBox pt={0.5} pb={0} px={1} textAlign='center'>
+					<VuiBox
+						display={{ xs: 'block', xl: 'none' }}
+						position='absolute'
+						top={0}
+						right={0}
+						p={0.5}
+						onClick={closeSidenav}
+						sx={{ cursor: 'pointer' }}>
+						<VuiTypography variant='body2' color='white'>
+							<Icon sx={{ fontWeight: 'bold', fontSize: 16 }}>close</Icon>
+						</VuiTypography>
+					</VuiBox>
+					<VuiBox component={NavLink} to='/' display='flex' alignItems='center'>
+						<VuiBox sx={{ display: 'flex', alignItems: 'center', margin: '0 auto' }}>
 							<VuiBox
-								sx={
-									((theme) => sidenavLogoLabel(theme, { miniSidenav }),
-									{
-										display: 'flex',
-										alignItems: 'center',
-										margin: '0 auto'
-									})
-								}>
-								<VuiBox
-									component="img"
-									src={logo}
-									alt="CoachSoccerPro"
-									sx={{
-										width: miniSidenav ? '48px' : '210px',
-										transition: 'width 0.3s ease',
-									}}
-								/>
-							</VuiBox>
+								component="img"
+								src={logo}
+								alt="CoachSoccerPro"
+								sx={{
+									width: miniSidenav ? '36px' : '140px',
+									transition: 'width 0.3s ease',
+								}}
+							/>
 						</VuiBox>
-						<Divider light />
 					</VuiBox>
-					<List sx={{ mb: 'auto' }}>{renderRoutes}</List>
-					<VuiBox pt={2} mx={2} mb={2}>
-						<SidenavCard />
-					</VuiBox>
+					<Divider light sx={{ my: 0.25 }} />
 				</VuiBox>
-			</Scrollbars>
+				<List sx={{ flex: 1, overflow: 'hidden', py: 0, mt: 0 }}>{renderRoutes}</List>
+			</VuiBox>
 		</SidenavRoot>
 	);
 }

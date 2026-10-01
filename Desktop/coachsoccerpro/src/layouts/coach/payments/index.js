@@ -262,9 +262,9 @@ function CoachPayments() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={2} sx={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
+      <VuiBox py={1} sx={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
         {/* Header */}
-        <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <VuiTypography variant="h4" color="white" fontWeight="bold">
             {t("coach:payments.title")}
           </VuiTypography>
@@ -275,7 +275,7 @@ function CoachPayments() {
 
         {/* Stripe Connection Banner */}
         {!stripeConnected && (
-          <Card sx={{ mb: 3, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
+          <Card sx={{ mb: 2, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
             <VuiBox p={3} display="flex" justifyContent="space-between" alignItems="center">
               <VuiBox display="flex" alignItems="center" gap={2}>
                 <IoWallet size={32} color="white" />
@@ -298,7 +298,7 @@ function CoachPayments() {
         )}
 
         {/* Stats Cards */}
-        <Grid container spacing={3} mb={3}>
+        <Grid container spacing={2} mb={2}>
           <Grid item xs={12} md={4}>
             <Card>
               <VuiBox p={3}>
@@ -338,7 +338,7 @@ function CoachPayments() {
         </Grid>
 
         {/* Tabs */}
-        <Card sx={{ mb: 3 }}>
+        <Card sx={{ mb: 2 }}>
           <VuiBox px={2}>
             <Tabs
               value={activeTab}
@@ -355,8 +355,8 @@ function CoachPayments() {
           </VuiBox>
         </Card>
 
-        {/* Payment Requests List */}
-        <Card>
+        {/* Payment Requests List — scrolls internally */}
+        <Card sx={{ flex: 1, overflow: "auto" }}>
           <VuiBox p={3}>
             {loading ? (
               <VuiTypography color="text">{t("common:status.loading")}</VuiTypography>
@@ -655,9 +655,7 @@ function CoachPayments() {
           </VuiBox>
         </Modal>
 
-        <VuiBox mt="auto" pt={3}>
-          <Footer />
-        </VuiBox>
+{/* Footer removed — page fits one screen */}
       </VuiBox>
     </DashboardLayout>
   );
