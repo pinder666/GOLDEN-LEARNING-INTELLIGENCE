@@ -329,15 +329,23 @@ function SessionPlanner() {
               </VuiBox>
             )}
 
-            {/* SoccerMental link */}
+            {/* SEND TO SM */}
             <VuiBox mt={2} style={{
               background: "rgba(249,115,22,.06)", border: "1px solid rgba(249,115,22,.15)",
               borderRadius: 12, padding: "12px 16px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             }}>
-              <VuiTypography variant="caption" style={{ color: "#f97316" }}>
-                ⚽ Want your players to train these concepts at home? Send them to{" "}
-                <strong>SoccerMental</strong> — 20 minutes a day, 294 training units.
+              <VuiTypography variant="caption" style={{ color: "#f97316", flex: 1 }}>
+                ⚽ Want your players to train these concepts at home? 20 minutes a day, 294 training units.
               </VuiTypography>
+              <button style={{
+                background: "#f97316", border: "none", borderRadius: 8,
+                padding: "8px 16px", color: "#000", fontWeight: 800, fontSize: 12,
+                cursor: "pointer", fontFamily: "Inter,sans-serif", whiteSpace: "nowrap",
+                letterSpacing: "0.04em",
+              }}>
+                SEND TO SM
+              </button>
             </VuiBox>
 
             {/* Try again */}

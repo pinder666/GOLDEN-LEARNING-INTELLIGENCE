@@ -43,6 +43,7 @@ import ParentDashboard from "layouts/parent/dashboard";
 import ParentSchedule from "layouts/parent/schedule";
 import ParentMessages from "layouts/parent/messages";
 import ParentPayments from "layouts/parent/payments";
+import ParentProfile from "layouts/parent/profile";
 
 // Child Layouts
 import ChildDashboard from "layouts/child/dashboard";
@@ -324,6 +325,16 @@ const parentRoutes = [
     icon: <IoCard size="15px" color="inherit" />,
     route: "/parent/payments",
     component: <ParentPayments />,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "My Profile",
+    nameEs: "Mi Perfil",
+    key: "parent-profile",
+    icon: <IoSettings size="15px" color="inherit" />,
+    route: "/parent/profile",
+    component: <ParentProfile />,
     noCollapse: true,
   },
 ];
