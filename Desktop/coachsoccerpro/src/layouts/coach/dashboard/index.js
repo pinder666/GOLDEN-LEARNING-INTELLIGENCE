@@ -32,10 +32,23 @@ import MiaBriefing from "components/MiaBriefing";
 
 const DEMO_MODE = false;
 
-const DEMO_BIRTHDAYS = [
-  { id: 1, first_name: "Sofia", last_name: "Garcia", days_until: 2, turning: 12 },
-  { id: 2, first_name: "Marcus", last_name: "Johnson", days_until: 7, turning: 12 },
-];
+function computeUpcomingBirthdays(playersList) {
+  const today = new Date();
+  const year = today.getFullYear();
+  return playersList
+    .filter(p => p.birth_date)
+    .map(p => {
+      const bd = new Date(p.birth_date);
+      let next = new Date(year, bd.getMonth(), bd.getDate());
+      if (next < today) next = new Date(year + 1, bd.getMonth(), bd.getDate());
+      const days = Math.round((next - today) / 86400000);
+      const turning = next.getFullYear() - bd.getFullYear();
+      return { ...p, days_until: days, turning };
+    })
+    .filter(p => p.days_until <= 30)
+    .sort((a, b) => a.days_until - b.days_until)
+    .slice(0, 5);
+}
 
 const DEMO_DATA = {
   userProfile: { first_name: "Coach" },
@@ -58,6 +71,7 @@ function CoachDashboard() {
   const teamData = DEMO_MODE ? DEMO_DATA.teamData : authTeamData;
 
   const [players, setPlayers] = useState(DEMO_MODE ? DEMO_DATA.players : []);
+  const [birthdays, setBirthdays] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState(DEMO_MODE ? DEMO_DATA.upcomingEvents : []);
   const [pendingPayments, setPendingPayments] = useState(DEMO_MODE ? DEMO_DATA.pendingPayments : 0);
   const [loading, setLoading] = useState(DEMO_MODE ? false : true);
@@ -97,6 +111,7 @@ function CoachDashboard() {
         .eq("team_id", teamData.id)
         .order("first_name");
       setPlayers(playersData || []);
+      setBirthdays(computeUpcomingBirthdays(playersData || []));
 
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
@@ -332,12 +347,12 @@ function CoachDashboard() {
                 </VuiButton>
 
                 {/* Upcoming Birthdays */}
-                {DEMO_BIRTHDAYS.length > 0 && (
+                {birthdays.length > 0 && (
                   <VuiBox mt={3} pt={2} sx={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
                     <VuiTypography variant="button" color="white" fontWeight="bold" sx={{ display: "block", mb: 1 }}>
                       🎂 {language === "es" ? "Próximos Cumpleaños" : "Upcoming Birthdays"}
                     </VuiTypography>
-                    {DEMO_BIRTHDAYS.map((b) => (
+                    {birthdays.map((b) => (
                       <VuiBox
                         key={b.id}
                         display="flex"

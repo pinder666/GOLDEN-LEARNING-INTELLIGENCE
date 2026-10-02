@@ -116,6 +116,23 @@ export default function App() {
     });
   };
 
+  // Auth-guarded route builder — redirects to sign-in if not logged in
+  const getPrivateRoutes = (allRoutes) => {
+    return allRoutes.map((route) => {
+      if (route.collapse) return getPrivateRoutes(route.collapse);
+      if (route.route && route.component)
+        return (
+          <Route
+            exact
+            path={route.route}
+            key={route.key}
+            element={user ? route.component : <Navigate to="/auth/sign-in" replace />}
+          />
+        );
+      return null;
+    });
+  };
+
   // Determine which routes to show in sidebar based on user role.
   // The section being viewed wins (lets any role preview parent/player views in dev);
   // otherwise fall back to the profile role.
@@ -219,14 +236,14 @@ export default function App() {
         {/* Auth routes */}
         {getRoutes(authRoutes)}
 
-        {/* Coach routes */}
-        {getRoutes(coachRoutes)}
+        {/* Coach routes — guarded */}
+        {getPrivateRoutes(coachRoutes)}
 
-        {/* Parent routes */}
-        {getRoutes(parentRoutes)}
+        {/* Parent routes — guarded */}
+        {getPrivateRoutes(parentRoutes)}
 
-        {/* Child routes */}
-        {getRoutes(childRoutes)}
+        {/* Child routes — guarded */}
+        {getPrivateRoutes(childRoutes)}
 
         {/* Catch-all redirect */}
         <Route

@@ -4,6 +4,8 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import { useAuth } from "context/AuthContext";
+import { welcomeMessage, paymentReminder, eventReminder } from "services/localAgent";
 
 const AUTOMATIONS = [
   {
@@ -107,9 +109,26 @@ const SCHED_ES = {
   "After each session": "Después de cada sesión",
 };
 
+function buildPreview(id, lang, coachName, teamName) {
+  const coach = coachName || "Coach";
+  const team = teamName || "your team";
+  if (id === "welcome-new-parent")
+    return welcomeMessage({ parent: "Alex Garcia", player: "Sofia", team, coach }, lang);
+  if (id === "payment-reminder")
+    return paymentReminder({ parent: "Alex Garcia", amount: "$79.97", what: "Monthly subscription", dueLabel: "the 1st" }, lang);
+  if (id === "birthday-messages")
+    return eventReminder({ parent: "Alex Garcia", title: "Sofia's 12th birthday", whenLabel: "today", place: "" }, lang);
+  return null;
+}
+
 function Automation() {
   const [lang, setLang] = useLang();
   const [automations, setAutomations] = useState(AUTOMATIONS);
+  const [preview, setPreview] = useState(null);
+  const { userProfile } = useAuth();
+
+  const coachName = userProfile?.first_name || userProfile?.display_name || "";
+  const teamName = userProfile?.team_name || "";
 
   const t = (en, es) => lang === "es" ? es : en;
 
@@ -117,6 +136,13 @@ function Automation() {
     setAutomations(prev => prev.map(a =>
       a.id === id ? { ...a, enabled: !a.enabled } : a
     ));
+  };
+
+  const openPreview = (auto) => {
+    const msg = buildPreview(auto.id, lang, coachName, teamName);
+    if (msg) {
+      setPreview({ title: lang === "es" ? auto.titleEs : auto.title, text: msg });
+    }
   };
 
   const enabledCount = automations.filter(a => a.enabled).length;
@@ -197,12 +223,17 @@ function Automation() {
 
               {auto.enabled && (
                 <VuiBox display="flex" gap="6px" mt={0.5}>
-                  <button style={{
-                    background: "rgba(255,255,255,.08)", border: "none", borderRadius: 6,
-                    padding: "5px 10px", color: "rgba(255,255,255,.7)", fontSize: 10,
-                    fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif",
-                  }}>
-                    {t("Configure", "Configurar")}
+                  <button
+                    onClick={() => openPreview(auto)}
+                    style={{
+                      background: buildPreview(auto.id, lang, coachName, teamName) ? "rgba(249,115,22,.15)" : "rgba(255,255,255,.08)",
+                      border: buildPreview(auto.id, lang, coachName, teamName) ? "1px solid rgba(249,115,22,.3)" : "none",
+                      borderRadius: 6, padding: "5px 10px",
+                      color: buildPreview(auto.id, lang, coachName, teamName) ? "#f97316" : "rgba(255,255,255,.7)",
+                      fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif",
+                    }}
+                  >
+                    {t("Preview Message", "Ver Mensaje")}
                   </button>
                   <button style={{
                     background: "rgba(255,255,255,.08)", border: "none", borderRadius: 6,
@@ -233,6 +264,42 @@ function Automation() {
         </VuiBox>
 
       </VuiBox>
+
+      {/* Template preview panel */}
+      {preview && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,.7)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1300,
+        }} onClick={() => setPreview(null)}>
+          <div style={{
+            background: "#1a1a2e", border: "1px solid rgba(249,115,22,.3)",
+            borderRadius: 14, padding: "24px 28px", maxWidth: 480, width: "90%",
+            boxShadow: "0 20px 60px rgba(0,0,0,.6)",
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: 15, fontFamily: "Inter,sans-serif" }}>
+                {preview.title}
+              </span>
+              <button onClick={() => setPreview(null)} style={{
+                background: "none", border: "none", color: "rgba(255,255,255,.5)",
+                fontSize: 20, cursor: "pointer", lineHeight: 1, padding: 0,
+              }}>×</button>
+            </div>
+            <div style={{
+              background: "rgba(255,255,255,.06)", borderRadius: 10,
+              padding: "14px 16px", whiteSpace: "pre-wrap",
+              color: "rgba(255,255,255,.85)", fontSize: 13, lineHeight: 1.65,
+              fontFamily: "Inter,sans-serif",
+            }}>
+              {preview.text}
+            </div>
+            <p style={{ color: "rgba(255,255,255,.35)", fontSize: 10, marginTop: 12, fontFamily: "Inter,sans-serif" }}>
+              {t("Sample message — real names + details filled at send time.", "Mensaje de muestra — nombres y datos reales se completan al enviar.")}
+            </p>
+          </div>
+        </div>
+      )}
+
     </DashboardLayout>
   );
 }
