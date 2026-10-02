@@ -27,7 +27,7 @@ import { IoMic, IoMicOff, IoClose, IoSend, IoPeople, IoPerson, IoSparkles, IoChe
 // Auth & Data
 import { useAuth } from "context/AuthContext";
 import { supabase } from "services/supabase";
-import { transcribeAudio, enhanceMessage } from "services/ai";
+import { templateMessage } from "services/localAgent";
 
 function CoachMessages() {
   const { t, i18n } = useTranslation(["common", "coach"]);
@@ -54,6 +54,7 @@ function CoachMessages() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const language = i18n.language || "en";
 
@@ -104,78 +105,60 @@ function CoachMessages() {
   };
 
   // Voice recording functions
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        stream.getTracks().forEach((track) => track.stop());
-        await processAudio(audioBlob);
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      setRecordingTime(0);
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    } catch (error) {
-      console.error("Error starting recording:", error);
-      alert(
-        language === "es"
-          ? "No se pudo acceder al micrófono"
-          : "Could not access microphone"
-      );
+  const startRecording = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert(language === "es" ? "Tu navegador no soporta reconocimiento de voz" : "Your browser doesn't support voice input");
+      return;
     }
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "es" ? "es-MX" : "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setMessageText(transcript);
+      handleEnhance(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      clearInterval(timerRef.current);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      clearInterval(timerRef.current);
+    };
+
+    recognition.start();
+    setIsRecording(true);
+    setRecordingTime(0);
+    timerRef.current = setInterval(() => {
+      setRecordingTime((prev) => prev + 1);
+    }, 1000);
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
       clearInterval(timerRef.current);
     }
   };
 
-  const processAudio = async (audioBlob) => {
-    setIsTranscribing(true);
-    try {
-      const transcription = await transcribeAudio(audioBlob);
-      if (transcription) {
-        setMessageText(transcription);
-        // Auto-enhance after transcription
-        await handleEnhance(transcription);
-      }
-    } catch (error) {
-      console.error("Error transcribing:", error);
-    } finally {
-      setIsTranscribing(false);
-    }
-  };
-
-  const handleEnhance = async (text = messageText) => {
-    if (!text.trim()) return;
-
-    setIsEnhancing(true);
-    try {
-      const enhanced = await enhanceMessage(text, language);
-      if (enhanced) {
-        setEnhancedText(enhanced);
-        setUseEnhanced(true);
-      }
-    } catch (error) {
-      console.error("Error enhancing:", error);
-    } finally {
-      setIsEnhancing(false);
-    }
+  const handleEnhance = (text = messageText) => {
+    if (!String(text).trim()) return;
+    const enhanced = templateMessage(
+      recipient?.first_name || "",
+      text,
+      coachData?.first_name || coachData?.display_name || "",
+      language
+    );
+    setEnhancedText(enhanced);
+    setUseEnhanced(true);
   };
 
   const getParentEmail = (player) => player?.parent?.user?.email || player?.parent?.email || null;

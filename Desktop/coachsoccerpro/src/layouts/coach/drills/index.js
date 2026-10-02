@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useLang } from "useLang";
 
 import VuiBox from "components/VuiBox";
@@ -158,9 +159,13 @@ export function loadCustomDrills() {
 }
 
 function CoachDrills() {
+  const [searchParams] = useSearchParams();
   const [activeCat, setActiveCat] = useState("All");
-  const [activeDrill, setActiveDrill] = useState(DRILLS[0]);
-  const [playing, setPlaying] = useState(false); // land ready — one Play press starts pitch + voice
+  const [activeDrill, setActiveDrill] = useState(() => {
+    const id = searchParams.get("drill");
+    return (id && DRILLS.find(d => d.id === id)) || DRILLS[0];
+  });
+  const [playing, setPlaying] = useState(() => !!searchParams.get("drill")); // auto-play when deep-linked
   const [speed, setSpeed] = useState(1);
   const [ageFilter, setAgeFilter] = useState("All");
   const [lang, setLang] = useLang();
@@ -383,7 +388,7 @@ function CoachDrills() {
           </VuiBox>
 
           {/* Pitch + info */}
-          <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflow:"hidden"}}>
+          <VuiBox sx={{flex:1, display:"flex", flexDirection:"column", minHeight:0, overflowY:"auto", scrollbarWidth:"thin"}}>
             {/* pitch takes ALL remaining space, scaled whole so green never clips */}
             <VuiBox sx={{flex:1, minHeight:0, borderRadius:"12px", overflow:"hidden", display:"flex"}}>
               <PitchCanvas drill={activeDrill} playing={playing} speed={speed}/>
@@ -536,8 +541,7 @@ function CoachDrills() {
               <VuiBox sx={{
                 background:"rgba(255,255,255,.05)", borderRadius:"10px",
                 padding:"12px 14px", borderLeft:`3px solid ${catColor}`,
-                flexShrink:0, maxHeight:"170px", overflowY:"auto",
-                scrollbarWidth:"none", "&::-webkit-scrollbar":{display:"none"},
+                flexShrink:0,
               }}>
                 <VuiBox display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
                   <VuiTypography variant="h6" color="white" fontWeight="bold">
