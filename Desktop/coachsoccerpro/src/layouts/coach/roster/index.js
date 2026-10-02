@@ -45,6 +45,10 @@ function CoachRoster() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'cards'
+  const [panelPlayer, setPanelPlayer] = useState(null);
+  const [smInput, setSmInput] = useState("");
+  const [smSaving, setSmSaving] = useState(false);
+  const [smSaved, setSmSaved] = useState(false);
 
   const language = i18n.language || "en";
 
@@ -108,7 +112,36 @@ function CoachRoster() {
   };
 
   const handlePlayerClick = (player) => {
-    navigate(`/coach/roster/${player.id}`);
+    setPanelPlayer(player);
+    setSmInput(player.sm_user_id || "");
+    setSmSaved(false);
+  };
+
+  const closePanel = () => {
+    setPanelPlayer(null);
+    setSmInput("");
+    setSmSaved(false);
+  };
+
+  const handleSmSave = async () => {
+    if (!panelPlayer) return;
+    const val = smInput.trim().toUpperCase();
+    setSmSaving(true);
+    try {
+      await supabase
+        .from("players")
+        .update({ sm_user_id: val || null })
+        .eq("id", panelPlayer.id);
+      setPlayers(prev => prev.map(p =>
+        p.id === panelPlayer.id ? { ...p, sm_user_id: val || null } : p
+      ));
+      setPanelPlayer(prev => ({ ...prev, sm_user_id: val || null }));
+      setSmSaved(true);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSmSaving(false);
+    }
   };
 
   const handleInviteParent = async () => {
@@ -368,6 +401,15 @@ function CoachRoster() {
                       ))}
                     </VuiBox>
 
+                    {/* SM Link indicator */}
+                    {player.sm_user_id && (
+                      <VuiBox display={{ xs: "none", sm: "flex" }} alignItems="center" gap="4px">
+                        <span style={{ fontSize: 10, background: "rgba(249,115,22,.15)", color: "#f97316", borderRadius: 20, padding: "2px 8px", fontWeight: 700, fontFamily: "Inter,sans-serif", border: "1px solid rgba(249,115,22,.3)" }}>
+                          ⚽ SM
+                        </span>
+                      </VuiBox>
+                    )}
+
                     {/* Parent Status */}
                     <VuiBox display={{ xs: "none", sm: "block" }}>
                       {player.parent?.user ? (
@@ -445,6 +487,134 @@ function CoachRoster() {
         </VuiBox>
       </VuiBox>
     </DashboardLayout>
+
+    {/* Player detail slide panel */}
+    {panelPlayer && (
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 1300,
+        display: "flex", justifyContent: "flex-end",
+      }}>
+        {/* Backdrop */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.5)" }} onClick={closePanel} />
+
+        {/* Panel */}
+        <div style={{
+          position: "relative", width: 360, maxWidth: "100vw",
+          background: "linear-gradient(135deg, #0f0c29 0%, #1a1740 100%)",
+          borderLeft: "1px solid rgba(255,255,255,.1)",
+          display: "flex", flexDirection: "column",
+          boxShadow: "-20px 0 60px rgba(0,0,0,.5)",
+          overflowY: "auto",
+        }}>
+          {/* Header */}
+          <div style={{ padding: "20px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img
+                src={panelPlayer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(panelPlayer.first_name + " " + panelPlayer.last_name)}&background=0075FF&color=fff&size=100`}
+                alt={panelPlayer.first_name}
+                style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(249,115,22,.4)" }}
+              />
+              <div>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 16, fontFamily: "Inter,sans-serif" }}>
+                  {panelPlayer.first_name} {panelPlayer.last_name}
+                  {panelPlayer.jersey_number && <span style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginLeft: 6 }}>#{panelPlayer.jersey_number}</span>}
+                </div>
+                <div style={{ color: "rgba(255,255,255,.5)", fontSize: 12, fontFamily: "Inter,sans-serif" }}>
+                  {panelPlayer.position || (language === "es" ? "Sin posición" : "No position")}
+                </div>
+              </div>
+            </div>
+            <button onClick={closePanel} style={{ background: "none", border: "none", color: "rgba(255,255,255,.5)", fontSize: 22, cursor: "pointer", padding: 0, lineHeight: 1 }}>×</button>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: "flex", gap: 0, padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,.08)" }}>
+            {[
+              { label: language === "es" ? "Puntos" : "Points", val: panelPlayer.total_points || 0 },
+              { label: language === "es" ? "Insignias" : "Badges", val: panelPlayer.badgeCount || 0 },
+              { label: language === "es" ? "Racha" : "Streak", val: panelPlayer.attendance_streak || 0 },
+            ].map((s, i) => (
+              <div key={i} style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 18, fontFamily: "Inter,sans-serif" }}>{s.val}</div>
+                <div style={{ color: "rgba(255,255,255,.4)", fontSize: 10, fontFamily: "Inter,sans-serif" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* SoccerMental ID section */}
+          <div style={{ padding: "20px", borderBottom: "1px solid rgba(255,255,255,.08)" }}>
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ color: "#f97316", fontWeight: 700, fontSize: 12, fontFamily: "Inter,sans-serif", marginBottom: 2 }}>
+                ⚽ {language === "es" ? "ID de SoccerMental" : "SoccerMental Family ID"}
+              </div>
+              <div style={{ color: "rgba(255,255,255,.4)", fontSize: 11, fontFamily: "Inter,sans-serif", lineHeight: 1.5 }}>
+                {language === "es"
+                  ? "Pide al padre que te comparta su ID de familia de SoccerMental (ej. SM-AD28F6B8)"
+                  : "Ask the parent to share their SoccerMental family ID (e.g. SM-AD28F6B8)"}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                type="text"
+                value={smInput}
+                onChange={e => { setSmInput(e.target.value.toUpperCase()); setSmSaved(false); }}
+                placeholder="SM-XXXXXXXX"
+                maxLength={20}
+                style={{
+                  flex: 1, background: "rgba(255,255,255,.08)",
+                  border: panelPlayer.sm_user_id ? "1px solid rgba(249,115,22,.4)" : "1px solid rgba(255,255,255,.15)",
+                  borderRadius: 8, padding: "8px 12px", color: "#fff", fontSize: 13,
+                  fontFamily: "monospace", outline: "none",
+                }}
+              />
+              <button
+                onClick={handleSmSave}
+                disabled={smSaving || smInput.trim() === (panelPlayer.sm_user_id || "")}
+                style={{
+                  background: smSaved ? "#22c55e" : "#f97316",
+                  border: "none", borderRadius: 8, padding: "8px 14px",
+                  color: "#000", fontWeight: 700, fontSize: 12,
+                  cursor: smSaving ? "wait" : "pointer", fontFamily: "Inter,sans-serif",
+                  opacity: smInput.trim() === (panelPlayer.sm_user_id || "") ? 0.4 : 1,
+                  transition: "background .2s",
+                }}
+              >
+                {smSaved ? (language === "es" ? "✓ Guardado" : "✓ Saved") : (smSaving ? "..." : (language === "es" ? "Guardar" : "Save"))}
+              </button>
+            </div>
+            {panelPlayer.sm_user_id && (
+              <div style={{ marginTop: 8, color: "#22c55e", fontSize: 11, fontFamily: "Inter,sans-serif" }}>
+                ✓ {language === "es" ? "Vinculado:" : "Linked:"} {panelPlayer.sm_user_id}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+            <button
+              onClick={() => { closePanel(); navigate(`/coach/roster/${panelPlayer.id}`); }}
+              style={{
+                background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.12)",
+                borderRadius: 8, padding: "10px 16px", color: "#fff",
+                fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif", textAlign: "left",
+              }}
+            >
+              {language === "es" ? "Ver perfil completo →" : "View full profile →"}
+            </button>
+            <button
+              onClick={() => { closePanel(); navigate(`/coach/messages?player=${panelPlayer.id}`); }}
+              style={{
+                background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.12)",
+                borderRadius: 8, padding: "10px 16px", color: "#fff",
+                fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif", textAlign: "left",
+              }}
+            >
+              {language === "es" ? "Enviar mensaje →" : "Send message →"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   );
 }
 
