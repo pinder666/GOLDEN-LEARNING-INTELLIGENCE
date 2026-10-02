@@ -36,9 +36,9 @@ function computeUpcomingBirthdays(playersList) {
   const today = new Date();
   const year = today.getFullYear();
   return playersList
-    .filter(p => p.birth_date)
+    .filter(p => p.date_of_birth)
     .map(p => {
-      const bd = new Date(p.birth_date);
+      const bd = new Date(p.date_of_birth);
       let next = new Date(year, bd.getMonth(), bd.getDate());
       if (next < today) next = new Date(year + 1, bd.getMonth(), bd.getDate());
       const days = Math.round((next - today) / 86400000);
