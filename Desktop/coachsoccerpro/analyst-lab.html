@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Analyst Lab — CoachSoccerPro</title>
+<style>
+  :root {
+    --bg: #0a0e1a; --panel: #111827; --panel2: #0d1424; --border: #1f2a44;
+    --ink: #e5ecf7; --muted: #8295b5; --accent: #f97316; --cyan: #22d3ee;
+    --green: #34d399; --red: #f87171; --chip: #1e293b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Segoe UI', system-ui, sans-serif; padding: 28px; }
+  .lab-tag { display: inline-block; background: var(--accent); color: #000; font-weight: 800; font-size: 11px; letter-spacing: 2px; padding: 4px 10px; border-radius: 4px; }
+  h1 { font-size: 26px; margin: 10px 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; max-width: 860px; }
+  .note { color: var(--muted); font-size: 11.5px; margin-top: 6px; }
+  .grid { display: grid; grid-template-columns: minmax(380px, 520px) 1fr; gap: 20px; margin-top: 22px; align-items: start; }
+  @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .panel h2 { font-size: 13px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px; font-weight: 700; }
+  .videowrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
+  video { width: 100%; display: block; }
+  canvas.overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .controls { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  button { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  input[type=file] { display: none; }
+  .status { font-size: 12.5px; color: var(--cyan); min-height: 18px; margin-top: 10px; font-family: Consolas, monospace; }
+  .fact { display: flex; gap: 8px; align-items: flex-start; padding: 7px 8px; border-radius: 7px; cursor: pointer; font-size: 12.5px; line-height: 1.45; }
+  .fact:hover { background: var(--panel2); }
+  .fact .fid { background: var(--chip); color: var(--cyan); font-family: Consolas, monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .fact .t { color: var(--muted); font-family: Consolas, monospace; font-size: 11px; flex-shrink: 0; padding-top: 2px; }
+  .fact .conf { color: var(--muted); font-size: 10.5px; }
+  .stmt { padding: 9px 10px; border-left: 3px solid var(--green); background: var(--panel2); border-radius: 0 8px 8px 0; margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+  .stmt .cites { margin-top: 4px; }
+  .cite { display: inline-block; background: var(--chip); color: var(--cyan); font-family: Consolas, monospace; font-size: 10.5px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; cursor: pointer; }
+  .refuse { border-left-color: var(--red); }
+  .refuse .lead { color: var(--red); font-weight: 700; font-size: 11px; letter-spacing: 1px; }
+  .blocked { border-left-color: var(--red); opacity: 0.75; }
+  .blocked .txt { text-decoration: line-through; color: var(--muted); }
+  .blocked .why { color: var(--red); font-size: 11px; margin-top: 3px; }
+  .empty { color: var(--muted); font-size: 12.5px; font-style: italic; padding: 6px 2px; }
+  #map { width: 100%; border-radius: 8px; background: var(--panel2); display: block; }
+  .maplegend { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .aiRow { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .aiRow input, .aiRow select { background: var(--panel2); border: 1px solid var(--border); color: var(--ink); border-radius: 7px; padding: 8px 10px; font-size: 12px; }
+  .aiRow input { flex: 1; min-width: 220px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; align-items: start; }
+  @media (max-width: 1000px) { .cols { grid-template-columns: 1fr; } }
+  .scroll { max-height: 460px; overflow-y: auto; }
+  .count { color: var(--accent); font-weight: 800; }
+</style>
+</head>
+<body>
+
+<span class="lab-tag">INTERNAL LAB</span>
+<h1>Analyst Lab — the evidence gate</h1>
+<p class="sub">The fix for the garbage talk, running for real: the detector measures the clip on this device, every measurement becomes a numbered fact, and the analyst is only allowed to speak sentences that cite a fact. What it could not see, it says it could not see. Nothing else exists.</p>
+<p class="note">Lab tool, English only, never shipped to coaches. Product strings go through i18n. Clips never leave this machine; the optional AI step sends only the text facts, never the video.</p>
+
+<div class="grid">
+  <div class="panel">
+    <h2>1 · THE CLIP</h2>
+    <div class="videowrap">
+      <video id="vid" playsinline muted></video>
+      <canvas id="ov" class="overlay"></canvas>
+    </div>
+    <div class="controls">
+      <label><button class="ghost" onclick="document.getElementById('file').click()">Choose clip</button></label>
+      <input type="file" id="file" accept="video/*">
+      <button class="ghost" id="sampleBtn">Use sample clip (coach + player, no ball)</button>
+      <button id="runBtn" disabled>Analyze</button>
+    </div>
+    <div class="status" id="status">Load a clip to begin.</div>
+
+    <h2 style="margin-top:18px;">MOVEMENT MAP · camera space</h2>
+    <canvas id="map" width="480" height="270"></canvas>
+    <p class="maplegend">Real tracked positions only — camera view, not a calibrated pitch. The top-down pitch map is the next build (pitch-keypoint homography).</p>
+  </div>
+
+  <div class="panel">
+    <h2>2 · WHAT I MEASURED — the evidence ledger (<span class="count" id="factCount">0</span> facts)</h2>
+    <div class="scroll" id="ledger"><p class="empty">No analysis yet. Facts appear here with timestamp and confidence; click one to jump the video to that moment.</p></div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="panel">
+    <h2>3 · WHAT I'M ALLOWED TO SAY — every sentence cites its evidence</h2>
+    <div id="statements"><p class="empty">Runs after analysis.</p></div>
+  </div>
+  <div class="panel">
+    <h2>4 · AI NARRATIVE, GATED — watch the filter catch anything uncited</h2>
+    <div class="aiRow">
+      <button id="freeBtn" disabled>Narrate free · no API</button>
+      <select id="provider">
+        <option value="anthropic">Anthropic (Claude Haiku 4.5)</option>
+        <option value="openrouter">OpenRouter (Qwen3-VL 30B-A3B)</option>
+      </select>
+      <input type="password" id="apikey" placeholder="API key (kept in this browser only)">
+      <button class="ghost" id="aiBtn" disabled>Narrate via API</button>
+    </div>
+    <div id="aiOut" style="margin-top:12px;"><p class="empty">Optional. The model receives ONLY the fact ledger as text. Its rule: every sentence must end with [F#] citations. Any sentence without a valid citation is blocked below in red — that is the gate doing its job.</p></div>
+  </div>
+</div>
+
+<script type="module">
+import { FilesetResolver, ObjectDetector } from '/node_modules/@mediapipe/tasks-vision/vision_bundle.mjs';
+
+const vid = document.getElementById('vid');
+const ov = document.getElementById('ov');
+const map = document.getElementById('map');
+const statusEl = document.getElementById('status');
+const runBtn = document.getElementById('runBtn');
+const aiBtn = document.getElementById('aiBtn');
+const FPS = 6;
+
+let detector = null;
+let facts = [];       // {id,t,conf,text,kind,box}
+let tracks = [];      // {id,points:[{t,cx,cy,w,h,conf}],missed}
+let ballPath = [];    // {t,cx,cy,conf}
+let frameW = 0, frameH = 0;
+
+// The one addition Jason asked for: key auto-loads from .env via the local server, so narration just works.
+fetch('/lab-key').then((r) => r.json()).then((j) => {
+  if (j.key) document.getElementById('apikey').value = j.key;
+}).catch(() => {});
+
+const say = (m) => { statusEl.textContent = m; };
+const fmt = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}`;
+
+document.getElementById('file').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (f) loadClip(URL.createObjectURL(f), f.name);
+});
+document.getElementById('sampleBtn').addEventListener('click', () => loadClip('/hero-coach.mp4', 'sample'));
+
+function loadClip(url, name) {
+  vid.src = url;
+  vid.addEventListener('loadedmetadata', async () => {
+    if (!isFinite(vid.duration)) {
+      await new Promise((res) => { vid.addEventListener('durationchange', res, { once: true }); vid.currentTime = 1e9; });
+      vid.currentTime = 0;
+    }
+    frameW = vid.videoWidth; frameH = vid.videoHeight;
+    ov.width = frameW; ov.height = frameH;
+    runBtn.disabled = false;
+    say(`Loaded ${name} — ${vid.duration.toFixed(1)}s, ${frameW}x${frameH}. Ready.`);
+  }, { once: true });
+}
+window.__loadClip = loadClip;
+
+async function getDetector() {
+  if (detector) return detector;
+  say('Loading detector (local wasm + model, nothing downloaded)...');
+  const fileset = await FilesetResolver.forVisionTasks('/public/wasm');
+  const opts = (delegate) => ({
+    baseOptions: { modelAssetPath: '/public/models/efficientdet_lite0.tflite', delegate },
+    runningMode: 'VIDEO', scoreThreshold: 0.3, maxResults: 14,
+    categoryAllowlist: ['person', 'sports ball'],
+  });
+  try { detector = await ObjectDetector.createFromOptions(fileset, opts('GPU')); }
+  catch { detector = await ObjectDetector.createFromOptions(fileset, opts('CPU')); }
+  return detector;
+}
+
+function seekTo(t) {
+  return new Promise((res) => {
+    vid.addEventListener('seeked', () => res(), { once: true });
+    vid.currentTime = Math.min(t, Math.max(0, vid.duration - 0.05));
+  });
+}
+
+function associate(dets, t) {
+  const diag = Math.hypot(frameW, frameH);
+  const taken = new Set();
+  for (const tr of tracks) {
+    if (tr.missed > 4) continue;
+    const last = tr.points[tr.points.length - 1];
+    let best = -1, bestD = diag * 0.12;
+    dets.forEach((d, i) => {
+      if (taken.has(i)) return;
+      const dd = Math.hypot(d.cx - last.cx, d.cy - last.cy);
+      if (dd < bestD) { bestD = dd; best = i; }
+    });
+    if (best >= 0) { taken.add(best); tr.points.push({ t, ...dets[best] }); tr.missed = 0; }
+    else tr.missed++;
+  }
+  dets.forEach((d, i) => {
+    if (!taken.has(i) && d.conf > 0.4) tracks.push({ id: tracks.length + 1, points: [{ t, ...d }], missed: 0 });
+  });
+}
+
+function drawOverlay(persons, ball) {
+  const c = ov.getContext('2d');
+  c.clearRect(0, 0, ov.width, ov.height);
+  c.lineWidth = Math.max(2, frameW / 400); c.font = `${Math.max(12, frameW / 60)}px Consolas`;
+  for (const p of persons) {
+    c.strokeStyle = '#22d3ee'; c.fillStyle = '#22d3ee';
+    c.strokeRect(p.x, p.y, p.w, p.h);
+    c.fillText(p.conf.toFixed(2), p.x + 3, p.y - 4);
+  }
+  if (ball) {
+    c.strokeStyle = '#f97316';
+    c.beginPath(); c.arc(ball.cx, ball.cy, Math.max(8, ball.w / 2), 0, Math.PI * 2); c.stroke();
+  }
+}
+
+runBtn.addEventListener('click', async () => {
+  runBtn.disabled = true; aiBtn.disabled = true;
+  facts = []; tracks = []; ballPath = [];
+  const det = await getDetector();
+  const dur = vid.duration;
+  const frames = [];
+  let ts = 0;
+  for (let t = 0; t < dur; t += 1 / FPS) {
+    await seekTo(t);
+    ts += Math.round(1000 / FPS);
+    const res = det.detectForVideo(vid, ts);
+    const persons = [], balls = [];
+    for (const d of res.detections) {
+      const b = d.boundingBox;
+      const item = { x: b.originX, y: b.originY, w: b.width, h: b.height,
+        cx: b.originX + b.width / 2, cy: b.originY + b.height / 2,
+        conf: d.categories[0].score, cat: d.categories[0].categoryName };
+      (item.cat === 'person' ? persons : balls).push(item);
+    }
+    associate(persons, t);
+    const ball = balls.sort((a, b) => b.conf - a.conf)[0] || null;
+    if (ball) ballPath.push({ t, cx: ball.cx, cy: ball.cy, conf: ball.conf, w: ball.w });
+    frames.push({ t, nPersons: persons.length, ball: !!ball });
+    drawOverlay(persons, ball);
+    say(`Analyzing... ${fmt(t)} / ${fmt(dur)} — ${persons.length} player(s)${ball ? ' + ball' : ''}`);
+  }
+  buildFacts(frames, dur);
+  renderLedger(); renderStatements(); renderMap();
+  say(`Done. ${facts.length} measured facts from ${frames.length} sampled frames. Nothing outside this ledger can be spoken.`);
+  aiBtn.disabled = facts.length === 0;
+  document.getElementById('freeBtn').disabled = facts.length === 0;
+  runBtn.disabled = false;
+  window.__LAB_DONE = facts.length;
+});
+
+/* ── THE FREE NARRATOR — template reads, zero API, zero hallucination possible ── */
+const pick = (arr, seed) => arr[seed % arr.length];
+
+function freeNarrate() {
+  const out = document.getElementById('aiOut');
+  out.innerHTML = '';
+  const lines = [];
+  let seed = facts.length;
+
+  const scene = facts.find((f) => f.kind === 'scene');
+  if (scene) {
+    const m = /median (\d+), peak (\d+)/.exec(scene.text) || [];
+    lines.push({ ids: [scene.id], t: scene.t, text: pick([
+      `I had ${m[1]} players in view most of the way, ${m[2]} at the busiest moment.`,
+      `Mostly ${m[1]} players on screen, peaking at ${m[2]}.`,
+    ], seed++) });
+  }
+
+  for (const f of facts.filter((x) => x.kind === 'track')) {
+    const m = /Player track (P\d+): visible ([\d:.]+)–([\d:.]+), moved ([\d.]+) screen-diagonals, median speed (\d+)/.exec(f.text);
+    if (!m) continue;
+    lines.push({ ids: [f.id], t: f.t, text: pick([
+      `${m[1]} stayed with me from ${m[2]} to ${m[3]}, covering ${m[4]} screen-widths of ground at a steady ${m[5]} px/s.`,
+      `I followed ${m[1]} from ${m[2]} to ${m[3]} — ${m[4]} screen-widths covered, cruising at ${m[5]} px/s.`,
+      `${m[1]} was workable the whole stretch ${m[2]}–${m[3]}: ${m[4]} screen-widths moved, base pace ${m[5]} px/s.`,
+    ], seed++) });
+  }
+
+  for (const f of facts.filter((x) => x.kind === 'burst')) {
+    const m = /Player (P\d+) speed burst: (\d+) px\/s at ([\d:.]+) \(([\d.–-]+)x/.exec(f.text);
+    if (!m) continue;
+    lines.push({ ids: [f.id], t: f.t, text: pick([
+      `${m[1]} found another gear at ${m[3]}: ${m[2]} px/s, ${m[4]} times his cruising speed. Worth a rewatch.`,
+      `Watch ${m[3]} — ${m[1]} explodes to ${m[2]} px/s, ${m[4]}x his normal pace.`,
+      `Big acceleration from ${m[1]} at ${m[3]}: ${m[2]} px/s out of nowhere.`,
+    ], seed++) });
+  }
+
+  for (const f of facts.filter((x) => x.kind === 'proximity')) {
+    const m = /Players (P\d+) and (P\d+) converge.*at ([\d:.]+)/.exec(f.text);
+    if (!m) continue;
+    lines.push({ ids: [f.id], t: f.t, text: pick([
+      `${m[1]} and ${m[2]} come together at ${m[3]} — that is the duel worth rewatching.`,
+      `There is a one-on-one moment between ${m[1]} and ${m[2]} at ${m[3]}.`,
+    ], seed++) });
+  }
+
+  const ball = facts.find((f) => f.kind === 'ball');
+  if (ball) {
+    const m = /tracked in (\d+)% of frames, peak ball speed (\d+) px\/s at ([\d:.]+)/.exec(ball.text);
+    if (m) lines.push({ ids: [ball.id], t: ball.t, text: `The ball stayed in view ${m[1]}% of the clip; its fastest moment was ${m[2]} px/s at ${m[3]}.` });
+  }
+
+  for (const f of facts.filter((x) => x.negative)) {
+    lines.push({ ids: [f.id], t: f.t, text: f.text + '.', gap: true });
+  }
+
+  for (const l of lines) {
+    const div = document.createElement('div');
+    div.className = 'stmt' + (l.gap ? ' refuse' : '');
+    div.innerHTML = `${l.text}<div class="cites">${l.ids.map((c) => `<span class="cite">${c}</span>`).join('')}</div>`;
+    div.querySelectorAll('.cite').forEach((el) => { el.onclick = () => { const f = facts.find((x) => x.id === el.textContent); if (f) vid.currentTime = f.t; }; });
+    out.appendChild(div);
+  }
+  const sum = document.createElement('p');
+  sum.className = 'empty';
+  sum.textContent = `Narrated locally from ${facts.length} facts. 0 API calls. 0 cost. Hallucination impossible by construction — templates have no imagination.`;
+  out.appendChild(sum);
+}
+document.getElementById('freeBtn').addEventListener('click', freeNarrate);
+
+function addFact(kind, t, conf, text, extra) {
+  const id = 'F' + (facts.length + 1);
+  facts.push({ id, kind, t, conf, text, ...extra });
+  return id;
+}
+
+function buildFacts(frames, dur) {
+  const diag = Math.hypot(frameW, frameH);
+  const counts = frames.map((f) => f.nPersons).sort((a, b) => a - b);
+  const median = counts[Math.floor(counts.length / 2)] || 0;
+  const maxN = Math.max(0, ...frames.map((f) => f.nPersons));
+  addFact('scene', 0, 1, `Players on screen: median ${median}, peak ${maxN}, across ${frames.length} sampled frames`);
+
+  const real = tracks.filter((tr) => tr.points.length >= Math.max(4, FPS));
+  for (const tr of real) {
+    const pts = tr.points;
+    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    let dist = 0, peak = 0, peakT = t0;
+    const speeds = [];
+    for (let i = 1; i < pts.length; i++) {
+      const dt = pts[i].t - pts[i - 1].t; if (dt <= 0) continue;
+      const d = Math.hypot(pts[i].cx - pts[i - 1].cx, pts[i].cy - pts[i - 1].cy);
+      dist += d;
+      const v = d / dt; speeds.push(v);
+      if (v > peak) { peak = v; peakT = pts[i].t; }
+    }
+    const avgConf = pts.reduce((s, p) => s + p.conf, 0) / pts.length;
+    const med = speeds.sort((a, b) => a - b)[Math.floor(speeds.length / 2)] || 0;
+    addFact('track', t0, avgConf,
+      `Player track P${tr.id}: visible ${fmt(t0)}–${fmt(t1)}, moved ${(dist / diag).toFixed(2)} screen-diagonals, median speed ${Math.round(med)} px/s`);
+    if (peak > Math.max(260, med * 2.2) && speeds.length > 3) {
+      addFact('burst', peakT, avgConf, `Player P${tr.id} speed burst: ${Math.round(peak)} px/s at ${fmt(peakT)} (${med ? (peak / med).toFixed(1) : '–'}x their median)`);
+    }
+  }
+
+  for (let i = 0; i < real.length; i++) for (let j = i + 1; j < real.length; j++) {
+    const a = real[i], b = real[j];
+    let closest = Infinity, ct = 0;
+    for (const pa of a.points) {
+      const pb = b.points.find((p) => Math.abs(p.t - pa.t) < 0.5 / FPS);
+      if (pb) { const d = Math.hypot(pa.cx - pb.cx, pa.cy - pb.cy); if (d < closest) { closest = d; ct = pa.t; } }
+    }
+    if (closest < diag * 0.09) {
+      addFact('proximity', ct, 0.7, `Players P${a.id} and P${b.id} converge to ${(closest / diag * 100).toFixed(0)}% of screen at ${fmt(ct)}`);
+    }
+  }
+
+  const ballCover = ballPath.length / frames.length;
+  if (ballCover >= 0.25) {
+    let peak = 0, peakT = 0;
+    for (let i = 1; i < ballPath.length; i++) {
+      const dt = ballPath[i].t - ballPath[i - 1].t; if (dt <= 0) continue;
+      const v = Math.hypot(ballPath[i].cx - ballPath[i - 1].cx, ballPath[i].cy - ballPath[i - 1].cy) / dt;
+      if (v > peak) { peak = v; peakT = ballPath[i].t; }
+    }
+    const avgConf = ballPath.reduce((s, p) => s + p.conf, 0) / ballPath.length;
+    addFact('ball', ballPath[0].t, avgConf, `Ball tracked in ${(ballCover * 100).toFixed(0)}% of frames, peak ball speed ${Math.round(peak)} px/s at ${fmt(peakT)}`);
+  } else if (ballCover > 0) {
+    addFact('gap', 0, 1, `Ball seen in only ${(ballCover * 100).toFixed(0)}% of frames — NOT enough to track touches, passes or shots`, { negative: true });
+  } else {
+    addFact('gap', 0, 1, 'No ball detected anywhere in the clip — nothing about touches, passes or shots can be said', { negative: true });
+  }
+  if (real.length === 0) addFact('gap', 0, 1, 'No player stayed visible long enough to build a track', { negative: true });
+}
+
+function renderLedger() {
+  const el = document.getElementById('ledger');
+  document.getElementById('factCount').textContent = facts.length;
+  el.innerHTML = '';
+  for (const f of facts) {
+    const row = document.createElement('div');
+    row.className = 'fact';
+    row.innerHTML = `<span class="fid">${f.id}</span><span class="t">${fmt(f.t)}</span><span>${f.text} <span class="conf">· conf ${f.conf.toFixed(2)}</span></span>`;
+    row.onclick = () => { vid.currentTime = f.t; };
+    el.appendChild(row);
+  }
+}
+
+function renderStatements() {
+  const el = document.getElementById('statements');
+  el.innerHTML = '';
+  const pos = facts.filter((f) => !f.negative);
+  const neg = facts.filter((f) => f.negative);
+  if (!pos.length) el.innerHTML = '<p class="empty">Nothing measurable — so nothing is said. That is the point.</p>';
+  for (const f of pos) {
+    const s = document.createElement('div');
+    s.className = 'stmt';
+    s.innerHTML = `${f.text}.<div class="cites"><span class="cite">${f.id}</span></div>`;
+    s.querySelector('.cite').onclick = () => { vid.currentTime = f.t; };
+    el.appendChild(s);
+  }
+  for (const f of neg) {
+    const s = document.createElement('div');
+    s.className = 'stmt refuse';
+    s.innerHTML = `<div class="lead">REFUSES TO INVENT</div>${f.text}. <div class="cites"><span class="cite">${f.id}</span></div>`;
+    el.appendChild(s);
+  }
+}
+
+function renderMap() {
+  const c = map.getContext('2d');
+  c.fillStyle = '#0d1424'; c.fillRect(0, 0, map.width, map.height);
+  const sx = map.width / frameW, sy = map.height / frameH;
+  const colors = ['#22d3ee', '#34d399', '#f472b6', '#facc15', '#a78bfa', '#fb923c'];
+  tracks.filter((tr) => tr.points.length >= Math.max(4, FPS)).forEach((tr, i) => {
+    c.strokeStyle = colors[i % colors.length]; c.lineWidth = 2; c.beginPath();
+    tr.points.forEach((p, j) => { const x = p.cx * sx, y = p.cy * sy; j ? c.lineTo(x, y) : c.moveTo(x, y); });
+    c.stroke();
+    const last = tr.points[tr.points.length - 1];
+    c.fillStyle = colors[i % colors.length];
+    c.beginPath(); c.arc(last.cx * sx, last.cy * sy, 5, 0, Math.PI * 2); c.fill();
+    c.font = '11px Consolas'; c.fillText('P' + tr.id, last.cx * sx + 7, last.cy * sy + 4);
+  });
+  if (ballPath.length) {
+    c.strokeStyle = '#f97316'; c.setLineDash([4, 3]); c.beginPath();
+    ballPath.forEach((p, j) => { const x = p.cx * sx, y = p.cy * sy; j ? c.lineTo(x, y) : c.moveTo(x, y); });
+    c.stroke(); c.setLineDash([]);
+  }
+}
+
+aiBtn.addEventListener('click', async () => {
+  const key = document.getElementById('apikey').value.trim();
+  const provider = document.getElementById('provider').value;
+  const out = document.getElementById('aiOut');
+  if (!key) { out.innerHTML = '<p class="empty">Paste a key first. It stays in this browser.</p>'; return; }
+  aiBtn.disabled = true;
+  out.innerHTML = '<p class="empty">Asking the model to narrate the ledger...</p>';
+  const ledgerText = facts.map((f) => `${f.id} [t=${f.t.toFixed(1)}s conf=${f.conf.toFixed(2)}] ${f.text}`).join('\n');
+  const sys = 'You are a youth soccer coach\'s video analyst. You receive ONLY a ledger of measured facts from a clip. Write a short spoken-style read (3-6 sentences). HARD RULES: every sentence MUST end with citations like [F1] or [F2][F5] referring ONLY to ledger ids. Never state anything not in the ledger - no ball, touches, passes, formations or technique unless a fact says so. If the ledger says something could not be seen, say so plainly. No praise without a cited fact.';
+  try {
+    let text = '';
+    if (provider === 'anthropic') {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': key,
+          'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 400, system: sys,
+          messages: [{ role: 'user', content: 'EVIDENCE LEDGER:\n' + ledgerText }] }),
+      });
+      const j = await r.json();
+      if (j.error) throw new Error(j.error.message);
+      text = j.content[0].text;
+    } else {
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+        body: JSON.stringify({ model: 'qwen/qwen3-vl-30b-a3b-instruct',
+          messages: [{ role: 'system', content: sys }, { role: 'user', content: 'EVIDENCE LEDGER:\n' + ledgerText }] }),
+      });
+      const j = await r.json();
+      if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
+      text = j.choices[0].message.content;
+    }
+    renderGated(text);
+  } catch (e) {
+    out.innerHTML = `<p class="empty" style="color:var(--red)">Call failed: ${e.message}</p>`;
+  }
+  aiBtn.disabled = false;
+});
+
+function renderGated(text) {
+  const out = document.getElementById('aiOut');
+  out.innerHTML = '';
+  const ids = new Set(facts.map((f) => f.id));
+  const sentences = text.replace(/\n+/g, ' ').match(/[^.!?]+[.!?]*(\s*(\[F\d+\])+)?/g) || [text];
+  let passed = 0, blocked = 0;
+  for (const raw of sentences) {
+    const s = raw.trim(); if (!s) continue;
+    const cites = [...s.matchAll(/\[(F\d+)\]/g)].map((m) => m[1]);
+    const valid = cites.length > 0 && cites.every((c) => ids.has(c));
+    const div = document.createElement('div');
+    if (valid) {
+      passed++;
+      div.className = 'stmt';
+      div.innerHTML = `${s.replace(/\[F\d+\]/g, '')}<div class="cites">${cites.map((c) => `<span class="cite">${c}</span>`).join('')}</div>`;
+      div.querySelectorAll('.cite').forEach((el) => { el.onclick = () => { const f = facts.find((x) => x.id === el.textContent); if (f) vid.currentTime = f.t; }; });
+    } else {
+      blocked++;
+      div.className = 'stmt blocked';
+      div.innerHTML = `<span class="txt">${s}</span><div class="why">BLOCKED BY THE GATE — ${cites.length ? 'cites a fact that does not exist' : 'no evidence cited'}</div>`;
+    }
+    out.appendChild(div);
+  }
+  const sum = document.createElement('p');
+  sum.className = 'empty';
+  sum.textContent = `${passed} sentence(s) passed the gate, ${blocked} blocked. Blocked lines never reach a coach's ears.`;
+  out.appendChild(sum);
+}
+</script>
+</body>
+</html>

@@ -37,9 +37,9 @@ A mentorship platform disguised as a youth soccer app. The soccer is the hook. T
 
 | Tier | Price | Features |
 |------|-------|----------|
-| Coach | $79/month | Voice-to-AI messaging, roster, calendar, payments, badges, parent dashboard |
-| White Label | $149/month | Everything + custom logo, colors, no platform branding |
-| Payment Processing | 1.5% | On all parent transactions via Stripe Connect |
+| Coach | $79.97/month | Voice-to-AI messaging, roster, calendar, payments, badges, parent dashboard |
+| White Label | $149/month | Everything + custom logo, colors · Powered by SoccerMental |
+| Dues | Reminder-only | Coach's own payment link + mark-paid; CSP never processes family money |
 
 ## Quick Start
 

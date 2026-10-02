@@ -3,7 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoachSoccerPro</title>
+  <title>CoachSoccerPro | The Coaching Cockpit for Youth Soccer</title>
+  <meta name="description" content="Roster, calendar, parent messaging, badges, drills, tactics and AI video analysis in one place, in English and Spanish. Built only for soccer. The coach is the most trusted adult outside of family in a young player's life. We give coaches the tools and the time.">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#f97316">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CoachSoccerPro">
+  <meta property="og:title" content="CoachSoccerPro | The Coaching Cockpit for Youth Soccer">
+  <meta property="og:description" content="Every tool a coach can buy, side by side. Roster, messaging in every family's language, badges, drills, tactics, AI video analysis and a mental performance program in every player's home. Only soccer.">
+  <meta property="og:url" content="https://coachsoccerpro.com/">
+  <meta property="og:image" content="https://coachsoccerpro.com/hero-poster.jpg">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="es_MX">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CoachSoccerPro | The Coaching Cockpit for Youth Soccer">
+  <meta name="twitter:description" content="Every tool a coach can buy, side by side. Count the checks.">
+  <meta name="twitter:image" content="https://coachsoccerpro.com/hero-poster.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://coachsoccerpro.com/#org",
+        "name": "CoachSoccerPro",
+        "url": "https://coachsoccerpro.com/",
+        "logo": "https://coachsoccerpro.com/nav-logo.png",
+        "parentOrganization": { "@type": "Organization", "name": "SoccerMental LLC", "url": "https://soccermental.com/" },
+        "contactPoint": { "@type": "ContactPoint", "email": "coach@soccermental.com", "contactType": "sales", "availableLanguage": ["English", "Spanish"] }
+      },
+      {
+        "@type": "WebSite",
+        "url": "https://coachsoccerpro.com/",
+        "name": "CoachSoccerPro",
+        "publisher": { "@id": "https://coachsoccerpro.com/#org" },
+        "inLanguage": ["en", "es"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "CoachSoccerPro",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Web",
+        "description": "The coaching cockpit for youth soccer: roster, calendar, parent messaging in each family's language, badges, drill library, tactics board and AI video analysis. English and Spanish.",
+        "offers": { "@type": "Offer", "price": "79.97", "priceCurrency": "USD" }
+      }
+    ]
+  }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -539,6 +589,8 @@
       padding: 36px;
       text-align: center;
       transition: transform 0.3s, border-color 0.3s;
+      display: flex;
+      flex-direction: column;
     }
     .pricing-card.featured { border-color: var(--accent); }
     .pricing-card:hover { transform: translateY(-4px); }
@@ -546,7 +598,8 @@
     .pricing-price { font-size: 48px; font-weight: 900; margin-bottom: 6px; }
     .pricing-price span { font-size: 16px; font-weight: 500; color: var(--text-muted); }
     .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
-    .pricing-features { list-style: none; text-align: left; margin-bottom: 28px; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 28px; flex-grow: 1; }
+    .pricing-note { font-size: 12.5px; color: var(--text-muted); font-style: italic; margin-bottom: 24px; }
     .pricing-features li { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; }
     .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
     .pricing-cta {
@@ -732,6 +785,24 @@
       .sm-strip .sm-points { grid-template-columns: 1fr; text-align: left; }
     }
 
+    /* CONTACT MODAL */
+    .cm-overlay { display: none; position: fixed; inset: 0; background: rgba(8,11,22,0.65); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+    .cm-overlay.open { display: flex; }
+    .cm-card { background: #ffffff; border-radius: 18px; max-width: 460px; width: 100%; padding: 30px 28px; box-shadow: 0 40px 80px rgba(8,11,22,0.4); }
+    .cm-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+    .cm-card .cm-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px; }
+    .cm-card label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 5px; }
+    .cm-card input, .cm-card textarea { width: 100%; border: 1px solid var(--card-border); border-radius: 10px; padding: 11px 12px; font-size: 14.5px; font-family: inherit; color: var(--text); background: #fbfcfe; outline: none; }
+    .cm-card input:focus, .cm-card textarea:focus { border-color: var(--accent); }
+    .cm-actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }
+    .cm-send { background: var(--accent); color: #000; font-weight: 800; border: none; border-radius: 999px; padding: 12px 28px; font-size: 14.5px; cursor: pointer; font-family: inherit; }
+    .cm-send:disabled { opacity: 0.6; cursor: default; }
+    .cm-close { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; font-family: inherit; }
+    .cm-done { display: none; text-align: center; padding: 30px 10px; }
+    .cm-done .big { font-size: 40px; margin-bottom: 10px; }
+    .cm-done p { font-size: 15px; color: var(--text); font-weight: 600; }
+    .cm-err { display: none; font-size: 13px; color: #dc2626; margin-top: 10px; }
+
     /* FOOTER GRID */
     .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 760px; margin: 0 auto 40px; text-align: center; }
     .footer-grid h4 { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
@@ -812,7 +883,7 @@
         <span class="es">Solo que no tienen ni las herramientas ni el tiempo. <strong>Nosotros les damos las dos cosas.</strong></span>
       </p>
       <div class="hero-ctas">
-        <a href="mailto:coach@soccermental.com?subject=CoachSoccerPro%20Access" class="btn-primary">
+        <a href="#" onclick="return openContact('CoachSoccerPro Access Request')" class="btn-primary">
           <span class="en">Request Access →</span>
           <span class="es">Solicitar Acceso →</span>
         </a>
@@ -830,7 +901,7 @@
       <!-- SIDEBAR WITH ALL MENU ITEMS -->
       <div class="de-sidebar">
         <div class="de-logo">
-          <img src="coachsoccerpro-logo.png" alt="CoachSoccerPro">
+          <img src="nav-logo.png" alt="CoachSoccerPro">
         </div>
         <ul class="de-menu">
           <li class="de-menu-item active"><span class="de-menu-icon">🏠</span><span class="en">Dashboard</span><span class="es">Inicio</span></li>
@@ -1558,7 +1629,7 @@
   <div class="sm-strip" id="soccermental">
     <div class="sm-strip-inner">
       <div class="sm-strip-logo">
-        <img src="soccermental-badge.png" alt="SoccerMental">
+        <img src="sm-badge-small.png" alt="SoccerMental">
       </div>
       <div class="sm-strip-body">
         <p class="sm-lead">
@@ -1665,7 +1736,7 @@
         <span class="es">Un programa completo de rendimiento mental bajo tu escudo. Tus jugadas, tus ejercicios, tu nombre: en la casa de cada jugador, todos los días. La tecnología que usan las academias profesionales, y que los clubes a tu alrededor no tienen. Y la retención llega sola: un jugador que es visto, medido y mejora no se va. Y sus padres tampoco.</span>
       </p>
       <div style="margin-top: 28px;">
-        <a href="mailto:coach@soccermental.com?subject=White%20Label" class="btn-primary">
+        <a href="#" onclick="return openContact('White Label Inquiry')" class="btn-primary">
           <span class="en">Talk to us →</span>
           <span class="es">Hablemos →</span>
         </a>
@@ -1714,8 +1785,8 @@
           <li class="en">Unlimited players</li>
           <li class="es">Jugadores ilimitados</li>
         </ul>
-        <button class="pricing-cta primary en" onclick="location.href='mailto:coach@soccermental.com?subject=CoachSoccerPro%20Access'">Request Access</button>
-        <button class="pricing-cta primary es" onclick="location.href='mailto:coach@soccermental.com?subject=CoachSoccerPro%20Acceso'">Solicitar Acceso</button>
+        <button class="pricing-cta primary en" onclick="openContact('CoachSoccerPro Access Request')">Request Access</button>
+        <button class="pricing-cta primary es" onclick="openContact('CoachSoccerPro Access Request')">Solicitar Acceso</button>
       </div>
       <div class="pricing-card">
         <div class="pricing-label en">WHITE LABEL</div>
@@ -1724,15 +1795,23 @@
         <p class="pricing-desc en">Your badge on the door. Your colors on the walls.</p>
         <p class="pricing-desc es">Tu escudo en la puerta. Tus colores en las paredes.</p>
         <ul class="pricing-features">
-          <li class="en">Everything in Coach</li>
-          <li class="es">Todo en Entrenador</li>
-          <li class="en">Your logo & team colors</li>
-          <li class="es">Tu logo y colores de equipo</li>
+          <li class="en">Everything in the Coach plan</li>
+          <li class="es">Todo lo del plan Entrenador</li>
+          <li class="en">Your logo on every screen your parents open</li>
+          <li class="es">Tu logo en cada pantalla que abren los padres</li>
+          <li class="en">Your club colors through the whole cockpit</li>
+          <li class="es">Los colores de tu club en toda la cabina</li>
           <li class="en">Your academy's name across the platform</li>
-          <li class="es">El nombre de tu academia en la plataforma</li>
+          <li class="es">El nombre de tu academia en toda la plataforma</li>
+          <li class="en">Set up with you, team by team, on a call</li>
+          <li class="es">Lo configuramos contigo, equipo por equipo, en una llamada</li>
+          <li class="en">Your brand up front · Powered by SoccerMental</li>
+          <li class="es">Tu marca al frente · Impulsado por SoccerMental</li>
         </ul>
-        <button class="pricing-cta secondary en" onclick="location.href='mailto:coach@soccermental.com?subject=White%20Label'">Contact Sales</button>
-        <button class="pricing-cta secondary es" onclick="location.href='mailto:coach@soccermental.com?subject=Marca%20Blanca'">Contactar Ventas</button>
+        <p class="pricing-note en">For the academy that wants its families walking into its own platform, not somebody else's.</p>
+        <p class="pricing-note es">Para la academia que quiere que sus familias entren a su propia plataforma, no a la de alguien más.</p>
+        <button class="pricing-cta secondary en" onclick="openContact('White Label Inquiry')">Contact Sales</button>
+        <button class="pricing-cta secondary es" onclick="openContact('White Label Inquiry')">Contactar Ventas</button>
       </div>
     </div>
   </section>
@@ -1805,7 +1884,7 @@
       <span class="en">Built by a coach. In English and Spanish from day one.</span>
       <span class="es">Creado por un entrenador. En español y en inglés desde el primer día.</span>
     </p>
-    <a href="mailto:coach@soccermental.com?subject=CoachSoccerPro%20Access" class="btn-primary">
+    <a href="#" onclick="return openContact('CoachSoccerPro Access Request')" class="btn-primary">
       <span class="en">Request Access →</span>
       <span class="es">Solicitar Acceso →</span>
     </a>
@@ -1823,7 +1902,7 @@
       <div>
         <h4><span class="en">Company</span><span class="es">Compañía</span></h4>
         <a href="about.html"><span class="en">About</span><span class="es">Nosotros</span></a>
-        <a href="mailto:coach@soccermental.com?subject=CoachSoccerPro"><span class="en">Contact</span><span class="es">Contacto</span></a>
+        <a href="#" onclick="return openContact()"><span class="en">Contact</span><span class="es">Contacto</span></a>
       </div>
       <div>
         <h4>Legal</h4>
@@ -1844,6 +1923,40 @@
   </footer>
 
   <script>
+    
+    function openContact(subj) {
+      document.getElementById('cmSubject').value = subj || 'CoachSoccerPro Contact';
+      document.getElementById('contactModal').classList.add('open');
+      return false;
+    }
+    function closeContact() { document.getElementById('contactModal').classList.remove('open'); }
+    async function sendContact(e) {
+      e.preventDefault();
+      const f = document.getElementById('contactForm');
+      const btn = document.getElementById('cmSend');
+      btn.disabled = true;
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: '868c9412-eda4-44fb-8a0d-8c5fc9b93c6d',
+            subject: document.getElementById('cmSubject').value || 'CoachSoccerPro Contact',
+            from_name: 'CoachSoccerPro Landing',
+            name: f.name.value, email: f.email.value, message: f.message.value
+          })
+        });
+        const out = await res.json();
+        if (out.success) {
+          document.getElementById('cmForm').style.display = 'none';
+          document.getElementById('cmDone').style.display = 'block';
+        } else { throw new Error('send failed'); }
+      } catch (err) {
+        document.getElementById('cmErr').style.display = 'block';
+        btn.disabled = false;
+      }
+      return false;
+    }
     function setLang(lang) {
       document.body.classList.remove('lang-en', 'lang-es');
       document.body.classList.add('lang-' + lang);
@@ -1856,6 +1969,34 @@
     const savedLang = localStorage.getItem('csp-lang') || 'en';
     if (savedLang === 'es') setLang('es');
   </script>
+
+  <!-- CONTACT MODAL -->
+  <div class="cm-overlay" id="contactModal" onclick="if(event.target===this)closeContact()">
+    <div class="cm-card">
+      <div id="cmForm">
+        <h3><span class="en">Talk to us</span><span class="es">Habla con nosotros</span></h3>
+        <p class="cm-sub"><span class="en">A person replies, usually the same day.</span><span class="es">Te responde una persona, normalmente el mismo día.</span></p>
+        <form id="contactForm" onsubmit="return sendContact(event)">
+          <input type="hidden" id="cmSubject" value="CoachSoccerPro Contact">
+          <label><span class="en">Your name</span><span class="es">Tu nombre</span></label>
+          <input type="text" name="name" required maxlength="120">
+          <label><span class="en">Email</span><span class="es">Correo</span></label>
+          <input type="email" name="email" required maxlength="200">
+          <label><span class="en">What do you need?</span><span class="es">¿Qué necesitas?</span></label>
+          <textarea name="message" rows="4" required maxlength="3000"></textarea>
+          <div class="cm-actions">
+            <button type="submit" class="cm-send" id="cmSend"><span class="en">Send →</span><span class="es">Enviar →</span></button>
+            <button type="button" class="cm-close" onclick="closeContact()"><span class="en">Cancel</span><span class="es">Cancelar</span></button>
+          </div>
+          <p class="cm-err" id="cmErr"><span class="en">Could not send. Email us at coach@soccermental.com</span><span class="es">No se pudo enviar. Escríbenos a coach@soccermental.com</span></p>
+        </form>
+      </div>
+      <div class="cm-done" id="cmDone">
+        <div class="big">✅</div>
+        <p><span class="en">Got it. We will be in touch.</span><span class="es">Recibido. Te contactaremos.</span></p>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

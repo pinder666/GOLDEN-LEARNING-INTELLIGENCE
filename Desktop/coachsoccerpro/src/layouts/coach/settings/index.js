@@ -442,7 +442,7 @@ function CoachSettings() {
                         Standard
                       </VuiTypography>
                       <VuiTypography variant="h4" color="info" mb={2}>
-                        $79<VuiTypography component="span" variant="caption" color="text">/mo</VuiTypography>
+                        $79.97<VuiTypography component="span" variant="caption" color="text">/mo</VuiTypography>
                       </VuiTypography>
                       <VuiTypography variant="body2" color="text" mb={2}>
                         {language === "es"
@@ -484,8 +484,8 @@ function CoachSettings() {
                       </VuiTypography>
                       <VuiTypography variant="body2" color="text" mb={2}>
                         {language === "es"
-                          ? "• Todo lo del plan Standard\n• Tu propio logo\n• Colores personalizados\n• Sin marca CoachSoccerPro"
-                          : "• Everything in Standard\n• Your own logo\n• Custom colors\n• No CoachSoccerPro branding"}
+                          ? "• Todo lo del plan Standard\n• Tu propio logo\n• Colores personalizados\n• Tu marca · Impulsado por SoccerMental"
+                          : "• Everything in Standard\n• Your own logo\n• Custom colors\n• Your brand · Powered by SoccerMental"}
                       </VuiTypography>
                       {subscriptionPlan === "white_label" ? (
                         <VuiButton color="success" fullWidth disabled>

@@ -25,9 +25,9 @@ The coach is the most trusted adult outside of family in that child's life. Most
 
 ## Pricing
 
-- Coach: $79/month
-- White Label: $149/month (custom logo, colors, no platform branding)
-- Payment Processing: 1.5% on all parent transactions
+- Coach: $79.97/month (printed price; never print "free", discounts, or trial language)
+- White Label: $149/month (coach's logo and colors on the shell; SoccerMental imprint stays on all outputs)
+- Dues: reminder-not-money — Mia nudges, coach's own payment link, coach taps mark-paid. CSP never touches family money. Subscriptions billed by SoccerMental.
 
 ## Working Directory
 

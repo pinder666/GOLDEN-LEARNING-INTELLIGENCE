@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ · CoachSoccerPro</title>
+  <meta name="description" content="Answers about CoachSoccerPro, the coaching cockpit for youth soccer: parent messaging, rosters, dues reminders, White Label, and how it works with SoccerMental.">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#f97316">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f8fafc; --accent: #f97316; --text: #0f172a; --muted: rgba(15,23,42,0.65); --border: rgba(15,23,42,0.12); --card-border: rgba(15,23,42,0.12); }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc, #eef2f8); color: var(--text); line-height: 1.7; }
+    .es { display: none !important; }
+    body.lang-es .en { display: none !important; }
+    body.lang-es .es { display: inline !important; }
+    body.lang-es .es-block, body.lang-es h1.es, body.lang-es h2.es, body.lang-es p.es, body.lang-es li.es { display: block !important; }
+    body.lang-es li.es { display: list-item !important; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+    .top a.back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .top a.back:hover { color: var(--text); }
+    .lang-toggle { display: flex; background: rgba(15,23,42,0.08); border-radius: 20px; padding: 3px; }
+    .lang-btn { padding: 6px 14px; border: none; background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 17px; font-family: inherit; }
+    .lang-btn.active { background: var(--accent); color: #000; }
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 6px; }
+    .sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+    details { background: #ffffff; border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+    details[open] { border-color: rgba(249,115,22,0.4); }
+    summary { list-style: none; cursor: pointer; padding: 18px 20px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    summary::-webkit-details-marker { display: none; }
+    summary .chev { color: var(--accent); font-weight: 800; transition: transform .2s; flex-shrink: 0; }
+    details[open] summary .chev { transform: rotate(45deg); }
+    .answer { padding: 0 20px 18px; }
+    .answer p { font-size: 15px; color: var(--muted); margin-bottom: 10px; }
+    strong { color: var(--text); }
+    a { color: var(--accent); }
+    .cta { text-align: center; margin-top: 44px; }
+    .cta p { color: var(--muted); margin-bottom: 16px; }
+    .btn-primary { display: inline-block; background: var(--accent); color: #000; font-weight: 800; text-decoration: none; padding: 14px 34px; border-radius: 999px; font-size: 15px; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .fine { margin-top: 40px; font-size: 12px; color: rgba(15,23,42,0.45); text-align: center; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type": "Question", "name": "What is CoachSoccerPro?", "acceptedAnswer": {"@type": "Answer", "text": "CoachSoccerPro is a coaching cockpit for youth soccer. Roster, calendar, attendance, parent messaging, development records, badges, dues reminders, drills, tactics and session planning live in one place, in English and Spanish. It replaces the five apps and the group chat."}},
+      {"@type": "Question", "name": "How does the voice message work?", "acceptedAnswer": {"@type": "Answer", "text": "Walk off the pitch, hold the mic and say what happened. Mia, the built-in assistant, turns it into a clear, warm message to every parent, in each family's language. You approve it before anything is sent."}},
+      {"@type": "Question", "name": "How do parents join?", "acceptedAnswer": {"@type": "Answer", "text": "You add players to your roster and each family receives an invite link. Parents see the schedule, your messages, and their own child's progress. They only ever see their own child."}},
+      {"@type": "Question", "name": "Do children log in?", "acceptedAnswer": {"@type": "Answer", "text": "Never. Children have no accounts on CoachSoccerPro, and the platform has no coach-to-child messaging, by design. Everything flows coach to parent."}},
+      {"@type": "Question", "name": "Does CoachSoccerPro collect club dues?", "acceptedAnswer": {"@type": "Answer", "text": "No. Dues get chased, just not by you. CoachSoccerPro sends the reminders; families pay you directly through whatever method you already use, and you mark it received. The money never touches us."}},
+      {"@type": "Question", "name": "What does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "The Coach plan is $79.97 a month and includes everything. White Label is $149 a month. Cancel any time. The price never rises on an existing subscriber: the rate you join at is the rate you keep."}},
+      {"@type": "Question", "name": "What is White Label?", "acceptedAnswer": {"@type": "Answer", "text": "Your badge on the door. Your club's crest, colors and name on everything parents see, with the same engine underneath. It is built for clubs and academies that want the platform to be theirs."}},
+      {"@type": "Question", "name": "Does it work in Spanish?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. English and Spanish from day one, written natively in both. Each family receives messages in their own language, whichever language you speak into the mic."}},
+      {"@type": "Question", "name": "What is SoccerMental?", "acceptedAnswer": {"@type": "Answer", "text": "SoccerMental is our sister platform, and it is where the mental side of the game gets trained: what a player sees, how fast they decide, how calm they stay. Coaches connect with their players through it and never see a child's private data. CoachSoccerPro is wholly owned by SoccerMental LLC."}},
+      {"@type": "Question", "name": "Who owns my team's data?", "acceptedAnswer": {"@type": "Answer", "text": "You own what you create: your roster, your notes, your media. Nothing is sold and nothing is used for advertising. Photos and videos of a player require that player's parental consent."}},
+      {"@type": "Question", "name": "How do I get access?", "acceptedAnswer": {"@type": "Answer", "text": "Request access and we set you up personally: your roster imported, your families invited, your first message sent before the call ends. Email coach@soccermental.com."}}
+    ]
+  }
+  </script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="landing-page.html"><span class="en">&larr; CoachSoccerPro</span><span class="es">&larr; CoachSoccerPro</span></a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+  </div>
+
+  <h1 class="en">Questions coaches ask</h1>
+  <h1 class="es es-block">Preguntas que hacen los entrenadores</h1>
+  <p class="sub"><span class="en">Straight answers. If yours is not here, email us and a person replies.</span><span class="es">Respuestas directas. Si la tuya no está aquí, escríbenos y te responde una persona.</span></p>
+
+  <details open>
+    <summary><span class="en">What is CoachSoccerPro?</span><span class="es">¿Qué es CoachSoccerPro?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">A coaching cockpit for youth soccer. Roster, calendar, attendance, parent messaging, development records, badges, dues reminders, drills, tactics and session planning live in one place, in English and Spanish. It replaces the five apps and the group chat.</p>
+      <p class="es es-block">Una cabina de mando para el fútbol juvenil. Plantilla, calendario, asistencia, mensajes a las familias, registros de desarrollo, insignias, recordatorios de cuotas, ejercicios, táctica y planificación de sesiones viven en un solo lugar, en español y en inglés. Reemplaza las cinco aplicaciones y el chat de grupo.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">How does the voice message work?</span><span class="es">¿Cómo funciona el mensaje de voz?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">Walk off the pitch, hold the mic and say what happened. Mia, the built-in assistant, turns it into a clear, warm message to every parent, in each family's language. You approve it before anything is sent.</p>
+      <p class="es es-block">Sales de la cancha, mantienes presionado el micrófono y dices lo que pasó. Mia, la asistente integrada, lo convierte en un mensaje claro y cálido para cada familia, en su idioma. Tú lo apruebas antes de que se envíe nada.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">How do parents join?</span><span class="es">¿Cómo entran las familias?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">You add players to your roster and each family receives an invite link. Parents see the schedule, your messages, and their own child's progress. They only ever see their own child.</p>
+      <p class="es es-block">Agregas jugadores a tu plantilla y cada familia recibe un enlace de invitación. Los padres ven el calendario, tus mensajes y el progreso de su propio hijo. Solo ven a su propio hijo, nunca a otro.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">Do children log in?</span><span class="es">¿Los niños inician sesión?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">Never. Children have no accounts on CoachSoccerPro, and the platform has no coach-to-child messaging, by design. Everything flows coach to parent.</p>
+      <p class="es es-block">Nunca. Los niños no tienen cuentas en CoachSoccerPro, y la plataforma no permite mensajes directos de entrenador a niño, por diseño. Todo fluye de entrenador a familia.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">Does CoachSoccerPro collect club dues?</span><span class="es">¿CoachSoccerPro cobra las cuotas del club?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">No. Dues get chased, just not by you. CoachSoccerPro sends the reminders; families pay you directly through whatever method you already use, and you mark it received. The money never touches us.</p>
+      <p class="es es-block">No. Las cuotas se cobran, pero ya no las persigues tú. CoachSoccerPro envía los recordatorios; las familias te pagan directamente por el medio que ya usas, y tú lo marcas como recibido. El dinero nunca pasa por nosotros.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">What does it cost?</span><span class="es">¿Cuánto cuesta?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">The Coach plan is <strong>$79.97 a month</strong> and includes everything. White Label is <strong>$149 a month</strong>. Cancel any time. The price never rises on an existing subscriber: the rate you join at is the rate you keep.</p>
+      <p class="es es-block">El plan Entrenador cuesta <strong>$79.97 al mes</strong> e incluye todo. Marca Blanca cuesta <strong>$149 al mes</strong>. Cancela cuando quieras. El precio nunca sube para un suscriptor existente: la tarifa con la que entras es la tarifa que conservas.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">What is White Label?</span><span class="es">¿Qué es Marca Blanca?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">Your badge on the door. Your club's crest, colors and name on everything parents see, with the same engine underneath. It is built for clubs and academies that want the platform to be theirs.</p>
+      <p class="es es-block">Tu escudo en la puerta. El escudo, los colores y el nombre de tu club en todo lo que ven las familias, con el mismo motor por dentro. Está hecho para clubes y academias que quieren que la plataforma sea suya.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">Does it work in Spanish?</span><span class="es">¿Funciona en español?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">Yes. English and Spanish from day one, written natively in both. Each family receives messages in their own language, whichever language you speak into the mic.</p>
+      <p class="es es-block">Sí. Español e inglés desde el primer día, escritos de forma nativa en ambos. Cada familia recibe los mensajes en su propio idioma, sin importar en qué idioma hables al micrófono.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">What is SoccerMental?</span><span class="es">¿Qué es SoccerMental?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">SoccerMental is our sister platform, and it is where the mental side of the game gets trained: what a player sees, how fast they decide, how calm they stay. Coaches connect with their players through it and never see a child's private data. CoachSoccerPro is wholly owned by SoccerMental LLC. The full story is on our <a href="about.html">About page</a>.</p>
+      <p class="es es-block">SoccerMental es nuestra plataforma hermana, y es donde se entrena el lado mental del juego: qué ve un jugador, qué tan rápido decide, qué tan tranquilo se mantiene. Los entrenadores se conectan con sus jugadores a través de ella y nunca ven los datos privados de un niño. CoachSoccerPro es propiedad exclusiva de SoccerMental LLC. La historia completa está en nuestra página <a href="about.html">Nosotros</a>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">Who owns my team's data?</span><span class="es">¿Quién es dueño de los datos de mi equipo?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">You own what you create: your roster, your notes, your media. Nothing is sold and nothing is used for advertising. Photos and videos of a player require that player's parental consent. Full detail in the <a href="privacy.html">Privacy Policy</a>.</p>
+      <p class="es es-block">Eres dueño de lo que creas: tu plantilla, tus notas, tus fotos y videos. Nada se vende y nada se usa para publicidad. Las fotos y videos de un jugador requieren el consentimiento de su familia. El detalle completo está en la <a href="privacy.html">Política de Privacidad</a>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="en">How do I get access?</span><span class="es">¿Cómo consigo acceso?</span><span class="chev">+</span></summary>
+    <div class="answer">
+      <p class="en">Request access and we set you up personally: your roster imported, your families invited, your first message sent before the call ends.</p>
+      <p class="es es-block">Solicita acceso y te instalamos personalmente: tu plantilla importada, tus familias invitadas, tu primer mensaje enviado antes de que termine la llamada.</p>
+    </div>
+  </details>
+
+  <div class="cta">
+    <p><span class="en">Did not find your answer? A person replies.</span><span class="es">¿No encontraste tu respuesta? Te responde una persona.</span></p>
+    <a href="mailto:coach@soccermental.com?subject=CoachSoccerPro%20Question" class="btn-primary"><span class="en">Ask us →</span><span class="es">Pregúntanos →</span></a>
+  </div>
+
+    <div style="margin-top: 50px; padding-top: 24px; border-top: 1px solid rgba(15,23,42,0.12); text-align: center; font-size: 14px;">
+    <a href="landing-page.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Home</span><span class="es">Inicio</span></a>
+    <a href="landing-page.html#features" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Features</span><span class="es">Funciones</span></a>
+    <a href="landing-page.html#pricing" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Pricing</span><span class="es">Precios</span></a>
+    <a href="about.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">About</span><span class="es">Nosotros</span></a>
+    <a href="faq.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">FAQ</span><span class="es">Preguntas</span></a>
+    <a href="terms.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Terms</span><span class="es">Términos</span></a>
+    <a href="privacy.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Privacy</span><span class="es">Privacidad</span></a>
+  </div>
+  <p class="fine"><span class="en">CoachSoccerPro is wholly owned by SoccerMental LLC.</span><span class="es">CoachSoccerPro es propiedad exclusiva de SoccerMental LLC.</span></p>
+</div>
+<script>
+  function setLang(lang) {
+    document.body.classList.remove('lang-en', 'lang-es');
+    document.body.classList.add('lang-' + lang);
+    document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.textContent === lang.toUpperCase()); });
+    localStorage.setItem('csp-lang', lang);
+  }
+  if ((localStorage.getItem('csp-lang') || 'en') === 'es') setLang('es');
+</script>
+</body>
+</html>

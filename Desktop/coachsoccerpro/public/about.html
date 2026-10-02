@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About · CoachSoccerPro</title>
+  <meta name="description" content="The story of CoachSoccerPro: built by a coach, and the place where SoccerMental began.">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#f97316">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f8fafc; --accent: #f97316; --text: #0f172a; --muted: rgba(15,23,42,0.65); --border: rgba(15,23,42,0.12); }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc, #eef2f8); color: var(--text); line-height: 1.7; }
+    .es { display: none !important; }
+    body.lang-es .en { display: none !important; }
+    body.lang-es .es { display: inline !important; }
+    body.lang-es .es-block, body.lang-es h1.es, body.lang-es h2.es, body.lang-es p.es, body.lang-es li.es { display: block !important; }
+    body.lang-es li.es { display: list-item !important; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+    .top a.back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .top a.back:hover { color: var(--text); }
+    .lang-toggle { display: flex; background: rgba(15,23,42,0.08); border-radius: 20px; padding: 3px; }
+    .lang-btn { padding: 6px 14px; border: none; background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; border-radius: 17px; font-family: inherit; }
+    .lang-btn.active { background: var(--accent); color: #000; }
+    .kicker { color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+    h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 800; line-height: 1.15; margin-bottom: 28px; }
+    p.story { font-size: 17px; color: var(--muted); margin-bottom: 20px; }
+    p.story strong { color: var(--text); }
+    .pull { border-left: 3px solid var(--accent); padding: 4px 0 4px 20px; margin: 34px 0; }
+    .pull p { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.5; }
+    .creed { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.3); border-radius: 16px; padding: 28px; margin: 40px 0; }
+    .creed p { font-size: 16px; color: var(--text); font-weight: 600; line-height: 1.7; }
+    .cta { text-align: center; margin-top: 48px; }
+    .btn-primary { display: inline-block; background: var(--accent); color: #000; font-weight: 800; text-decoration: none; padding: 14px 34px; border-radius: 999px; font-size: 15px; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .fine { margin-top: 40px; font-size: 12px; color: rgba(15,23,42,0.45); text-align: center; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="landing-page.html"><span class="en">&larr; CoachSoccerPro</span><span class="es">&larr; CoachSoccerPro</span></a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+  </div>
+
+  <div class="kicker"><span class="en">Our story</span><span class="es">Nuestra historia</span></div>
+  <h1 class="en">This is where SoccerMental began.</h1>
+  <h1 class="es es-block">Aquí empezó SoccerMental.</h1>
+
+  <p class="story en">CoachSoccerPro started as one coach's fix for his own evenings. The texts at 11pm. The dues chased through a group chat. The five apps that each did one thing. We set out to build a cockpit so one person could run a whole team without losing their week to admin.</p>
+  <p class="story es es-block">CoachSoccerPro nació como la solución de un entrenador para sus propias noches. Los mensajes a las 11 de la noche. Las cuotas perseguidas por el chat de grupo. Las cinco aplicaciones que hacían una sola cosa cada una. Nos propusimos construir una cabina de mando para que una sola persona pudiera dirigir un equipo entero sin perder la semana en administración.</p>
+
+  <img src="hero-poster.jpg" alt="A coach buried in paperwork late at night while his players train outside" style="width: 100%; height: auto; border-radius: 14px; margin: 10px 0 30px; display: block;">
+
+
+  <p class="story en">Then, while building it, the real gap showed itself. The missing layer in youth football is not admin. <strong>It is the mental side of the game:</strong> what a player sees, how fast they decide, how calm they stay when it matters. Every coach knows it is what separates players. Almost no coach has the time or the tools to train it.</p>
+  <p class="story es es-block">Y mientras lo construíamos, apareció el verdadero hueco. La capa que falta en el fútbol juvenil no es la administración. <strong>Es el lado mental del juego:</strong> qué ve un jugador, qué tan rápido decide, qué tan tranquilo se mantiene cuando importa. Todo entrenador sabe que eso es lo que separa a los jugadores. Casi ningún entrenador tiene el tiempo ni las herramientas para entrenarlo.</p>
+
+  <div class="pull">
+    <p class="en">That realisation became SoccerMental.</p>
+    <p class="es es-block">Esa revelación se convirtió en SoccerMental.</p>
+  </div>
+
+  <p class="story en">SoccerMental trains the football mind at home and measures what grows. CoachSoccerPro gives the coach their evenings back and makes every child feel seen. One builds the team. The other builds the player. Coaches connect with their players through SoccerMental and never see a child's private data.</p>
+  <p class="story es es-block">SoccerMental entrena la mente futbolera en casa y mide lo que crece. CoachSoccerPro le devuelve sus noches al entrenador y hace que cada niño se sienta visto. Una construye el equipo. La otra construye al jugador. Los entrenadores se conectan con sus jugadores a través de SoccerMental y nunca ven los datos privados de un niño.</p>
+
+  <div class="creed">
+    <p class="en">We believe the coach is the most trusted adult in a child's sporting life outside the family. Most coaches want to be mentors. They do not have the tools or the time. We built both.</p>
+    <p class="es es-block">Creemos que el entrenador es el adulto de mayor confianza en la vida deportiva de un niño fuera de la familia. La mayoría de los entrenadores quieren ser mentores. No tienen las herramientas ni el tiempo. Nosotros construimos ambas.</p>
+  </div>
+
+  <p class="story en">Built by a coach. In English and Spanish from day one.</p>
+  <p class="story es es-block">Creado por un entrenador. En español y en inglés desde el primer día.</p>
+
+  <div class="cta">
+    <a href="mailto:coach@soccermental.com?subject=CoachSoccerPro%20Access" class="btn-primary"><span class="en">Request Access →</span><span class="es">Solicitar Acceso →</span></a>
+  </div>
+
+    <div style="margin-top: 50px; padding-top: 24px; border-top: 1px solid rgba(15,23,42,0.12); text-align: center; font-size: 14px;">
+    <a href="landing-page.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Home</span><span class="es">Inicio</span></a>
+    <a href="landing-page.html#features" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Features</span><span class="es">Funciones</span></a>
+    <a href="landing-page.html#pricing" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Pricing</span><span class="es">Precios</span></a>
+    <a href="about.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">About</span><span class="es">Nosotros</span></a>
+    <a href="faq.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">FAQ</span><span class="es">Preguntas</span></a>
+    <a href="terms.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Terms</span><span class="es">Términos</span></a>
+    <a href="privacy.html" style="color: inherit; text-decoration: none; margin: 0 10px;"><span class="en">Privacy</span><span class="es">Privacidad</span></a>
+  </div>
+  <p class="fine"><span class="en">CoachSoccerPro is wholly owned by SoccerMental LLC.</span><span class="es">CoachSoccerPro es propiedad exclusiva de SoccerMental LLC.</span></p>
+</div>
+<script>
+  function setLang(lang) {
+    document.body.classList.remove('lang-en', 'lang-es');
+    document.body.classList.add('lang-' + lang);
+    document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.textContent === lang.toUpperCase()); });
+    localStorage.setItem('csp-lang', lang);
+  }
+  if ((localStorage.getItem('csp-lang') || 'en') === 'es') setLang('es');
+</script>
+</body>
+</html>
